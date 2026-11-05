@@ -1,0 +1,22 @@
+{
+  "name": "gear-gossip-guild",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "@iconify/vue": "^5.0.5",
+    "@nuxtjs/color-mode": "^4.1.0",
+    "@nuxtjs/tailwindcss": "^6.14.0",
+    "@vueuse/nuxt": "^15.0.0",
+    "gsap": "^3.15.1",
+    "nuxt": "^4.6.4",
+    "vue": "^3.5.44",
+    "vue-router": "^5.4.0"
+  }
+}

@@ -1,0 +1,234 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@1,700;1,800&family=Geist:wght@400..800&family=JetBrains+Mono:wght@500;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* Tema claro: azul-marinho da logo como cor primária */
+  :root {
+    --gear-bg: #f4f6f9;
+    --gear-sidebar: #ffffff;
+    --gear-card: #ffffff;
+    --gear-surface: #2037540d;
+    --gear-border: #20375424;
+    --gear-primary: #203754;
+    --gear-primary-hover: #16273d;
+    --gear-on-primary: #ffffff;
+    --gear-accent: #fe8e04;
+    --gear-gold: #b45309;
+    --gear-warn: #c2410c;
+    --gear-green: #15803d;
+    --gear-red: #dc2626;
+    --gear-muted: #55667d;
+    --gear-text: #203754;
+    --gear-text-secondary: #3f5270;
+    --gear-glow-a: #2037540f;
+    --gear-glow-b: #fe8e040d;
+    --neon-color: #fe8e04;
+    --neon: #fe8e0480;
+    --neon-soft: #fe8e0433;
+    --neon-word: #d97400;
+    --card-shadow: 0 1px 2px #20375414, 0 4px 14px #2037540d;
+  }
+
+  /* Tema escuro: laranja da logo como cor primária */
+  .dark {
+    --gear-bg: #000000;
+    --gear-sidebar: #0a0a0a;
+    --gear-card: #0f1829;
+    --gear-surface: #ffffff0f;
+    --gear-border: #ffffff14;
+    --gear-primary: #fe8e04;
+    --gear-primary-hover: #e57f03;
+    --gear-on-primary: #000000;
+    --gear-accent: #fe8e04;
+    --gear-gold: #fbbf24;
+    --gear-warn: #fb923c;
+    --gear-green: #4ade80;
+    --gear-red: #f87171;
+    --gear-muted: #e5e5e58c;
+    --gear-text: #ffffff;
+    --gear-text-secondary: #ffffffb3;
+    --gear-glow-a: #20375473;
+    --gear-glow-b: #fe8e040d;
+    --neon-color: #fe8e04;
+    --neon: #fe8e04cc;
+    --neon-soft: #fe8e0433;
+    --neon-word: #fe8e04;
+    --card-shadow: none;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply text-gear-text antialiased;
+    background:
+      radial-gradient(1200px 600px at 80% -10%, var(--gear-glow-a), transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, var(--gear-glow-b), transparent 60%),
+      var(--gear-bg);
+    background-attachment: fixed;
+  }
+
+  * {
+    @apply border-gear-border;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--gear-accent);
+    outline-offset: 2px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gear-border rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-gear-muted;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-gear-primary hover:bg-gear-primary-hover text-gear-on-primary font-medium px-4 py-2 rounded-lg transition-colors duration-200 text-sm;
+  }
+
+  .btn-ghost {
+    @apply text-gear-text-secondary hover:text-gear-text hover:bg-gear-surface px-3 py-1.5 rounded-lg transition-colors duration-200 text-sm;
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 border border-gear-text/30 text-gear-text font-medium px-4 py-2 rounded-lg transition-colors duration-200 text-sm hover:border-gear-primary hover:text-gear-primary;
+  }
+
+  .field-input {
+    @apply w-full bg-gear-surface border border-gear-border rounded-xl px-4 py-2.5 text-base sm:text-sm text-gear-text placeholder-gear-muted transition-colors;
+  }
+
+  .form-label {
+    @apply editorial-eyebrow block mb-2;
+  }
+
+  .btn-publish {
+    @apply inline-flex items-center justify-center gap-2 bg-gear-primary hover:bg-gear-primary-hover text-gear-on-primary font-bold uppercase tracking-wider text-xs px-5 py-3 rounded-xl transition-colors duration-200;
+  }
+
+  .btn-cancel {
+    @apply text-sm font-medium text-gear-muted hover:text-gear-text transition-colors;
+  }
+
+  .field-input option {
+    @apply bg-gear-card text-gear-text;
+  }
+
+  .field-error {
+    @apply border-gear-red;
+  }
+
+  .glass-card {
+    @apply bg-gear-card border border-gear-border rounded-2xl transition-colors duration-200;
+    box-shadow: var(--card-shadow);
+  }
+
+  .card {
+    @apply glass-card p-5;
+  }
+
+  .badge {
+    @apply text-xs font-medium px-2 py-0.5 rounded-full;
+  }
+
+  .score-chip {
+    @apply font-mono font-semibold text-sm;
+  }
+
+  .editorial-eyebrow {
+    @apply font-mono text-gear-muted font-bold uppercase;
+    font-size: 0.625rem;
+    letter-spacing: 0.18em;
+  }
+
+  /* --glow é animado pelo GSAP para o brilho "respirar" */
+  .neon-text {
+    color: var(--neon-word);
+    --glow: 5;
+    text-shadow:
+      0 0 calc(var(--glow) * 1px) var(--neon-soft),
+      0 0 calc(var(--glow) * 2.5px) var(--neon-soft);
+  }
+
+  .neon-stroke {
+    stroke: var(--neon-color);
+  }
+
+  .neon-stroke-soft {
+    stroke: color-mix(in srgb, var(--neon-color) 70%, transparent);
+  }
+
+  .neon-fill {
+    fill: color-mix(in srgb, var(--neon-color) 25%, transparent);
+  }
+
+  .neon-dot {
+    fill: var(--neon-color);
+  }
+
+  .neon-bar {
+    background-color: var(--neon-color);
+  }
+
+  .neon-line {
+    filter: drop-shadow(0 0 3px var(--neon)) drop-shadow(0 0 10px var(--neon-soft));
+  }
+
+  .neon-ring {
+    --glow: 8;
+    box-shadow:
+      0 0 calc(var(--glow) * 1px) var(--neon),
+      0 0 calc(var(--glow) * 2.5px) var(--neon-soft);
+  }
+
+  .neon-hover {
+    @apply transition-[border-color,box-shadow] duration-300;
+  }
+
+  .neon-hover:hover {
+    border-color: color-mix(in srgb, var(--neon-color) 55%, transparent);
+    box-shadow: var(--card-shadow), 0 0 22px var(--neon-soft);
+  }
+
+  .pill {
+    @apply shrink-0 px-3.5 py-2 sm:py-1.5 text-xs font-medium rounded-full border whitespace-nowrap transition-colors duration-200;
+  }
+
+  .pill-active {
+    @apply border-gear-primary bg-gear-primary/10 text-gear-primary;
+  }
+
+  .pill-idle {
+    @apply border-gear-border text-gear-muted hover:text-gear-text;
+  }
+}
+
+/* Oculto até o GSAP assumir; a animação é só uma reserva caso o JS não rode */
+.reveal {
+  opacity: 0;
+  animation: reveal-fallback 0.01s 3s forwards;
+}
+
+@keyframes reveal-fallback {
+  to {
+    opacity: 1;
+  }
+}
