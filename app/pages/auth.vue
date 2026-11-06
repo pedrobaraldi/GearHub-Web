@@ -14,18 +14,24 @@
     </aside>
 
     <!-- Formulário -->
-    <main class="flex flex-col p-6 sm:p-8">
-      <div class="flex items-center justify-between gap-4">
-        <BackButton />
-        <AppLogo class="lg:hidden" height-class="h-6" />
+    <!-- Em telas baixas, o formulário abre espaço para o Voltar não encostar no título -->
+    <main class="relative flex flex-col p-6 sm:p-8 lg:py-3" :class="{ 'lg:[@media(max-height:780px)]:pl-36': isRegister }">
+      <div class="flex items-center gap-4 lg:absolute lg:top-6 lg:left-8">
+        <!-- O Voltar só existe no cadastro e leva de volta ao login -->
+        <button v-if="isRegister" type="button" class="btn-outline" @click="toggleMode">
+          <AppIcon name="arrow-left" class="w-4 h-4" />
+          Voltar
+        </button>
+        <AppLogo class="ml-auto lg:hidden" height-class="h-6" />
       </div>
 
-      <div class="flex-1 flex items-center justify-center py-8">
-        <div class="reveal w-full max-w-sm" v-reveal>
-          <p class="editorial-eyebrow mb-3">{{ isRegister ? 'Cadastro' : 'Acessar' }}</p>
-          <h2 class="text-3xl font-semibold tracking-tight mb-8">{{ isRegister ? 'Crie sua conta' : 'Bem-vindo de volta' }}</h2>
+      <div class="flex-1 flex items-center justify-center py-6 lg:py-2">
+        <div class="reveal w-full" :class="isRegister ? 'max-w-lg' : 'max-w-sm'" v-reveal>
+          <p class="editorial-eyebrow mb-1.5">{{ isRegister ? 'Cadastro' : 'Acessar' }}</p>
+          <h2 class="text-3xl font-semibold tracking-tight mb-4">{{ isRegister ? 'Crie sua conta' : 'Bem-vindo de volta' }}</h2>
 
-          <button type="button" class="btn-outline w-full !py-2.5" :disabled="redirecting" @click="continueWith(loginWithGoogle)">
+          <div class="grid gap-3" :class="{ 'sm:grid-cols-2': isRegister }">
+            <button type="button" class="btn-outline w-full !py-2.5" :disabled="redirecting" @click="continueWith(loginWithGoogle)">
             <svg class="w-4 h-4" viewBox="0 0 24 24" aria-hidden="true">
               <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5a5.5 5.5 0 0 1-2.4 3.6v3h3.9c2.2-2.1 3.5-5.1 3.5-8.8z" />
               <path fill="#34A853" d="M12 24c3.2 0 6-1.1 8-2.9l-3.9-3c-1.1.7-2.5 1.2-4.1 1.2-3.1 0-5.8-2.1-6.7-5H1.3v3.1A12 12 0 0 0 12 24z" />
@@ -35,21 +41,22 @@
             Continuar com Google
           </button>
 
-          <button type="button" class="btn-outline w-full !py-2.5 mt-3" :disabled="redirecting" @click="continueWith(loginWithDiscord)">
+          <button type="button" class="btn-outline w-full !py-2.5" :disabled="redirecting" @click="continueWith(loginWithDiscord)">
             <svg class="w-4 h-4 text-[#5865F2]" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M20.3 4.4A19.800 19.800 0 0 0 15.400 3l-.2.5a18 18 0 0 0-6.400 0L8.600 3a19.800 19.800 0 0 0-4.900 1.400C.6 9 -.2 13.500.2 18c2 1.500 4 2.400 6 3l1.300-2a12.900 12.900 0 0 1-2-.9l.5-.4a14.200 14.200 0 0 0 12 0l.5.4c-.6.4-1.300.7-2 .9l1.300 2c2-.6 4-1.500 6-3 .5-5.200-.8-9.600-3.500-13.600zM8 15.300c-1.200 0-2.100-1.100-2.100-2.400S6.800 10.500 8 10.500s2.200 1.100 2.100 2.400c0 1.300-.9 2.400-2.100 2.400zm8 0c-1.200 0-2.100-1.100-2.100-2.400s.9-2.400 2.100-2.400 2.200 1.100 2.100 2.400c0 1.300-.9 2.400-2.100 2.400z" />
             </svg>
             Continuar com Discord
           </button>
+          </div>
 
-          <div class="flex items-center gap-3 my-5" aria-hidden="true">
+          <div class="flex items-center gap-3 my-3" aria-hidden="true">
             <span class="flex-1 h-px bg-gear-border" />
             <span class="text-[10px] uppercase tracking-widest text-gear-muted">ou</span>
             <span class="flex-1 h-px bg-gear-border" />
           </div>
 
-          <form class="space-y-4" novalidate @submit.prevent="submit">
-            <template v-if="isRegister">
+          <form class="space-y-3" novalidate @submit.prevent="submit">
+            <div v-if="isRegister" class="grid sm:grid-cols-2 gap-3 items-start">
               <FormField id="displayName" v-model="form.displayName" label="Nome" autocomplete="name" :error="fields.displayName" />
               <FormField
                 id="username"
@@ -60,33 +67,20 @@
                 :error="fields.username"
                 @update:model-value="setUsername"
               />
-            </template>
+            </div>
 
             <FormField id="email" v-model="form.email" label="E-mail" type="email" autocomplete="email" :error="fields.email" />
-            <FormField
-              id="password"
-              v-model="form.password"
-              label="Senha"
-              type="password"
-              :autocomplete="isRegister ? 'new-password' : 'current-password'"
-              :error="fields.password"
-            />
-
-            <template v-if="isRegister">
-              <!-- Só orienta enquanto digita; quem valida e dá o erro é a API -->
-              <ul class="grid grid-cols-2 gap-x-3 gap-y-1" aria-label="Requisitos da senha">
-                <li
-                  v-for="rule in passwordRules"
-                  :key="rule.label"
-                  class="flex items-center gap-1.5 text-xs transition-colors"
-                  :class="rule.met ? 'text-gear-green' : 'text-gear-muted'"
-                >
-                  <AppIcon :name="rule.met ? 'check' : 'circle'" class="w-3.5 h-3.5 shrink-0" />
-                  {{ rule.label }}
-                </li>
-              </ul>
-
+            <div class="grid gap-3 items-start" :class="{ 'sm:grid-cols-2': isRegister }">
               <FormField
+                id="password"
+                v-model="form.password"
+                label="Senha"
+                type="password"
+                :autocomplete="isRegister ? 'new-password' : 'current-password'"
+                :error="fields.password"
+              />
+              <FormField
+                v-if="isRegister"
                 id="passwordConfirmation"
                 v-model="form.passwordConfirmation"
                 label="Confirmar senha"
@@ -94,7 +88,12 @@
                 autocomplete="new-password"
                 :error="fields.passwordConfirmation || fields.passwordConfirmed"
               />
-            </template>
+            </div>
+
+            <PasswordRules v-if="isRegister" :password="form.password" />
+            <p v-else class="text-right">
+              <NuxtLink to="/recuperar-senha" class="text-xs font-medium text-gear-primary hover:underline underline-offset-2">Esqueceu a senha?</NuxtLink>
+            </p>
 
             <TurnstileWidget ref="turnstile" v-model="turnstileToken" />
 
@@ -103,7 +102,7 @@
             </button>
           </form>
 
-          <p class="text-sm text-gear-muted text-center mt-6">
+          <p class="text-sm text-gear-muted text-center mt-3">
             {{ isRegister ? 'Já tem uma conta?' : 'Novo na GearHub?' }}
             <button type="button" data-mode-switch class="font-semibold text-gear-primary hover:underline underline-offset-2" @click="toggleMode">
               {{ isRegister ? 'Entrar' : 'Criar conta' }}
@@ -170,16 +169,6 @@ const fields = ref<Record<string, string>>({})
 const sending = ref(false)
 const turnstile = ref<{ reset: () => void } | null>(null)
 const turnstileToken = ref('')
-
-const passwordRules = computed(() => {
-  const { password } = form
-  return [
-    { label: '8 caracteres', met: password.length >= 8 },
-    { label: 'Letra maiúscula', met: /\p{Lu}/u.test(password) },
-    { label: 'Número', met: /\d/.test(password) },
-    { label: 'Caractere especial', met: /[^\p{L}\p{N}\s]/u.test(password) },
-  ]
-})
 
 function toggleMode() {
   mode.value = isRegister.value ? 'login' : 'register'
