@@ -1,8 +1,10 @@
 <template>
   <div>
-    <PageHeader title="Top" accent="Rankings." subtitle="Os melhores produtos avaliados pela comunidade." />
+    <PageHeader root title="Top" accent="Rankings." subtitle="Os melhores produtos avaliados pela comunidade." />
 
     <div class="reveal max-w-6xl mx-auto px-4 sm:px-6 lg:px-10 py-6 lg:py-8" v-reveal>
+
+    <SearchBar v-model="search" class="mb-4" placeholder="Buscar produto ou marca..." />
 
     <!-- Category filter -->
     <div class="mb-6">
@@ -38,7 +40,7 @@
           <!-- Product info -->
           <div class="flex items-center gap-3 min-w-0">
             <div class="w-10 h-10 rounded-lg overflow-hidden bg-gear-surface shrink-0 border border-gear-border">
-              <img
+              <img loading="lazy"
                 v-if="product.image"
                 :src="product.image"
                 :alt="product.name"
@@ -70,7 +72,7 @@
       </TransitionGroup>
 
       <div v-if="filteredProducts.length === 0" class="py-12 text-center">
-        <p class="text-gear-muted text-sm">Nenhum produto nessa categoria ainda.</p>
+        <p class="text-gear-muted text-sm">{{ search.trim() ? 'Nenhum produto encontrado.' : 'Nenhum produto avaliado nessa categoria ainda.' }}</p>
       </div>
     </div>
     </div>
@@ -79,15 +81,20 @@
 
 <script setup lang="ts">
 import type { Category } from '~/composables/useGearData'
-import { useMockProducts } from '~/composables/useGearData'
+import { productPath } from '~/composables/useGearData'
 
 useHead({ title: 'Rankings · GearHub' })
 
 const activeCategory = ref<Category>('Todos')
-const allProducts = useMockProducts()
+const search = ref('')
+const { products } = await useCatalog()
 
 const filteredProducts = computed(() =>
-  allProducts.filter(p => activeCategory.value === 'Todos' || p.category === activeCategory.value)
+  ranked(products.value)
+    .filter(p => activeCategory.value === 'Todos' || p.category === activeCategory.value)
+    .map((p, index) => ({ ...p, rank: index + 1 }))
+    // A busca não muda a posição do produto no ranking
+    .filter(p => `${p.brand} ${p.name}`.toLowerCase().includes(search.value.trim().toLowerCase())),
 )
 
 function rankColor(rank: number) {

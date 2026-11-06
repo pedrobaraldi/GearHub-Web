@@ -1,12 +1,18 @@
 <template>
   <Teleport to="body">
-    <div v-if="open" class="fixed inset-0 z-[65] grid place-items-center p-4 overflow-y-auto" role="dialog" aria-modal="true" :aria-labelledby="titleId">
-      <div data-backdrop class="fixed inset-0 bg-black/70" @click="$emit('close')" />
-      <div ref="panel" class="relative w-full bg-gear-sidebar border border-gear-border rounded-2xl p-6 sm:p-7" :class="widthClass">
+    <div v-if="open" class="fixed inset-0 z-[65] flex items-end sm:items-center justify-center sm:p-4" role="dialog" aria-modal="true" :aria-labelledby="titleId">
+      <div data-backdrop class="absolute inset-0 bg-black/70" @click="$emit('close')" />
+      <!-- No celular é uma folha que sobe da borda inferior -->
+      <div
+        ref="panel"
+        class="relative w-full max-h-[90dvh] sm:max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain bg-gear-sidebar border border-gear-border rounded-t-3xl sm:rounded-2xl px-5 pt-3 pb-[calc(1.5rem+env(safe-area-inset-bottom))] sm:p-7"
+        :class="widthClass"
+      >
+        <span class="sm:hidden block w-10 h-1 rounded-full bg-gear-text/20 mx-auto mb-4" aria-hidden="true" />
         <button
           ref="closeButton"
           type="button"
-          class="absolute top-4 right-4 w-8 h-8 grid place-items-center rounded-full border border-gear-accent/50 text-gear-text-secondary hover:text-gear-text transition-colors"
+          class="absolute top-4 right-3 sm:right-4 w-10 h-10 sm:w-8 sm:h-8 grid place-items-center rounded-full border border-gear-accent/50 text-gear-text-secondary hover:text-gear-text transition-colors"
           aria-label="Fechar"
           @click="$emit('close')"
         >
@@ -45,9 +51,12 @@ function onKey(event: KeyboardEvent) {
 watch(() => props.open, async (open) => {
   if (!open) {
     window.removeEventListener('keydown', onKey)
+    document.body.style.overflow = ''
     return
   }
   window.addEventListener('keydown', onKey)
+  // A página de trás não rola junto
+  document.body.style.overflow = 'hidden'
   await nextTick()
   closeButton.value?.focus()
   gsap.fromTo(panel.value, { autoAlpha: 0, y: 16, scale: 0.96 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.35, ease: 'power3.out' })
@@ -58,6 +67,8 @@ watch(() => props.open, async (open) => {
 })
 
 onBeforeUnmount(() => {
-  if (import.meta.client) window.removeEventListener('keydown', onKey)
+  if (!import.meta.client) return
+  window.removeEventListener('keydown', onKey)
+  if (props.open) document.body.style.overflow = ''
 })
 </script>

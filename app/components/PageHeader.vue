@@ -3,10 +3,10 @@
     <NeonLines v-if="lines" class="hidden sm:block" />
 
     <div
-      class="relative px-4 sm:px-6 lg:px-10"
+      class="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-10"
       :class="lines ? 'pt-6 sm:pt-10 lg:pt-14 pb-5 sm:pb-10 lg:pb-14' : 'pt-5 lg:pt-6 pb-5 lg:pb-6'"
     >
-      <BackButton v-if="back" class="mb-4" />
+      <BackButton v-if="back" class="mb-4" :class="{ 'hidden lg:inline-flex': root }" />
 
       <div class="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3 sm:gap-4">
         <div class="min-w-0">
@@ -32,7 +32,9 @@ withDefaults(defineProps<{
   subtitle?: string
   back?: boolean
   lines?: boolean
-}>(), { back: true, lines: false })
+  /** Tela da navegação principal: no celular, a barra inferior já leva a ela */
+  root?: boolean
+}>(), { back: true, lines: false, root: false })
 
 const root = ref<HTMLElement | null>(null)
 

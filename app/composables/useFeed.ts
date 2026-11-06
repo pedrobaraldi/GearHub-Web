@@ -44,7 +44,8 @@ export function toUser(author: FeedAuthor): User {
     name: author.displayName,
     username: author.username,
     avatar: author.avatarUrl ?? '',
-    badge: author.pro ? 'ExploradorPro' : author.rankName as User['badge'],
+    badge: author.rankName as User['badge'],
+    pro: author.pro,
     level: author.level,
   }
 }

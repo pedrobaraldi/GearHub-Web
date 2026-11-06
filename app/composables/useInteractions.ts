@@ -10,6 +10,8 @@ export interface CommentItem {
   likeCount: number
   likedByMe: boolean
   mine: boolean
+  parentId: string | null
+  replyTo: string | null
 }
 
 const pathOf = (kind: ContentKind, id: string) => `/api/v1/${kind === 'post' ? 'posts' : 'reviews'}/${id}`
@@ -49,8 +51,8 @@ export function useInteractions() {
       run(() => $fetch(pathOf(kind, id), { method: 'DELETE' }).then(() => true)),
     loadComments: (kind: ContentKind, id: string) =>
       run(() => $fetch<CommentItem[]>(`${pathOf(kind, id)}/comments`)),
-    addComment: (kind: ContentKind, id: string, body: string) =>
-      $fetch<{ id: string }>(`${pathOf(kind, id)}/comments`, { method: 'POST', body: { body } }),
+    addComment: (kind: ContentKind, id: string, body: string, parentId?: string) =>
+      $fetch<{ id: string }>(`${pathOf(kind, id)}/comments`, { method: 'POST', body: { body, parentId } }),
     deleteComment: (id: string) =>
       run(() => $fetch(`/api/v1/comments/${id}`, { method: 'DELETE' }).then(() => true)),
     setCommentLike: (id: string, liked: boolean) =>

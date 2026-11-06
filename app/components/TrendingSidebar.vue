@@ -80,13 +80,14 @@
 <script setup lang="ts">
 import gsap from 'gsap'
 import type { Category } from '~/composables/useGearData'
-import { CATEGORIES, productPath, useMockProducts } from '~/composables/useGearData'
+import { productPath } from '~/composables/useGearData'
 
 defineProps<{ category: Category }>()
 defineEmits<{ 'update:category': [v: Category] }>()
 
-const trendingProducts = useMockProducts().slice(0, 5)
-const categories = CATEGORIES.filter(c => c !== 'Todos')
+const { products, categories: available } = await useCatalog()
+const trendingProducts = computed(() => ranked(products.value).slice(0, 5))
+const categories = computed(() => available.value.map(category => category.name))
 
 // Em cookie para a página já abrir no estado certo, como no menu esquerdo
 const collapsed = useCookie<boolean>('gearhub-rail-collapsed', {

@@ -17,6 +17,8 @@
     --gear-on-primary: #ffffff;
     --gear-accent: #fe8e04;
     --gear-gold: #b45309;
+    --rank-analista: #0369a1;
+    --rank-lenda: #7c3aed;
     --gear-warn: #c2410c;
     --gear-green: #15803d;
     --gear-red: #dc2626;
@@ -44,6 +46,8 @@
     --gear-on-primary: #000000;
     --gear-accent: #fe8e04;
     --gear-gold: #fbbf24;
+    --rank-analista: #38bdf8;
+    --rank-lenda: #c084fc;
     --gear-warn: #fb923c;
     --gear-green: #4ade80;
     --gear-red: #f87171;
@@ -61,6 +65,13 @@
 
   html {
     scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  a, button, input, select, textarea, label {
+    touch-action: manipulation;
   }
 
   body {
@@ -70,6 +81,13 @@
       radial-gradient(900px 500px at -10% 110%, var(--gear-glow-b), transparent 60%),
       var(--gear-bg);
     background-attachment: fixed;
+  }
+
+  /* Fundo fixo engasga a rolagem no celular */
+  @media (max-width: 1023px) {
+    body {
+      background-attachment: scroll;
+    }
   }
 
   * {
@@ -101,7 +119,12 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-gear-primary hover:bg-gear-primary-hover text-gear-on-primary font-medium px-4 py-2 rounded-lg transition-colors duration-200 text-sm;
+    @apply inline-flex items-center justify-center bg-gear-primary hover:bg-gear-primary-hover text-gear-on-primary font-medium px-4 py-2 rounded-lg transition-colors duration-200 text-sm;
+  }
+
+  /* Área de toque confortável, sem mudar o desenho no computador */
+  .hit {
+    @apply inline-flex items-center justify-center min-h-11 min-w-9 px-1 sm:min-h-0 sm:min-w-0 sm:px-0;
   }
 
   .btn-ghost {
@@ -116,8 +139,24 @@
     @apply w-full bg-gear-surface border border-gear-border rounded-xl px-4 py-2.5 text-base sm:text-sm text-gear-text placeholder-gear-muted transition-colors;
   }
 
+  .field-input:focus {
+    @apply border-gear-accent;
+    outline: none;
+    box-shadow: 0 0 0 3px var(--neon-soft);
+  }
+
+  .field-input::-webkit-calendar-picker-indicator {
+    display: none !important;
+  }
+
   .form-label {
-    @apply editorial-eyebrow block mb-2;
+    @apply editorial-eyebrow block mb-2 text-gear-text-secondary;
+  }
+
+  /* Publicar sempre à vista: no celular fica acima da barra inferior */
+  .form-actions {
+    @apply sticky lg:static z-20 flex items-center justify-end gap-4 -mx-4 sm:mx-0 px-4 sm:px-0 py-3 lg:pt-4 bg-gear-bg/90 backdrop-blur-lg lg:bg-transparent lg:backdrop-blur-none;
+    bottom: calc(3.5rem + 1px + env(safe-area-inset-bottom));
   }
 
   .btn-publish {
@@ -203,13 +242,15 @@
     @apply transition-[border-color,box-shadow] duration-300;
   }
 
-  .neon-hover:hover {
-    border-color: color-mix(in srgb, var(--neon-color) 55%, transparent);
-    box-shadow: var(--card-shadow), 0 0 22px var(--neon-soft);
+  @media (hover: hover) {
+    .neon-hover:hover {
+      border-color: color-mix(in srgb, var(--neon-color) 55%, transparent);
+      box-shadow: var(--card-shadow), 0 0 22px var(--neon-soft);
+    }
   }
 
   .pill {
-    @apply shrink-0 px-3.5 py-2 sm:py-1.5 text-xs font-medium rounded-full border whitespace-nowrap transition-colors duration-200;
+    @apply inline-flex items-center shrink-0 min-h-10 sm:min-h-0 px-3.5 py-2 sm:py-1.5 text-xs font-medium rounded-full border whitespace-nowrap transition-colors duration-200;
   }
 
   .pill-active {
@@ -218,6 +259,23 @@
 
   .pill-idle {
     @apply border-gear-border text-gear-muted hover:text-gear-text;
+  }
+}
+
+/* Toque de pelo menos 44px e rótulos legíveis no celular */
+@media (max-width: 1023px) {
+  .btn-primary,
+  .btn-outline,
+  .btn-publish,
+  .btn-cancel {
+    min-height: 2.75rem;
+  }
+}
+
+@media (max-width: 639px) {
+  .editorial-eyebrow {
+    font-size: 0.6875rem;
+    letter-spacing: 0.12em;
   }
 }
 

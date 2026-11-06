@@ -22,21 +22,29 @@
 
     <p v-if="loading" class="text-xs text-gear-muted">Carregando comentários...</p>
     <ul v-else class="space-y-4">
-      <li v-for="comment in comments" :key="comment.id" class="flex items-start gap-3">
-        <UserPhoto :src="comment.author.avatarUrl" :name="comment.author.displayName" class="w-8 h-8 text-xs shrink-0" />
-        <div class="flex-1 min-w-0">
-          <p class="text-xs text-gear-muted">
-            <NuxtLink :to="`/profile/${comment.author.username}`" class="text-sm font-semibold text-gear-text hover:underline underline-offset-2">{{ comment.author.displayName }}</NuxtLink>
-            · {{ formatDate(comment.createdAt) }}
-          </p>
-          <p class="text-sm text-gear-text-secondary whitespace-pre-line break-words mt-0.5">{{ comment.body }}</p>
-          <div class="flex items-center gap-3 mt-1 text-xs font-medium text-gear-muted">
-            <button class="transition-colors" :class="comment.likedByMe ? 'text-gear-accent' : 'hover:text-gear-text'" :aria-pressed="comment.likedByMe" @click="toggleLike(comment)">
-              Curtir ({{ comment.likeCount }})
-            </button>
-            <button v-if="comment.mine" class="hover:text-gear-red transition-colors" @click="removeComment(comment)">Apagar</button>
+      <li v-for="thread in threads" :key="thread.comment.id">
+        <CommentEntry :comment="thread.comment" @like="toggleLike(thread.comment)" @reply="startReply(thread.comment, thread.comment.id)" @remove="removeComment(thread.comment)" />
+
+        <ul v-if="thread.replies.length" class="mt-3 ml-4 pl-3 border-l border-gear-border space-y-3">
+          <li v-for="reply in thread.replies" :key="reply.id">
+            <CommentEntry reply :comment="reply" @like="toggleLike(reply)" @reply="startReply(reply, thread.comment.id)" @remove="removeComment(reply)" />
+          </li>
+        </ul>
+
+        <form v-if="replying?.threadId === thread.comment.id" class="mt-3 ml-4 pl-3 border-l border-gear-border" novalidate @submit.prevent="sendReply">
+          <textarea
+            ref="replyInput"
+            v-model="replyText"
+            rows="2"
+            :aria-label="`Responder a ${replying.name}`"
+            :placeholder="`Responder a ${replying.name}`"
+            class="field-input"
+          />
+          <div class="flex items-center gap-3 mt-2">
+            <button type="submit" class="btn-primary !py-1.5" :disabled="sending" :class="{ 'opacity-60': sending }">Responder</button>
+            <button type="button" class="btn-cancel" @click="replying = null">Cancelar</button>
           </div>
-        </div>
+        </form>
       </li>
     </ul>
     <p v-if="!loading && !comments.length" class="text-xs text-gear-muted">Nenhum comentário ainda.</p>
@@ -46,7 +54,6 @@
 <script setup lang="ts">
 import gsap from 'gsap'
 import { toApiFailure } from '~/composables/useAuth'
-import { formatDate } from '~/composables/useGearData'
 import type { CommentItem, ContentKind } from '~/composables/useInteractions'
 
 const props = defineProps<{ kind: ContentKind, id: string }>()
@@ -63,6 +70,42 @@ const text = ref('')
 const error = ref('')
 const sending = ref(false)
 const root = ref<HTMLElement | null>(null)
+const replying = ref<{ id: string, threadId: string, name: string } | null>(null)
+const replyText = ref('')
+const replyInput = ref<HTMLTextAreaElement | HTMLTextAreaElement[] | null>(null)
+
+const threads = computed(() =>
+  comments.value
+    .filter(comment => !comment.parentId)
+    .map(comment => ({ comment, replies: comments.value.filter(item => item.parentId === comment.id) })),
+)
+
+async function startReply(comment: CommentItem, threadId: string) {
+  if (!ensureUser()) return
+  replying.value = { id: comment.id, threadId, name: comment.author.displayName }
+  replyText.value = ''
+  await nextTick()
+  const input = replyInput.value
+  ;(Array.isArray(input) ? input[0] : input)?.focus()
+}
+
+async function sendReply() {
+  if (!replying.value) return
+  sending.value = true
+  try {
+    await addComment(props.kind, props.id, replyText.value, replying.value.id)
+    replying.value = null
+    replyText.value = ''
+    emit('changed', 1)
+    await reload()
+  }
+  catch (failure) {
+    toast.failure(toApiFailure(failure))
+  }
+  finally {
+    sending.value = false
+  }
+}
 
 useGsapContext(root, (el) => {
   gsap.from(el, { autoAlpha: 0, y: -8, duration: 0.3, ease: 'power2.out' })
@@ -105,8 +148,10 @@ async function toggleLike(comment: CommentItem) {
 
 async function removeComment(comment: CommentItem) {
   if (await deleteComment(comment.id)) {
-    comments.value = comments.value.filter(item => item.id !== comment.id)
-    emit('changed', -1)
+    // As respostas somem junto com o comentário
+    const removed = comments.value.filter(item => item.id === comment.id || item.parentId === comment.id)
+    comments.value = comments.value.filter(item => !removed.includes(item))
+    emit('changed', -removed.length)
   }
 }
 </script>

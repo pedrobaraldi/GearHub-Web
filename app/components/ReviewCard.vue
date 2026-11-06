@@ -5,56 +5,62 @@
       :meta="`${formatDate(review.date)} · ${review.product.brand} · ${review.product.category}`"
     >
       <p class="text-[11px] text-gear-muted mt-1.5">
-        <span class="uppercase tracking-widest font-bold text-[9px] mr-1.5">Produto</span>
-        <NuxtLink :to="productPath(review.product)" class="text-gear-text font-medium hover:text-gear-primary transition-colors">{{ review.product.name }}</NuxtLink>
+        <span class="uppercase tracking-widest font-bold text-[11px] mr-1.5">Produto</span>
+        <NuxtLink :to="`/product/${review.product.id}`" class="text-gear-text font-medium hover:text-gear-primary transition-colors">{{ review.product.name }}</NuxtLink>
       </p>
     </UserAvatar>
 
     <div class="glass-card neon-hover group relative overflow-hidden">
-      <MediaGallery v-if="gallery.length" :images="gallery" :alt="review.product.name" />
+      <MediaGallery v-if="visibleImages.length" :images="visibleImages" :alt="review.product.name" />
 
       <div class="p-6 lg:p-8">
         <div class="flex items-start justify-between gap-6">
           <div class="min-w-0">
             <h2 class="text-xl sm:text-2xl font-semibold tracking-tight leading-snug">
+              <template v-if="full">{{ review.title }}</template>
               <!-- O ::after estica o link por todo o card -->
-              <NuxtLink :to="productPath(review.product)" class="after:absolute after:inset-0">{{ review.title }}</NuxtLink>
+              <NuxtLink v-else :to="reviewLink" class="after:absolute after:inset-0">{{ review.title }}</NuxtLink>
             </h2>
-            <p v-if="review.body" class="text-sm text-gear-text-secondary leading-relaxed mt-2 line-clamp-3">{{ review.body }}</p>
+            <p v-if="review.body" class="text-sm text-gear-text-secondary leading-relaxed mt-2 whitespace-pre-line" :class="{ 'line-clamp-3': !full }">{{ review.body }}</p>
           </div>
           <ScoreBox v-if="!review.unrated" :score="review.score" />
         </div>
 
-        <div v-if="review.subScores.length || review.pros.length || review.cons.length" class="grid sm:grid-cols-2 gap-6 mt-6">
-          <ScoreBar v-if="review.subScores.length" :sub-scores="review.subScores" />
-
-          <div
-            v-if="review.pros.length || review.cons.length"
-            class="grid grid-cols-2 gap-4"
-            :class="{ 'sm:border-l sm:border-gear-border sm:pl-6': review.subScores.length }"
-          >
-            <div v-if="review.pros.length">
-              <h3 class="text-[10px] font-bold uppercase tracking-wider text-gear-green mb-2">▲ Prós</h3>
-              <ul class="space-y-1.5">
-                <li v-for="pro in review.pros" :key="pro" class="text-xs text-gear-muted">{{ pro }}</li>
-              </ul>
-            </div>
-            <div v-if="review.cons.length">
-              <h3 class="text-[10px] font-bold uppercase tracking-wider text-gear-red mb-2">▼ Contras</h3>
-              <ul class="space-y-1.5">
-                <li v-for="con in review.cons" :key="con" class="text-xs text-gear-muted">{{ con }}</li>
-              </ul>
-            </div>
+        <div v-if="review.pros.length || review.cons.length" class="grid grid-cols-2 gap-4 sm:gap-6 mt-6">
+          <div v-if="review.pros.length">
+            <h3 class="text-[11px] font-bold uppercase tracking-wider text-gear-green mb-2">▲ Prós</h3>
+            <ul class="space-y-1.5">
+              <li v-for="pro in review.pros" :key="pro" class="text-sm text-gear-text-secondary">{{ pro }}</li>
+            </ul>
+          </div>
+          <div v-if="review.cons.length">
+            <h3 class="text-[11px] font-bold uppercase tracking-wider text-gear-red mb-2">▼ Contras</h3>
+            <ul class="space-y-1.5">
+              <li v-for="con in review.cons" :key="con" class="text-sm text-gear-text-secondary">{{ con }}</li>
+            </ul>
           </div>
         </div>
 
-        <!-- Ficha técnica preenchida por quem avaliou -->
-        <dl v-if="review.specs?.length" class="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2 mt-6 pt-4 border-t border-gear-border">
-          <div v-for="spec in review.specs" :key="spec.label" class="min-w-0">
-            <dt class="editorial-eyebrow truncate">{{ spec.label }}</dt>
-            <dd class="text-xs text-gear-text-secondary break-words">{{ spec.value }}</dd>
-          </div>
-        </dl>
+        <template v-if="full">
+          <section v-if="review.subScores.length" class="mt-6 pt-5 border-t border-gear-border">
+            <h3 class="editorial-eyebrow mb-3">Notas por critério</h3>
+            <div class="grid sm:grid-cols-2 gap-6 items-center">
+              <RadarChart v-if="review.subScores.length >= 3" :axes="review.subScores" />
+              <ScoreBar :sub-scores="review.subScores" />
+            </div>
+          </section>
+
+          <!-- Ficha técnica preenchida por quem avaliou -->
+          <section v-if="review.specs?.length" class="mt-6 pt-5 border-t border-gear-border">
+            <h3 class="editorial-eyebrow mb-3">Ficha técnica</h3>
+            <dl class="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-3">
+              <div v-for="spec in review.specs" :key="spec.label" class="min-w-0">
+                <dt class="text-xs text-gear-muted">{{ spec.label }}</dt>
+                <dd class="text-sm font-medium break-words mt-0.5">{{ spec.value }}</dd>
+              </div>
+            </dl>
+          </section>
+        </template>
 
         <ContentActions
           class="mt-6"
@@ -74,13 +80,19 @@
 
 <script setup lang="ts">
 import type { Review } from '~/composables/useGearData'
-import { formatDate, productPath } from '~/composables/useGearData'
+import { formatDate } from '~/composables/useGearData'
 
-const props = defineProps<{ review: Review }>()
+// No feed o card é um resumo; na tela do produto, com `full`, mostra tudo
+const props = defineProps<{ review: Review, full?: boolean }>()
 
 const removed = ref(false)
+
+const reviewLink = computed(() => ({ path: `/product/${props.review.product.id}`, query: { review: props.review.id } }))
+
 const gallery = computed(() => {
   if (props.review.images?.length) return props.review.images
   return props.review.product.image ? [props.review.product.image] : []
 })
+
+const visibleImages = computed(() => (props.full ? gallery.value : gallery.value.slice(0, 1)))
 </script>

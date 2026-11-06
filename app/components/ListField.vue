@@ -26,7 +26,7 @@
     <button
       v-if="modelValue.length < MAX_ITEMS"
       type="button"
-      class="inline-flex items-center gap-1.5 text-xs font-medium text-gear-accent mt-2 hover:opacity-80 transition-opacity"
+      class="inline-flex items-center gap-1.5 min-h-11 sm:min-h-0 text-xs font-medium text-gear-accent sm:mt-2 hover:opacity-80 transition-opacity"
       @click="$emit('update:modelValue', [...modelValue, ''])"
     >
       <AppIcon name="plus" class="w-3.5 h-3.5" />

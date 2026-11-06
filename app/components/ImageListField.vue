@@ -39,15 +39,14 @@
 <script setup lang="ts">
 import { toApiFailure } from '~/composables/useAuth'
 
-const MAX_IMAGES = 4
 const ACCEPT = 'image/jpeg,image/png,image/webp'
 
-const props = defineProps<{ modelValue: string[], compact?: boolean }>()
+const props = withDefaults(defineProps<{ modelValue: string[], compact?: boolean, max?: number }>(), { max: 4 })
 const emit = defineEmits<{ 'update:modelValue': [value: string[]] }>()
 
 const toast = useToast()
 const uploading = ref(false)
-const canAdd = computed(() => props.modelValue.length < MAX_IMAGES)
+const canAdd = computed(() => props.modelValue.length < props.max)
 
 function remove(url: string) {
   emit('update:modelValue', props.modelValue.filter(item => item !== url))
@@ -60,7 +59,7 @@ async function pick(event: Event) {
   uploading.value = true
   let images = props.modelValue
   try {
-    for (const file of files.slice(0, MAX_IMAGES - images.length)) {
+    for (const file of files.slice(0, props.max - images.length)) {
       const body = new FormData()
       body.append('file', file)
       const { url } = await $fetch<{ url: string }>('/api/v1/uploads/images', { method: 'POST', body })

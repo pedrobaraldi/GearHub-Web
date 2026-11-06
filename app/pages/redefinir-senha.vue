@@ -48,7 +48,7 @@ async function submit() {
   catch (error) {
     const failure = toApiFailure(error)
     fields.value = failure.fields
-    toast.error(failure.message)
+    toast.failure(failure)
   }
   finally {
     sending.value = false

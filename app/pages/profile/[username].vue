@@ -1,26 +1,35 @@
 <template>
   <div ref="page">
     <!-- Capa com luzes em movimento -->
-    <div class="relative h-52 lg:h-72 overflow-hidden border-b border-gear-border bg-gradient-to-br from-gear-card via-gear-sidebar to-gear-bg">
+    <div class="relative h-40 sm:h-52 lg:h-72 overflow-hidden border-b border-gear-border bg-gradient-to-br from-gear-card via-gear-sidebar to-gear-bg">
       <img v-if="profileData?.bannerUrl" :src="profileData.bannerUrl" alt="" class="absolute inset-0 w-full h-full object-cover" />
       <template v-else>
         <span data-orb class="absolute -top-24 right-[12%] w-80 h-80 rounded-full bg-gear-accent/25 blur-3xl" aria-hidden="true" />
         <span data-orb class="absolute -bottom-32 left-[8%] w-96 h-96 rounded-full bg-gear-primary/15 blur-3xl" aria-hidden="true" />
       </template>
       <div class="relative px-4 sm:px-6 lg:px-10 pt-4">
-        <BackButton />
+        <!-- Fundo próprio: precisa ser legível sobre qualquer banner, em qualquer tema -->
+        <BackButton class="!bg-black/60 !text-white !border-white/25 backdrop-blur-md hover:!bg-black/75" />
       </div>
     </div>
 
-    <div class="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-10 -mt-20">
+    <div class="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-10 -mt-14 sm:-mt-20">
       <div class="flex items-end justify-between gap-4 mb-5">
         <div
           data-ring
-          class="neon-ring rounded-full w-[150px] h-[150px] p-[6px] shrink-0"
+          class="relative neon-ring rounded-full w-[108px] h-[108px] sm:w-[150px] sm:h-[150px] p-1 sm:p-[6px] shrink-0"
           :style="{ background: rank.color }"
           :title="rank.label"
         >
-          <UserPhoto :src="person.avatar" :name="person.name" class="w-[138px] h-[138px] text-5xl" />
+          <UserPhoto :src="person.avatar" :name="person.name" class="w-[100px] h-[100px] sm:w-[138px] sm:h-[138px] text-4xl sm:text-5xl" />
+          <NuxtLink
+            :to="`/niveis/${person.username}`"
+            :aria-label="`Nível ${person.level}, ${rank.label}. Ver progresso de ${person.name}`"
+            :title="`Nível ${person.level} · ${rank.label}`"
+            class="absolute -bottom-2 -right-2 sm:bottom-0 sm:right-0 drop-shadow-lg hover:scale-105 transition-transform"
+          >
+            <RankEmblem class="block w-10 h-12 sm:w-12 sm:h-[58px]" :color="rank.color" :label="person.level" :title="rank.label" />
+          </NuxtLink>
         </div>
 
         <div data-enter class="pb-2">
@@ -57,20 +66,20 @@
         </li>
       </ul>
 
-      <dl class="grid grid-cols-3 gap-3 mt-6">
-        <div v-for="stat in stats" :key="stat.label" data-enter class="glass-card neon-hover p-4 text-center">
-          <dd data-count class="font-display italic font-extrabold text-3xl leading-none tabular-nums text-gear-primary">{{ stat.value }}</dd>
-          <dt class="editorial-eyebrow mt-1.5">{{ stat.label }}</dt>
+      <dl class="flex flex-wrap gap-x-5 gap-y-1 mt-4 text-sm">
+        <div v-for="stat in stats" :key="stat.label" data-enter class="flex flex-row-reverse items-baseline gap-1.5">
+          <dt class="text-gear-muted">{{ stat.label }}</dt>
+          <dd data-count class="font-semibold tabular-nums">{{ stat.value }}</dd>
         </div>
       </dl>
 
       <!-- Abas: o marcador desliza até a aba ativa -->
-      <div class="relative flex gap-6 border-b border-gear-border mt-8 mb-8" role="group" aria-label="Filtrar publicações">
+      <div class="relative flex gap-4 sm:gap-6 border-b border-gear-border mt-6 sm:mt-8 mb-6 sm:mb-8" role="group" aria-label="Filtrar publicações">
         <button
           v-for="tab in TABS"
           :key="tab.value"
           :ref="element => setTabRef(tab.value, element as HTMLElement | null)"
-          class="pb-3 text-sm font-medium transition-colors"
+          class="pt-2 sm:pt-0 pb-3 text-sm font-medium transition-colors"
           :class="activeTab === tab.value ? 'text-gear-text' : 'text-gear-muted hover:text-gear-text'"
           :aria-pressed="activeTab === tab.value"
           @click="activeTab = tab.value"
@@ -91,7 +100,15 @@
               </div>
             </dl>
           </section>
-          <div v-if="!setupSections.length" class="glass-card p-10 text-center">
+          <section v-if="setupPhotos?.length" class="glass-card p-5">
+            <h2 class="editorial-eyebrow mb-3">Fotos</h2>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              <a v-for="(photo, index) in setupPhotos" :key="photo" :href="photo" target="_blank" rel="noopener noreferrer" class="block aspect-[4/3] rounded-xl overflow-hidden bg-gear-surface">
+                <img :src="photo" :alt="`Foto ${index + 1} do setup de ${person.name}`" loading="lazy" class="w-full h-full object-cover" />
+              </a>
+            </div>
+          </section>
+          <div v-if="!setupSections.length && !setupPhotos?.length" class="glass-card p-10 text-center">
             <p class="text-sm font-semibold">Setup ainda não cadastrado</p>
           </div>
           <NuxtLink v-if="isMine" to="/setup" class="btn-outline">
@@ -101,10 +118,30 @@
         </template>
 
         <template v-else-if="activeTab === 'jogos'">
-          <article v-for="config in games" :key="config.slug" class="glass-card p-5">
-            <h2 class="font-semibold mb-3">{{ config.name }}</h2>
-            <GameStats :config="config" />
-          </article>
+          <div v-if="(games?.length ?? 0) > 1" class="flex gap-2 overflow-x-auto" role="group" aria-label="Escolher jogo">
+            <button
+              v-for="config in games"
+              :key="config.slug"
+              type="button"
+              class="pill"
+              :class="selectedGame?.slug === config.slug ? 'pill-active' : 'pill-idle'"
+              :aria-pressed="selectedGame?.slug === config.slug"
+              @click="gameSlug = config.slug"
+            >
+              <GameIcon :slug="config.slug" :name="config.name" class="w-5 h-5 mr-1.5 !bg-transparent !text-current" />
+              {{ config.name }}
+            </button>
+          </div>
+          <template v-if="selectedGame">
+            <div class="flex items-center gap-3">
+              <GameIcon :slug="selectedGame.slug" :name="selectedGame.name" class="w-10 h-10" />
+              <div class="min-w-0">
+                <h2 class="font-semibold truncate">{{ selectedGame.name }}</h2>
+                <p class="text-xs text-gear-muted truncate">{{ selectedGame.genre }}</p>
+              </div>
+            </div>
+            <GameConfigView :config="selectedGame" />
+          </template>
           <div v-if="!games?.length" class="glass-card p-10 text-center">
             <p class="text-sm font-semibold">Nenhum jogo cadastrado</p>
           </div>
@@ -132,7 +169,7 @@
 
 <script setup lang="ts">
 import gsap from 'gsap'
-import type { GameConfig } from '~/components/GameStats.vue'
+import type { GameConfig } from '~/components/GameConfigView.vue'
 import type { FeedAuthor, FeedPage } from '~/composables/useFeed'
 import { toReview, toUser } from '~/composables/useFeed'
 import { userRank } from '~/composables/useGearData'
@@ -193,6 +230,13 @@ const { data: setup } = await useFetch<{ key: string, label: string, section: st
 const { data: games } = await useFetch<GameConfig[]>(`/api/v1/users/${username}/games`, {
   key: `profile-games-${username}`,
 })
+
+const { data: setupPhotos } = await useFetch<string[]>(`/api/v1/users/${username}/setup/photos`, {
+  key: `profile-setup-photos-${username}`,
+})
+
+const gameSlug = ref('')
+const selectedGame = computed(() => games.value?.find(config => config.slug === gameSlug.value) ?? games.value?.[0])
 
 const setupSections = computed(() =>
   SETUP_SECTIONS

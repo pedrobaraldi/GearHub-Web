@@ -1,6 +1,6 @@
 <template>
   <!-- Só orienta enquanto digita; quem valida e dá o erro é a API -->
-  <ul class="grid grid-cols-2 sm:flex sm:justify-between gap-x-2 gap-y-1" aria-label="Requisitos da senha">
+  <ul class="grid grid-cols-2 xl:flex xl:justify-between gap-x-2 gap-y-1" aria-label="Requisitos da senha">
     <li
       v-for="rule in rules"
       :key="rule.label"

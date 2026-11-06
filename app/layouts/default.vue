@@ -7,7 +7,7 @@
       class="min-h-screen transition-[margin] duration-200 ease-out"
       :class="navCollapsed ? 'lg:ml-[72px]' : 'lg:ml-64'"
     >
-      <main id="conteudo" class="min-w-0 pb-24 lg:pb-0">
+      <main id="conteudo" class="min-w-0 pb-[calc(6rem+env(safe-area-inset-bottom))] lg:pb-0">
         <slot />
       </main>
     </div>

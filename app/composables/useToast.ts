@@ -1,6 +1,6 @@
 export interface Toast {
   id: number
-  type: 'error' | 'success'
+  type: 'error' | 'success' | 'warning'
   message: string
 }
 
@@ -19,7 +19,9 @@ export function useToast() {
     // A mesma mensagem não se repete empilhada
     if (toasts.value.some(toast => toast.message === message)) return
     const id = ++nextId
-    toasts.value = [...toasts.value, { id, type, message }]
+    // Depois de um sucesso, os avisos anteriores já não valem
+    const kept = type === 'success' ? [] : toasts.value
+    toasts.value = [...kept, { id, type, message }]
     setTimeout(() => dismiss(id), DURATION_MS)
   }
 
@@ -28,5 +30,9 @@ export function useToast() {
     dismiss,
     error: (message: string) => show('error', message),
     success: (message: string) => show('success', message),
+    warning: (message: string) => show('warning', message),
+    /** Campo a corrigir é atenção; o que a pessoa não resolve sozinha é erro. */
+    failure: (failure: { message: string, fields: Record<string, string> }) =>
+      show(Object.keys(failure.fields).length ? 'warning' : 'error', failure.message),
   }
 }

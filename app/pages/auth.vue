@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen grid lg:grid-cols-2">
+  <div class="min-h-[100dvh] grid lg:grid-cols-2">
     <!-- Apresentação da marca -->
     <aside class="hidden lg:flex flex-col justify-between p-14 bg-gear-sidebar border-r border-gear-border">
       <AppLogo />
@@ -15,14 +15,14 @@
 
     <!-- Formulário -->
     <!-- Em telas baixas, o formulário abre espaço para o Voltar não encostar no título -->
-    <main class="relative flex flex-col p-6 sm:p-8 lg:py-3" :class="{ 'lg:[@media(max-height:780px)]:pl-36': isRegister }">
+    <main class="relative flex flex-col p-5 sm:p-8 lg:py-3" :class="{ 'lg:[@media(max-height:780px)]:pl-36': isRegister }">
       <div class="flex items-center gap-4 lg:absolute lg:top-6 lg:left-8">
         <!-- O Voltar só existe no cadastro e leva de volta ao login -->
         <button v-if="isRegister" type="button" class="btn-outline" @click="toggleMode">
           <AppIcon name="arrow-left" class="w-4 h-4" />
           Voltar
         </button>
-        <AppLogo class="ml-auto lg:hidden" height-class="h-6" />
+        <AppLogo class="lg:hidden" :class="{ 'ml-auto': isRegister }" height-class="h-6" />
       </div>
 
       <div class="flex-1 flex items-center justify-center py-6 lg:py-2">
@@ -51,7 +51,7 @@
 
           <div class="flex items-center gap-3 my-3" aria-hidden="true">
             <span class="flex-1 h-px bg-gear-border" />
-            <span class="text-[10px] uppercase tracking-widest text-gear-muted">ou</span>
+            <span class="text-[11px] uppercase tracking-widest text-gear-muted">ou</span>
             <span class="flex-1 h-px bg-gear-border" />
           </div>
 
@@ -92,7 +92,7 @@
 
             <PasswordRules v-if="isRegister" :password="form.password" />
             <p v-else class="text-right">
-              <NuxtLink to="/recuperar-senha" class="text-xs font-medium text-gear-primary hover:underline underline-offset-2">Esqueceu a senha?</NuxtLink>
+              <NuxtLink to="/recuperar-senha" class="inline-block py-2 sm:py-0 text-xs font-medium text-gear-primary hover:underline underline-offset-2">Esqueceu a senha?</NuxtLink>
             </p>
 
             <TurnstileWidget ref="turnstile" v-model="turnstileToken" />
@@ -104,7 +104,7 @@
 
           <p class="text-sm text-gear-muted text-center mt-3">
             {{ isRegister ? 'Já tem uma conta?' : 'Novo na GearHub?' }}
-            <button type="button" data-mode-switch class="font-semibold text-gear-primary hover:underline underline-offset-2" @click="toggleMode">
+            <button type="button" data-mode-switch class="py-2 sm:py-0 font-semibold text-gear-primary hover:underline underline-offset-2" @click="toggleMode">
               {{ isRegister ? 'Entrar' : 'Criar conta' }}
             </button>
           </p>
@@ -194,7 +194,7 @@ async function submit() {
   catch (error) {
     const failure = toApiFailure(error)
     fields.value = failure.fields
-    toast.error(failure.message)
+    toast.failure(failure)
     turnstile.value?.reset()
   }
   finally {

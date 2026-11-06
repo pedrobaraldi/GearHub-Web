@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen grid place-items-center p-6 bg-gear-bg">
+  <div class="min-h-[100dvh] grid place-items-center p-5 sm:p-6 bg-gear-bg">
     <main class="reveal w-full max-w-md" v-reveal>
       <NuxtLink to="/auth" class="btn-outline mb-6">
         <AppIcon name="arrow-left" class="w-4 h-4" />
