@@ -23,6 +23,7 @@ export interface RegisterInput {
   email: string
   password: string
   passwordConfirmation: string
+  turnstileToken: string
 }
 
 export interface ApiFailure {
@@ -53,8 +54,8 @@ export function useAuth() {
     }
   }
 
-  async function login(email: string, password: string) {
-    user.value = await $fetch<AuthUser>('/api/v1/auth/login', { method: 'POST', body: { email, password } })
+  async function login(email: string, password: string, turnstileToken: string) {
+    user.value = await $fetch<AuthUser>('/api/v1/auth/login', { method: 'POST', body: { email, password, turnstileToken } })
   }
 
   async function register(input: RegisterInput) {
@@ -90,10 +91,15 @@ export function useAuth() {
     window.location.href = url
   }
 
+  async function loginWithDiscord() {
+    const { url } = await $fetch<{ url: string }>('/api/v1/auth/discord/url')
+    window.location.href = url
+  }
+
   async function logout() {
     await $fetch('/api/v1/auth/logout', { method: 'POST' })
     user.value = null
   }
 
-  return { user, refresh, login, register, logout, updateProfile, uploadAvatar, uploadBanner, removeAvatar, removeBanner, loginWithGoogle }
+  return { user, refresh, login, register, logout, updateProfile, uploadAvatar, uploadBanner, removeAvatar, removeBanner, loginWithGoogle, loginWithDiscord }
 }
