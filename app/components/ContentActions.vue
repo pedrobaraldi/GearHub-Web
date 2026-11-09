@@ -1,39 +1,39 @@
 <template>
   <div class="relative z-10">
-    <div class="flex items-center gap-0.5 sm:gap-4 pt-1 sm:pt-4 border-t border-gear-border text-gear-muted">
+    <div class="flex items-center gap-1 sm:gap-5 pt-1 sm:pt-4 border-t border-gear-border text-gear-muted">
       <button
         ref="likeButton"
-        class="hit gap-1.5 transition-colors duration-200"
+        class="hit gap-2 transition-colors duration-200"
         :class="liked ? 'text-gear-accent' : 'hover:text-gear-text'"
         :aria-pressed="liked"
         aria-label="Curtir"
         @click="toggleLike"
       >
-        <svg class="w-4 h-4" :fill="liked ? 'currentColor' : 'none'" viewBox="0 0 24 24" stroke="currentColor">
+        <svg class="w-5 h-5" :fill="liked ? 'currentColor' : 'none'" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
         </svg>
-        <span class="text-xs font-medium tabular-nums">{{ likes }}</span>
+        <span class="text-sm font-medium tabular-nums">{{ likes }}</span>
       </button>
 
       <button
-        class="hit gap-1.5 hover:text-gear-text transition-colors duration-200"
+        class="hit gap-2 hover:text-gear-text transition-colors duration-200"
         :class="{ 'text-gear-text': open }"
         :aria-expanded="open"
         aria-label="Comentários"
         @click="open = !open"
       >
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
         </svg>
-        <span class="text-xs font-medium tabular-nums">{{ comments }}</span>
+        <span class="text-sm font-medium tabular-nums">{{ comments }}</span>
       </button>
 
       <template v-if="mine">
         <NuxtLink :to="`/edit/${kind}/${id}`" class="hit hover:text-gear-text transition-colors" aria-label="Editar" title="Editar">
-          <AppIcon name="pencil" class="w-4 h-4" />
+          <AppIcon name="pencil" class="w-5 h-5" />
         </NuxtLink>
         <button class="hit hover:text-gear-red transition-colors" aria-label="Apagar" title="Apagar" @click="confirming = true">
-          <AppIcon name="trash" class="w-4 h-4" />
+          <AppIcon name="trash" class="w-5 h-5" />
         </button>
       </template>
 
@@ -47,11 +47,11 @@
         :title="saved ? 'Salvo' : 'Salvar'"
         @click="toggleSave"
       >
-        <AppIcon name="bookmark" class="w-4 h-4" :class="{ 'fill-current': saved }" />
+        <AppIcon name="bookmark" class="w-5 h-5" :class="{ 'fill-current': saved }" />
       </button>
 
       <button class="hit hover:text-gear-text transition-colors duration-200" aria-label="Compartilhar" title="Compartilhar" @click="share">
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
         </svg>
       </button>
