@@ -18,6 +18,7 @@ const props = defineProps<{ badge: string, title: string, animated?: boolean, lo
 const { src, onEnter, onLeave, stateClass } = useEmblemSource(
   'badges',
   () => (/^[a-z0-9-]+$/.test(props.badge) ? props.badge : 'developer'),
-  () => ({ animated: props.animated, locked: props.locked, noHover: props.noHover }),
+  // Insígnia: depois do hover a animação continua, não volta a ficar parada
+  () => ({ animated: props.animated, locked: props.locked, noHover: props.noHover, keepAfterHover: true }),
 )
 </script>

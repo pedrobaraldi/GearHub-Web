@@ -5,7 +5,7 @@
 export function useEmblemSource(
   folder: string,
   slug: () => string,
-  options: () => { animated?: boolean, locked?: boolean, noHover?: boolean },
+  options: () => { animated?: boolean, locked?: boolean, noHover?: boolean, keepAfterHover?: boolean },
 ) {
   const replay = ref(0)
 
@@ -22,9 +22,10 @@ export function useEmblemSource(
     if (!locked && !noHover) replay.value = Date.now()
   }
 
-  // Ao sair, os emblemas parados voltam a ficar parados; os animados seguem como estão
+  // Ao sair, os emblemas parados voltam a ficar parados (exceto com keepAfterHover); os animados seguem como estão
   function onLeave() {
-    if (!options().animated) replay.value = 0
+    const { animated, keepAfterHover } = options()
+    if (!animated && !keepAfterHover) replay.value = 0
   }
 
   const stateClass = computed(() => (options().locked ? 'grayscale opacity-40' : ''))
