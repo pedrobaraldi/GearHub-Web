@@ -7,6 +7,8 @@ export interface User {
   level: number
   pro?: boolean
   bio?: string
+  ringStyle?: string | null
+  founder?: boolean
 }
 
 export interface SubScore {

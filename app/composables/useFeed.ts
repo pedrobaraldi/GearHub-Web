@@ -7,6 +7,9 @@ export interface FeedAuthor {
   rankName: string
   level: number
   pro: boolean
+  // Contorno da foto que vale agora (nulo: automático) e se é fundador (RGB no automático)
+  ringStyle?: string | null
+  founder?: boolean
 }
 
 export interface FeedItem {
@@ -47,6 +50,8 @@ export function toUser(author: FeedAuthor): User {
     badge: author.rankName as User['badge'],
     pro: author.pro,
     level: author.level,
+    ringStyle: author.ringStyle ?? null,
+    founder: author.founder ?? false,
   }
 }
 
