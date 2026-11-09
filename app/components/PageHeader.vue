@@ -3,14 +3,17 @@
     <NeonLines v-if="lines" class="hidden sm:block" />
 
     <div
-      class="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-10"
-      :class="lines ? 'pt-6 sm:pt-10 lg:pt-14 pb-5 sm:pb-10 lg:pb-14' : 'pt-5 lg:pt-6 pb-5 lg:pb-6'"
+      class="relative mx-auto px-4 sm:px-6 lg:px-10"
+      :class="[
+        narrow ? 'max-w-2xl !px-0' : 'max-w-6xl',
+        lines ? 'pt-6 sm:pt-10 lg:pt-14 pb-5 sm:pb-10 lg:pb-14' : 'pt-5 lg:pt-6 pb-5 lg:pb-6',
+      ]"
     >
       <BackButton v-if="back" class="mb-4" :class="{ 'hidden lg:inline-flex': root }" />
 
       <div class="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3 sm:gap-4">
         <div class="min-w-0">
-          <h1 class="reveal font-display italic font-extrabold uppercase leading-[0.9] tracking-tight text-4xl sm:text-6xl">
+          <h1 class="reveal font-display italic font-extrabold uppercase leading-[0.9] tracking-tight" :class="narrow ? 'text-3xl sm:text-5xl' : 'text-4xl sm:text-6xl'">
             <span data-word class="inline-block">{{ title }}</span>
             {{ ' ' }}
             <span v-if="accent" data-word data-neon class="neon-text inline-block">{{ accent }}</span>
@@ -34,7 +37,9 @@ withDefaults(defineProps<{
   lines?: boolean
   /** Tela da navegação principal: no celular, a barra inferior já leva a ela */
   root?: boolean
-}>(), { back: true, lines: false, root: false })
+  /** Alinha com uma coluna estreita de conteúdo, como o feed */
+  narrow?: boolean
+}>(), { back: true, lines: false, root: false, narrow: false })
 
 const root = ref<HTMLElement | null>(null)
 
