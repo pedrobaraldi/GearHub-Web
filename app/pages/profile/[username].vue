@@ -413,7 +413,8 @@ async function toggleFollow() {
   following.value = false
 }
 
-const activeTab = ref('todos')
+// A aba pode vir da URL (?aba=setup), por exemplo depois de salvar o setup
+const activeTab = ref(TABS.some(tab => tab.value === route.query.aba) ? String(route.query.aba) : 'todos')
 const visibleItems = computed(() =>
   activeTab.value === 'todos' ? items.value : items.value.filter(item => item.kind === activeTab.value),
 )

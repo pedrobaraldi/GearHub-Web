@@ -135,6 +135,7 @@ async function save() {
     await $fetch('/api/v1/me/setup', { method: 'PUT', body: values.value })
     await $fetch('/api/v1/me/setup/photos', { method: 'PUT', body: { photos: photos.value } })
     toast.success('Setup salvo.')
+    if (user.value) await navigateTo({ path: `/profile/${user.value.username}`, query: { aba: 'setup' } }, { replace: true })
   }
   catch (error) {
     const failure = toApiFailure(error)

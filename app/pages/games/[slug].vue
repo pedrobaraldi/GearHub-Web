@@ -200,7 +200,7 @@ async function save() {
       },
     })
     toast.success('Configurações salvas.')
-    await navigateTo('/games')
+    await navigateTo('/games', { replace: true })
   }
   catch (error) {
     const failure = toApiFailure(error)

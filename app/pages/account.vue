@@ -299,7 +299,7 @@ async function goTo(index: number) {
 async function finish() {
   if (await save()) {
     toast.success('Perfil atualizado.')
-    await navigateTo(`/profile/${form.username}`)
+    await navigateTo(`/profile/${form.username}`, { replace: true })
   }
 }
 

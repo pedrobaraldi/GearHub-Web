@@ -159,7 +159,7 @@ async function submit() {
     // Publicar dá XP: confere na hora se a pessoa subiu de patente
     rankUp.check(true)
     clearNuxtData('feed')
-    await navigateTo('/')
+    await navigateTo('/', { replace: true })
   }
   catch (error) {
     const failure = toApiFailure(error)

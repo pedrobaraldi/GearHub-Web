@@ -11,12 +11,36 @@ export function useNewPost() {
   return { isOpen, start }
 }
 
-// Sempre refaz o caminho real; o Feed só entra para quem abriu a página direto
-export function useGoBack() {
+// Telas de formulário: depois de sair delas, o Voltar não deve levar de novo para lá
+const FORM_ROUTES = [/^\/new/, /^\/edit\//, /^\/setup$/, /^\/account$/, /^\/games\/[^/]+$/, /^\/auth/, /^\/recuperar-senha/, /^\/redefinir-senha/]
+
+// Página "mãe" de cada tela, usada quando não há histórico útil (link aberto direto, ou veio de um formulário)
+function parentOf(path: string, username?: string): string {
+  if (/^\/mercado\/.+/.test(path)) return '/mercado'
+  const levels = path.match(/^\/niveis\/([^/]+)/)
+  if (levels) return `/profile/${levels[1]}`
+  if (/^\/games\/.+/.test(path)) return '/games'
+  if (/^\/product\/.+/.test(path)) return '/explore'
+  if (/^\/(setup|games|account)$/.test(path) && username) return `/profile/${username}`
+  return '/'
+}
+
+/**
+ * Voltar: refaz o caminho real quando a página anterior é do site e não é um formulário;
+ * senão, vai para a página-mãe da tela atual.
+ */
+export function useGoBack(fallback?: string) {
   const router = useRouter()
+  const route = useRoute()
+  const { user } = useAuth()
 
   return () => {
-    if (router.options.history.state.back) router.back()
-    else navigateTo('/')
+    const back = router.options.history.state.back
+    const backPath = typeof back === 'string' ? back.split('?')[0]! : null
+    if (backPath && !FORM_ROUTES.some(pattern => pattern.test(backPath))) {
+      router.back()
+      return
+    }
+    navigateTo(fallback ?? parentOf(route.path, user.value?.username))
   }
 }
