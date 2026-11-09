@@ -29,25 +29,38 @@
 
     <ul v-if="games?.length" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
       <li v-for="game in games" :key="game.appid">
+        <!-- Card: nome sobre a capa, e embaixo jogadores, avaliações e preço numa linha -->
         <NuxtLink :to="`/mercado/${game.appid}`" class="glass-card neon-hover group block overflow-hidden h-full">
-          <div class="relative aspect-[460/215] bg-gear-surface">
-            <img v-if="game.headerImage" :src="game.headerImage" :alt="game.name" loading="lazy" class="w-full h-full object-cover" />
-            <span v-if="game.discountPercent > 0" class="absolute top-2 left-2 rounded-md bg-gear-green px-2 py-0.5 text-xs font-bold text-black">-{{ game.discountPercent }}%</span>
-          </div>
-          <div class="p-4">
-            <h2 class="font-semibold truncate group-hover:text-gear-accent transition-colors">{{ game.name }}</h2>
-            <p class="text-xs text-gear-muted truncate mt-0.5">{{ game.genres.slice(0, 3).join(', ') || 'Steam' }}</p>
-            <div class="flex items-end justify-between gap-3 mt-4">
-              <div>
-                <p class="text-[11px] text-gear-muted flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-gear-green" aria-hidden="true" />Jogando agora</p>
-                <p class="font-semibold tabular-nums">{{ formatPlayers(game.currentPlayers) }}</p>
-              </div>
-              <div class="text-right">
-                <p v-if="game.discountPercent > 0 && game.initialCents" class="text-[11px] text-gear-muted line-through tabular-nums">{{ formatPrice(game.initialCents, game.currency ?? 'BRL') }}</p>
-                <p class="font-display italic font-extrabold text-xl leading-none tabular-nums" :class="game.discountPercent > 0 ? 'text-gear-green' : ''">{{ priceLabel(game) }}</p>
-              </div>
+          <div class="relative aspect-[460/215] bg-gradient-to-br from-gear-card via-gear-sidebar to-gear-bg">
+            <img
+              v-if="game.headerImage && !brokenImages.has(game.appid)"
+              :src="game.headerImage"
+              :alt="''"
+              loading="lazy"
+              class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+              @error="brokenImages.add(game.appid)"
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" aria-hidden="true" />
+            <span v-if="game.discountPercent > 0" class="absolute top-2 right-2 rounded-md bg-gear-green px-2 py-0.5 text-xs font-bold text-black">-{{ game.discountPercent }}%</span>
+            <div class="absolute inset-x-0 bottom-0 p-3">
+              <h2 class="font-display italic font-extrabold uppercase text-xl leading-none text-white truncate">{{ game.name }}</h2>
+              <p class="text-[11px] text-white/70 truncate mt-1">{{ game.genres.slice(0, 3).join(', ') || 'Steam' }}</p>
             </div>
           </div>
+          <dl class="grid grid-cols-3 divide-x divide-gear-border text-center py-3">
+            <div class="px-2 min-w-0">
+              <dt class="text-[11px] text-gear-muted inline-flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-gear-green" aria-hidden="true" />Online</dt>
+              <dd class="text-sm font-semibold tabular-nums truncate">{{ formatPlayers(game.currentPlayers) }}</dd>
+            </div>
+            <div class="px-2 min-w-0">
+              <dt class="text-[11px] text-gear-muted">Avaliações</dt>
+              <dd class="text-sm font-semibold tabular-nums">{{ game.reviewPercent != null ? `${game.reviewPercent}%` : '—' }}</dd>
+            </div>
+            <div class="px-2 min-w-0">
+              <dt class="text-[11px] text-gear-muted">Preço</dt>
+              <dd class="text-sm font-semibold tabular-nums truncate" :class="{ 'text-gear-green': game.discountPercent > 0 }">{{ priceLabel(game) }}</dd>
+            </div>
+          </dl>
         </NuxtLink>
       </li>
     </ul>
@@ -60,7 +73,7 @@
 
 <script setup lang="ts">
 import { refDebounced } from '@vueuse/core'
-import { formatPlayers, formatPrice, priceLabel, type MarketGame } from '~/utils/market'
+import { formatPlayers, priceLabel, type MarketGame } from '~/utils/market'
 
 useHead({ title: 'Games · GearHub' })
 
@@ -79,6 +92,9 @@ const { data: games } = await useFetch<MarketGame[]>('/api/v1/market/games', {
   key: 'market-games',
   query: { sort, q: search },
 })
+
+// Capas que não carregaram ficam com o fundo e o nome do jogo
+const brokenImages = reactive(new Set<number>())
 
 // Enquanto a API não coletou nada, os jogos ainda não têm jogadores nem preço
 const waitingFirstCollect = computed(() => !!games.value?.length && games.value.every(game => game.currentPlayers == null && game.finalCents == null && !game.free))

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <PageHeader root title="Comparar" accent="Produtos." subtitle="Compare até 4 produtos pela nota geral e pelas médias de cada critério." />
+    <PageHeader root title="Comparar" accent="Produtos." subtitle="Coloque dois produtos lado a lado, ou até quatro, e compare a nota geral e cada critério." />
 
     <div class="reveal max-w-6xl mx-auto px-4 sm:px-6 lg:px-10 py-6 lg:py-8" v-reveal>
 
@@ -13,7 +13,7 @@
           :key="p.id"
           type="button"
           class="w-full text-left flex items-center gap-3 p-2.5 rounded-xl hover:bg-gear-surface transition-colors disabled:opacity-50"
-          :disabled="freeSlot < 0"
+          :disabled="freeSlot < 0 && slots.length >= MAX_SLOTS"
           @click="addProduct(p)"
         >
           <span class="w-9 h-9 rounded-lg overflow-hidden bg-gear-surface shrink-0">
@@ -28,8 +28,8 @@
       </div>
     </div>
 
-    <!-- Product slots -->
-    <div class="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+    <!-- Dois espaços fixos; mais dois sob demanda -->
+    <div class="grid grid-cols-2 gap-3 sm:gap-4" :class="{ 'lg:grid-cols-3': slots.length === 3, 'lg:grid-cols-4': slots.length === 4 }">
       <template v-for="(slot, i) in slots" :key="i">
         <ProductCard v-if="slot" :product="slot">
           <button class="btn-outline w-full" @click="removeSlot(i)">Remover</button>
@@ -45,6 +45,13 @@
           <span class="text-sm">Adicionar produto</span>
         </button>
       </template>
+    </div>
+    <div class="flex justify-center mt-3 mb-6 sm:mb-8">
+      <!-- Só aparece com os espaços atuais preenchidos -->
+      <button v-if="slots.length < MAX_SLOTS && selectedProducts.length === slots.length" type="button" class="btn-outline" @click="addSlot">
+        <AppIcon name="plus" class="w-4 h-4" />
+        Adicionar outro produto
+      </button>
     </div>
 
     <!-- Comparison table -->
@@ -146,7 +153,10 @@ const { products } = await useCatalog()
 
 const requested = useRoute().query.p
 const preselected = products.value.find(p => p.id === requested) ?? null
-const slots = ref<(Product | null)[]>([preselected, null, null, null])
+// Dois espaços fixos; dá para abrir mais dois
+const FIXED_SLOTS = 2
+const MAX_SLOTS = 4
+const slots = ref<(Product | null)[]>([preselected, null])
 const scoresByProduct = ref<Record<string, ProductScores['scores']>>({})
 const pickerOpen = ref(false)
 const pickerSlot = ref(0)
@@ -201,11 +211,28 @@ function selectProduct(p: Product) {
 }
 
 function addProduct(p: Product) {
+  if (freeSlot.value < 0) {
+    if (slots.value.length >= MAX_SLOTS) return
+    slots.value.push(null)
+  }
   pickerSlot.value = freeSlot.value
   selectProduct(p)
 }
 
-function removeSlot(i: number) {
-  slots.value[i] = null
+// Abre um espaço novo e já escolhe o produto
+function addSlot() {
+  slots.value.push(null)
+  openPicker(slots.value.length - 1)
 }
+
+// Nos fixos, o espaço fica vazio para escolher outro; os extras somem
+function removeSlot(i: number) {
+  if (i >= FIXED_SLOTS) slots.value.splice(i, 1)
+  else slots.value[i] = null
+}
+
+// Fechar a escolha sem escolher não deixa um espaço extra vazio para trás
+watch(pickerOpen, (open) => {
+  if (!open && slots.value.length > FIXED_SLOTS && !slots.value[slots.value.length - 1]) slots.value.pop()
+})
 </script>
