@@ -1,9 +1,8 @@
 <template>
   <div ref="root">
-    <FormHeader eyebrow="Meu setup" title="Configure seu setup" subtitle="Cadastre seus periféricos e hardware. Aparece no seu perfil." />
-
-    <form class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-10 py-6 space-y-4" novalidate @submit.prevent="save">
-      <div data-step class="glass-card p-4 sm:px-6">
+  <FormShell title="Meu setup" subtitle="Cadastre seus periféricos e hardware. Aparece no seu perfil." preview-label="Como aparece no seu perfil">
+    <form novalidate @submit.prevent="save">
+      <div data-step class="pb-6">
         <div class="flex items-center justify-between text-xs text-gear-muted mb-2">
           <span>Setup preenchido</span>
           <span class="font-mono tabular-nums">{{ filled }}/{{ slots.length }}</span>
@@ -48,6 +47,25 @@
         </button>
       </div>
     </form>
+
+    <template #preview>
+      <div class="space-y-3">
+        <section v-for="section in previewSections" :key="section.label" class="glass-card p-4">
+          <h3 class="text-xs font-semibold text-gear-text-secondary mb-2">{{ section.label }}</h3>
+          <dl v-if="section.items.length" class="divide-y divide-gear-border">
+            <div v-for="item in section.items" :key="item.key" class="grid grid-cols-[88px_1fr] gap-3 py-2">
+              <dt class="text-xs text-gear-muted self-center">{{ item.label }}</dt>
+              <dd class="text-sm font-medium break-words">{{ item.value }}</dd>
+            </div>
+          </dl>
+          <p v-else class="text-xs text-gear-muted italic">Nada preenchido ainda.</p>
+        </section>
+        <div v-if="photos.length" class="grid grid-cols-3 gap-1.5">
+          <img v-for="(photo, index) in photos.slice(0, 6)" :key="photo" :src="photo" :alt="`Foto ${index + 1} do setup`" class="aspect-[4/3] w-full rounded-lg object-cover" />
+        </div>
+      </div>
+    </template>
+  </FormShell>
   </div>
 </template>
 
@@ -99,6 +117,16 @@ const photos = ref<string[]>([...(savedPhotos.value ?? [])])
 const fields = ref<Record<string, string>>({})
 const saving = ref(false)
 const filled = computed(() => Object.values(values.value).filter(value => value.trim()).length)
+
+// Prévia: só o que já foi preenchido, separado como no perfil
+const previewSections = computed(() =>
+  SECTIONS.map(section => ({
+    label: section.label,
+    items: slots.value
+      .filter(slot => slot.section === section.key && values.value[slot.key]?.trim())
+      .map(slot => ({ key: slot.key, label: slot.label, value: values.value[slot.key]! })),
+  })),
+)
 
 async function save() {
   fields.value = {}

@@ -1,5 +1,5 @@
 <template>
-  <AuthPanel eyebrow="Recuperar senha" title="Crie uma senha nova" subtitle="Depois de salvar, todas as sessões abertas serão encerradas.">
+  <AuthPanel title="Crie uma senha nova" subtitle="Depois de salvar, todas as sessões abertas serão encerradas.">
     <form class="space-y-3" novalidate @submit.prevent="submit">
       <FormField id="password" v-model="form.password" label="Senha nova" type="password" autocomplete="new-password" :error="fields.password" />
       <PasswordRules :password="form.password" />

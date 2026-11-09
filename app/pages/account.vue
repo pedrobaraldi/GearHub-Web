@@ -1,8 +1,7 @@
 <template>
   <div v-if="user">
-    <FormHeader eyebrow="Sua conta" title="Configurações" subtitle="Monte um perfil completo. Suas alterações são salvas a cada etapa." />
-
-    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-10 py-6 lg:py-8">
+    <FormShell title="Configurações" subtitle="Monte um perfil completo. Suas alterações são salvas a cada etapa." preview-label="Como seu perfil aparece">
+    <div>
       <nav class="grid grid-cols-2 sm:grid-cols-4 gap-2" aria-label="Etapas">
         <button
           v-for="(item, index) in STEPS"
@@ -27,8 +26,8 @@
         <div ref="bar" class="h-full rounded-full bg-gear-accent" />
       </div>
 
-      <section ref="panel" class="glass-card p-5 sm:p-7">
-        <p class="editorial-eyebrow">Etapa {{ step + 1 }} de {{ STEPS.length }}</p>
+      <section ref="panel">
+        <p class="text-xs text-gear-muted">Etapa {{ step + 1 }} de {{ STEPS.length }}</p>
         <h2 class="text-xl font-bold tracking-tight mt-1">{{ STEPS[step]!.title }}</h2>
         <p class="text-sm text-gear-muted mt-1 mb-6">{{ STEPS[step]!.subtitle }}</p>
 
@@ -130,28 +129,6 @@
             <p v-if="fields.ringStyle" class="text-xs text-gear-red mt-1.5">{{ fields.ringStyle }}</p>
             <p class="text-xs text-gear-muted mt-1.5">Novas cores são liberadas conforme você sobe de patente.</p>
           </fieldset>
-
-          <div>
-            <span class="form-label">Preview</span>
-            <div class="rounded-2xl overflow-hidden border border-gear-border bg-gear-sidebar">
-              <div class="h-24 bg-gradient-to-br from-gear-card via-gear-sidebar to-gear-bg">
-                <img v-if="user.bannerUrl" :src="user.bannerUrl" alt="" class="w-full h-full object-cover" />
-              </div>
-              <div class="flex items-center gap-3 px-4 pb-4 -mt-6">
-                <span
-                  class="relative rounded-full p-[3px] shrink-0"
-                  :class="{ 'founder-ring': ringOf(form.ringStyle).founder }"
-                  :style="ringOf(form.ringStyle).founder ? undefined : { background: ringOf(form.ringStyle).color }"
-                >
-                  <UserPhoto :src="user.avatarUrl" :name="user.displayName" class="w-16 h-16 text-xl border-2 border-gear-sidebar" />
-                </span>
-                <div class="min-w-0 pt-6">
-                  <p class="font-semibold truncate">{{ form.displayName || user.displayName }}</p>
-                  <p class="text-xs text-gear-muted truncate">@{{ form.username }}</p>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
         <!-- Social -->
@@ -192,6 +169,33 @@
         </div>
       </div>
     </div>
+
+    <template #preview>
+      <!-- Topo do perfil com o que está no formulário: banner, contorno, nome, @, bio e redes -->
+      <div class="glass-card overflow-hidden">
+        <div class="h-24 bg-gradient-to-br from-gear-card via-gear-sidebar to-gear-bg">
+          <img v-if="user.bannerUrl" :src="user.bannerUrl" alt="" class="w-full h-full object-cover" />
+        </div>
+        <div class="px-4 pb-5 -mt-10">
+          <span
+            class="relative inline-block rounded-full p-[3px]"
+            :class="{ 'founder-ring': ringOf(form.ringStyle).founder }"
+            :style="ringOf(form.ringStyle).founder ? undefined : { background: ringOf(form.ringStyle).color }"
+          >
+            <UserPhoto :src="user.avatarUrl" :name="form.displayName || user.displayName" class="w-20 h-20 text-2xl border-2 border-gear-card" />
+          </span>
+          <p class="font-display italic font-extrabold uppercase text-2xl leading-none tracking-tight mt-3 break-words">{{ form.displayName || user.displayName }}</p>
+          <p class="text-sm text-gear-muted mt-1">@{{ form.username || user.username }}</p>
+          <p v-if="form.bio.trim()" class="text-sm text-gear-text-secondary leading-relaxed whitespace-pre-line break-words mt-3 line-clamp-4">{{ form.bio }}</p>
+          <ul v-if="previewLinks.length" class="flex flex-wrap gap-x-4 gap-y-1 mt-3" aria-label="Redes">
+            <li v-for="link in previewLinks" :key="link" class="inline-flex items-center gap-1 text-xs text-gear-text-secondary">
+              <AppIcon name="link" class="w-3 h-3" />{{ link }}
+            </li>
+          </ul>
+        </div>
+      </div>
+    </template>
+    </FormShell>
   </div>
 </template>
 
@@ -237,6 +241,14 @@ const step = ref(0)
 const saving = ref(false)
 const uploading = ref<ImageKind | null>(null)
 const dragging = ref<ImageKind | null>(null)
+
+// Redes como aparecem no perfil
+const previewLinks = computed(() => [
+  form.website.replace(/^https?:\/\//, '').replace(/\/$/, ''),
+  form.twitter && `@${form.twitter.replace(/^@/, '')}`,
+  form.instagram && 'Instagram',
+  form.youtube && 'YouTube',
+].filter(Boolean) as string[])
 
 const reviewRows = computed(() => [
   { label: 'Username', value: form.username },

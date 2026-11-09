@@ -1,12 +1,11 @@
 <template>
   <div ref="root">
-    <FormHeader
-      eyebrow="Publicar"
-      :title="editing ? 'Editar review' : 'Nova review'"
-      subtitle="Escolha o produto, preencha a ficha e conte sua experiência."
-    />
-
-    <form class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-10 py-6 space-y-4" novalidate @submit.prevent="submit">
+  <FormShell
+    :title="editing ? 'Editar review' : 'Nova review'"
+    subtitle="Escolha o produto, preencha a ficha e conte sua experiência."
+    preview-label="Como vai aparecer no feed"
+  >
+    <form novalidate @submit.prevent="submit">
       <div data-step>
         <FormSection title="Produto" icon="package">
           <p v-if="editing" class="text-sm font-medium">{{ editing.draft.productName }}</p>
@@ -136,6 +135,21 @@
         </button>
       </div>
     </form>
+
+    <template #preview>
+      <ReviewPreview
+        :author="user ? { displayName: user.displayName, avatarUrl: user.avatarUrl } : null"
+        :product-name="previewProductName"
+        :category-name="selectedCategory?.name"
+        :title="form.title"
+        :body="form.body"
+        :average="average"
+        :pros="filled(form.pros)"
+        :cons="filled(form.cons)"
+        :image="images[0]"
+      />
+    </template>
+  </FormShell>
   </div>
 </template>
 
@@ -176,6 +190,7 @@ const UNKNOWN_VALUES = ['Não se aplica', 'Não informado']
 
 const props = defineProps<{ editing?: { id: string, draft: ReviewDraft } }>()
 const rankUp = useRankUp()
+const { user } = useAuth()
 
 const toast = useToast()
 const goBack = useGoBack()
@@ -254,6 +269,12 @@ function fieldError(prefix: string) {
 }
 
 const filled = (items: string[]) => items.map(item => item.trim()).filter(Boolean)
+
+const previewProductName = computed(() => {
+  if (draft) return draft.productName
+  const product = products.value?.find(item => item.id === productId.value)
+  return product ? productTitle(product) : undefined
+})
 
 async function submit() {
   fields.value = {}

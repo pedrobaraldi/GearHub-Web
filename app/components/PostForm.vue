@@ -1,12 +1,11 @@
 <template>
   <div ref="root">
-    <FormHeader
-      eyebrow="Comunidade"
-      :title="editing ? 'Editar post' : 'Novo post'"
-      subtitle="Compartilhe uma discussão, dúvida ou dica."
-    />
-
-    <form class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-10 py-6 space-y-4" novalidate @submit.prevent="submit">
+  <FormShell
+    :title="editing ? 'Editar post' : 'Novo post'"
+    subtitle="Compartilhe uma discussão, dúvida ou dica."
+    preview-label="Como vai aparecer no feed"
+  >
+    <form novalidate @submit.prevent="submit">
       <div data-step>
         <FormSection title="Sobre o que é?" icon="message-square">
           <fieldset>
@@ -30,7 +29,12 @@
         </FormSection>
       </div>
 
-      <div data-step class="glass-card overflow-hidden transition-colors" :class="fields.body ? '!border-gear-red' : 'focus-within:!border-gear-accent'">
+      <div data-step class="form-section">
+        <label for="post-body" class="flex items-center gap-3 mb-4">
+          <span class="w-8 h-8 grid place-items-center rounded-lg bg-gear-accent/10 text-gear-accent shrink-0"><AppIcon name="file-text" class="w-4 h-4" /></span>
+          <span class="font-semibold">Texto</span>
+        </label>
+      <div class="rounded-2xl border bg-gear-surface overflow-hidden transition-colors" :class="fields.body ? 'border-gear-red' : 'border-gear-border focus-within:border-gear-accent'">
         <textarea
           id="post-body"
           v-model="form.body"
@@ -43,7 +47,8 @@
           <span class="text-xs tabular-nums" :class="remaining < 0 ? 'text-gear-red' : 'text-gear-muted'">{{ remaining }}</span>
         </ImageListField>
       </div>
-      <p v-if="fields.body || fields.images" class="text-xs text-gear-red">{{ fields.body || fields.images }}</p>
+      <p v-if="fields.body || fields.images" class="text-xs text-gear-red mt-1.5">{{ fields.body || fields.images }}</p>
+      </div>
 
       <div data-step>
         <FormSection title="Tags" subtitle="Opcional." icon="link">
@@ -58,6 +63,17 @@
         </button>
       </div>
     </form>
+
+    <template #preview>
+      <PostPreview
+        :author="user ? { displayName: user.displayName, avatarUrl: user.avatarUrl } : null"
+        :topic-name="topics?.find(option => option.slug === topic)?.name"
+        :body="form.body"
+        :tags="tags"
+        :images="images"
+      />
+    </template>
+  </FormShell>
   </div>
 </template>
 
@@ -76,6 +92,7 @@ const MAX_LENGTH = 1000
 
 const props = defineProps<{ editing?: { id: string, draft: PostDraft } }>()
 const rankUp = useRankUp()
+const { user } = useAuth()
 
 const toast = useToast()
 const goBack = useGoBack()
