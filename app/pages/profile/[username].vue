@@ -1,34 +1,32 @@
 <template>
   <div ref="page">
-    <!-- Capa com luzes em movimento -->
-    <div class="relative h-40 sm:h-52 lg:h-72 overflow-hidden border-b border-gear-border bg-gradient-to-br from-gear-card via-gear-sidebar to-gear-bg">
-      <img v-if="profileData?.bannerUrl" :src="profileData.bannerUrl" alt="" class="absolute inset-0 w-full h-full object-cover" />
-      <template v-else>
-        <span data-orb class="absolute -top-24 right-[12%] w-80 h-80 rounded-full bg-gear-accent/25 blur-3xl" aria-hidden="true" />
-        <span data-orb class="absolute -bottom-32 left-[8%] w-96 h-96 rounded-full bg-gear-primary/15 blur-3xl" aria-hidden="true" />
-      </template>
-      <div class="relative px-4 sm:px-6 lg:px-10 pt-4">
-        <!-- Fundo próprio: precisa ser legível sobre qualquer banner, em qualquer tema -->
-        <BackButton class="!bg-black/60 !text-white !border-white/25 backdrop-blur-md hover:!bg-black/75" />
-      </div>
-    </div>
+    <div class="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-10 pt-5">
+      <BackButton class="mb-4" />
 
-    <div class="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-10 -mt-14 sm:-mt-20">
-      <div class="flex items-end justify-between gap-4 mb-5">
+      <!-- Banner na largura da coluna do perfil, na proporção do tamanho recomendado (1500×500) -->
+      <div class="relative aspect-[3/1] rounded-3xl overflow-hidden border border-gear-border bg-gradient-to-br from-gear-card via-gear-sidebar to-gear-bg">
+        <img v-if="profileData?.bannerUrl" :src="profileData.bannerUrl" alt="" class="absolute inset-0 w-full h-full object-cover" />
+        <template v-else>
+          <span data-orb class="absolute -top-24 right-[12%] w-80 h-80 rounded-full bg-gear-accent/25 blur-3xl" aria-hidden="true" />
+          <span data-orb class="absolute -bottom-32 left-[8%] w-96 h-96 rounded-full bg-gear-primary/15 blur-3xl" aria-hidden="true" />
+        </template>
+      </div>
+
+      <div class="relative flex items-end justify-between gap-4 -mt-12 sm:-mt-16 px-3 sm:px-6 mb-5">
         <div class="flex items-end gap-3 sm:gap-4 min-w-0">
           <div
             data-ring
-            class="relative neon-ring rounded-full w-[108px] h-[108px] sm:w-[150px] sm:h-[150px] p-1 sm:p-[6px] shrink-0"
+            class="relative neon-ring rounded-full w-[100px] h-[100px] sm:w-[136px] sm:h-[136px] p-1 sm:p-[5px] shrink-0"
             :class="{ 'founder-ring': ring.founder }"
             :style="ring.founder ? undefined : { background: ring.color }"
             :title="rank.label"
           >
-            <UserPhoto :src="person.avatar" :name="person.name" class="w-[100px] h-[100px] sm:w-[138px] sm:h-[138px] text-4xl sm:text-5xl" />
+            <UserPhoto :src="person.avatar" :name="person.name" class="w-[92px] h-[92px] sm:w-[126px] sm:h-[126px] text-4xl sm:text-5xl border-4 border-gear-bg" />
           </div>
-          <!-- Insígnias ao lado da foto, sobre o banner: fundo escuro próprio para ler em qualquer imagem -->
-          <ul v-if="shownBadges.length || isAdmin" data-enter class="flex items-center gap-1 rounded-lg border border-white/20 bg-black/60 backdrop-blur-md px-1.5 py-1 mb-[60px] sm:mb-[82px] min-w-0 flex-wrap" aria-label="Insígnias">
+          <!-- Insígnias ao lado da foto, já abaixo do banner -->
+          <ul v-if="shownBadges.length || isAdmin" data-enter class="flex items-center gap-1 rounded-lg border border-gear-border bg-gear-card px-1.5 py-1 mb-1 min-w-0 flex-wrap" aria-label="Insígnias">
             <li v-for="badge in shownBadges" :key="badge.key" class="group relative">
-              <button type="button" class="block rounded-md hover:bg-white/15 focus-visible:bg-white/15 transition-colors" :aria-label="`Ver insígnia ${badge.name}`" @click="openBadge(badge.key)">
+              <button type="button" class="block rounded-md hover:bg-gear-text/10 focus-visible:bg-gear-text/10 transition-colors" :aria-label="`Ver insígnia ${badge.name}`" @click="openBadge(badge.key)">
                 <BadgeEmblem :badge="badge.key" :title="badge.name" class="block w-9 h-9" />
               </button>
               <span role="tooltip" class="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 whitespace-nowrap rounded-md bg-gear-sidebar border border-gear-border px-2 py-1 text-xs font-semibold opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity z-10">
@@ -36,14 +34,14 @@
               </span>
             </li>
             <li v-if="isAdmin">
-              <button type="button" class="w-9 h-9 grid place-items-center rounded-md text-white/70 hover:text-white hover:bg-white/15 transition-colors" aria-label="Gerenciar insígnias" title="Gerenciar insígnias" @click="badgesOpen = true">
+              <button type="button" class="w-9 h-9 grid place-items-center rounded-md text-gear-muted hover:text-gear-text hover:bg-gear-text/10 transition-colors" aria-label="Gerenciar insígnias" title="Gerenciar insígnias" @click="badgesOpen = true">
                 <AppIcon name="pencil" class="w-4 h-4" />
               </button>
             </li>
           </ul>
         </div>
 
-        <div data-enter class="pb-2 shrink-0">
+        <div data-enter class="pb-1 shrink-0">
           <NuxtLink v-if="isMine" to="/account" class="btn-outline">
             <AppIcon name="pencil" class="w-4 h-4" />
             Editar perfil
