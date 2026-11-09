@@ -82,14 +82,7 @@
       </div>
       <p v-if="profileData?.bio" data-enter class="text-gear-text-secondary leading-relaxed mt-4 max-w-2xl whitespace-pre-line">{{ profileData.bio }}</p>
 
-      <ul v-if="links.length" data-enter class="flex flex-wrap gap-x-5 gap-y-2 mt-4" aria-label="Redes">
-        <li v-for="link in links" :key="link.label">
-          <a :href="link.href" target="_blank" rel="noopener noreferrer nofollow" class="inline-flex items-center gap-1.5 text-sm text-gear-text-secondary hover:text-gear-accent transition-colors">
-            <AppIcon name="link" class="w-3.5 h-3.5" />
-            {{ link.label }}
-          </a>
-        </li>
-      </ul>
+      <SocialLinks v-if="links.length" data-enter class="mt-5" :links="links" />
 
 
       <!-- Detalhe da insígnia: a única exibição animada, as outras do perfil ficam paradas -->
@@ -252,6 +245,7 @@ import type { GameConfig } from '~/components/GameConfigView.vue'
 import type { FeedAuthor, FeedPage } from '~/composables/useFeed'
 import { toReview, toUser } from '~/composables/useFeed'
 import { ringAppearance, userRank } from '~/composables/useGearData'
+import { socialLinks } from '~/utils/socialLinks'
 import { toApiFailure } from '~/composables/useAuth'
 
 interface Badge {
@@ -344,15 +338,7 @@ const setupSections = computed(() =>
     .filter(section => section.items.length),
 )
 
-const links = computed(() => {
-  const profile = profileData.value
-  return [
-    { label: profile?.website?.replace(/^https?:\/\//, '').replace(/\/$/, ''), href: profile?.website },
-    { label: profile?.twitter && `@${profile.twitter}`, href: profile?.twitter && `https://x.com/${profile.twitter}` },
-    { label: profile?.instagram && 'Instagram', href: profile?.instagram && `https://instagram.com/${profile.instagram}` },
-    { label: profile?.youtube && 'YouTube', href: profile?.youtube },
-  ].filter(link => link.href)
-})
+const links = computed(() => socialLinks(profileData.value ?? {}))
 
 const person = computed(() => toUser(profileData.value!))
 const items = computed(() => feed.value?.items ?? [])

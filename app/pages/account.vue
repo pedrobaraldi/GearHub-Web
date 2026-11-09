@@ -187,11 +187,7 @@
           <p class="font-display italic font-extrabold uppercase text-2xl leading-none tracking-tight mt-3 break-words">{{ form.displayName || user.displayName }}</p>
           <p class="text-sm text-gear-muted mt-1">@{{ form.username || user.username }}</p>
           <p v-if="form.bio.trim()" class="text-sm text-gear-text-secondary leading-relaxed whitespace-pre-line break-words mt-3 line-clamp-4">{{ form.bio }}</p>
-          <ul v-if="previewLinks.length" class="flex flex-wrap gap-x-4 gap-y-1 mt-3" aria-label="Redes">
-            <li v-for="link in previewLinks" :key="link" class="inline-flex items-center gap-1 text-xs text-gear-text-secondary">
-              <AppIcon name="link" class="w-3 h-3" />{{ link }}
-            </li>
-          </ul>
+          <SocialLinks class="mt-4" :links="previewLinks" static />
         </div>
       </div>
     </template>
@@ -203,6 +199,7 @@
 import gsap from 'gsap'
 import { toApiFailure } from '~/composables/useAuth'
 import { ringAppearance } from '~/composables/useGearData'
+import { socialLinks } from '~/utils/socialLinks'
 
 const BIO_MAX = 240
 const ACCEPT = 'image/jpeg,image/png,image/webp'
@@ -243,12 +240,7 @@ const uploading = ref<ImageKind | null>(null)
 const dragging = ref<ImageKind | null>(null)
 
 // Redes como aparecem no perfil
-const previewLinks = computed(() => [
-  form.website.replace(/^https?:\/\//, '').replace(/\/$/, ''),
-  form.twitter && `@${form.twitter.replace(/^@/, '')}`,
-  form.instagram && 'Instagram',
-  form.youtube && 'YouTube',
-].filter(Boolean) as string[])
+const previewLinks = computed(() => socialLinks(form))
 
 const reviewRows = computed(() => [
   { label: 'Username', value: form.username },
