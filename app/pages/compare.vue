@@ -32,7 +32,7 @@
     <div class="grid grid-cols-2 gap-3 sm:gap-4" :class="{ 'lg:grid-cols-3': slots.length === 3, 'lg:grid-cols-4': slots.length === 4 }">
       <template v-for="(slot, i) in slots" :key="i">
         <ProductCard v-if="slot" :product="slot">
-          <button class="btn-outline w-full" @click="removeSlot(i)">Remover</button>
+          <button type="button" class="text-xs font-semibold text-gear-muted hover:text-gear-red transition-colors" @click="removeSlot(i)">Remover</button>
         </ProductCard>
         <button
           v-else

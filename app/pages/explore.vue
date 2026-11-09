@@ -9,9 +9,12 @@
 
       <p class="editorial-eyebrow" aria-live="polite">{{ products.length }} {{ products.length === 1 ? 'produto' : 'produtos' }}</p>
 
-      <div v-if="products.length" class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+      <div v-if="products.length" class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
         <ProductCard v-for="product in products" :key="product.id" :product="product">
-          <NuxtLink :to="{ path: '/compare', query: { p: product.id } }" class="btn-outline w-full">Comparar</NuxtLink>
+          <NuxtLink :to="{ path: '/compare', query: { p: product.id } }" class="inline-flex items-center gap-1 text-xs font-semibold text-gear-accent hover:underline" :aria-label="`Comparar ${product.name}`">
+            <AppIcon name="git-compare" class="w-3.5 h-3.5" />
+            Comparar
+          </NuxtLink>
         </ProductCard>
       </div>
 

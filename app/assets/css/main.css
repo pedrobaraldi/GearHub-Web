@@ -42,7 +42,8 @@
   .dark {
     --gear-bg: #000000;
     --gear-sidebar: #0a0a0a;
-    --gear-card: #0f1829;
+    /* Cinza neutro: separa do fundo preto sem puxar para o azul */
+    --gear-card: #141414;
     --gear-surface: #ffffff0f;
     --gear-border: #ffffff14;
     --gear-primary: #fe8e04;
@@ -62,7 +63,7 @@
     --gear-muted: #e5e5e58c;
     --gear-text: #ffffff;
     --gear-text-secondary: #ffffffb3;
-    --gear-glow-a: #20375473;
+    --gear-glow-a: #ffffff08;
     --gear-glow-b: #fe8e040d;
     --neon-color: #fe8e04;
     --neon: #fe8e04cc;
