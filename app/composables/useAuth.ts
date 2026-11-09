@@ -15,6 +15,8 @@ export interface AuthUser {
   level: number
   pro: boolean
   createdAt: string
+  // Contorno escolhido para a foto; nulo é automático
+  ringStyle: string | null
 }
 
 export interface RegisterInput {

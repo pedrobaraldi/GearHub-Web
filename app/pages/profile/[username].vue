@@ -19,8 +19,8 @@
           <div
             data-ring
             class="relative neon-ring rounded-full w-[108px] h-[108px] sm:w-[150px] sm:h-[150px] p-1 sm:p-[6px] shrink-0"
-            :class="{ 'founder-ring': founder }"
-            :style="founder ? undefined : { background: rank.color }"
+            :class="{ 'founder-ring': ring.founder }"
+            :style="ring.founder ? undefined : { background: ring.color }"
             :title="rank.label"
           >
             <UserPhoto :src="person.avatar" :name="person.name" class="w-[100px] h-[100px] sm:w-[138px] sm:h-[138px] text-4xl sm:text-5xl" />
@@ -251,7 +251,7 @@ import gsap from 'gsap'
 import type { GameConfig } from '~/components/GameConfigView.vue'
 import type { FeedAuthor, FeedPage } from '~/composables/useFeed'
 import { toReview, toUser } from '~/composables/useFeed'
-import { userRank } from '~/composables/useGearData'
+import { ringAppearance, userRank } from '~/composables/useGearData'
 import { toApiFailure } from '~/composables/useAuth'
 
 interface Badge {
@@ -283,6 +283,7 @@ interface PublicProfile extends FeedAuthor {
   followingCount: number
   followedByMe: boolean
   badges: Badge[]
+  ringStyle: string | null
 }
 
 const TABS = [
@@ -391,6 +392,8 @@ watch(badgesOpen, async (open) => {
 
 // Fundador aparece ao lado do rank; a fileira de insígnias fica com as outras
 const founder = computed(() => badges.value.find(badge => badge.key === 'founder') ?? null)
+// Contorno da foto: a escolha da pessoa ou o automático
+const ring = computed(() => ringAppearance(profileData.value?.ringStyle, rank.value.label, !!founder.value))
 const shownBadges = computed(() => badges.value.filter(badge => badge.key !== 'founder'))
 // O Fundador é automático (100 primeiros): não aparece no painel do admin
 const grantableBadges = computed(() => catalog.value.filter(badge => badge.key !== 'founder'))

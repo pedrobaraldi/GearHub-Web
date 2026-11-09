@@ -97,6 +97,40 @@
             <p class="text-xs text-gear-muted mt-2">Quadrado, 400×400 ou maior.</p>
           </div>
 
+          <!-- Contorno da foto: só os ranks já alcançados (e o RGB de fundador) podem ser escolhidos -->
+          <fieldset>
+            <legend class="form-label">Contorno da foto</legend>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2" role="radiogroup" aria-label="Contorno da foto">
+              <button
+                v-for="option in ringChoices"
+                :key="option.value"
+                type="button"
+                role="radio"
+                class="flex flex-col items-center gap-2 rounded-2xl border px-2 py-3 text-xs font-semibold transition-colors"
+                :class="[
+                  form.ringStyle === option.value ? 'border-gear-accent bg-gear-accent/10 text-gear-text' : 'border-gear-border text-gear-muted',
+                  option.available ? 'hover:text-gear-text hover:border-gear-text/30' : 'opacity-50 cursor-not-allowed',
+                ]"
+                :aria-checked="form.ringStyle === option.value"
+                :disabled="!option.available"
+                :title="option.available ? option.label : `Liberado no nível ${option.minLevel}`"
+                @click="form.ringStyle = option.value"
+              >
+                <span
+                  class="relative rounded-full p-[3px]"
+                  :class="{ 'founder-ring': ringOf(option.value).founder, grayscale: !option.available }"
+                  :style="ringOf(option.value).founder ? undefined : { background: ringOf(option.value).color }"
+                >
+                  <UserPhoto :src="user.avatarUrl" :name="user.displayName" class="w-10 h-10 text-sm" />
+                </span>
+                <span class="text-center leading-tight">{{ option.label }}</span>
+                <span v-if="!option.available" class="text-[11px] font-normal">Nível {{ option.minLevel }}</span>
+              </button>
+            </div>
+            <p v-if="fields.ringStyle" class="text-xs text-gear-red mt-1.5">{{ fields.ringStyle }}</p>
+            <p class="text-xs text-gear-muted mt-1.5">Novas cores são liberadas conforme você sobe de patente.</p>
+          </fieldset>
+
           <div>
             <span class="form-label">Preview</span>
             <div class="rounded-2xl overflow-hidden border border-gear-border bg-gear-sidebar">
@@ -104,7 +138,13 @@
                 <img v-if="user.bannerUrl" :src="user.bannerUrl" alt="" class="w-full h-full object-cover" />
               </div>
               <div class="flex items-center gap-3 px-4 pb-4 -mt-6">
-                <UserPhoto :src="user.avatarUrl" :name="user.displayName" class="w-16 h-16 text-xl border-4 border-gear-sidebar shrink-0" />
+                <span
+                  class="relative rounded-full p-[3px] shrink-0"
+                  :class="{ 'founder-ring': ringOf(form.ringStyle).founder }"
+                  :style="ringOf(form.ringStyle).founder ? undefined : { background: ringOf(form.ringStyle).color }"
+                >
+                  <UserPhoto :src="user.avatarUrl" :name="user.displayName" class="w-16 h-16 text-xl border-2 border-gear-sidebar" />
+                </span>
                 <div class="min-w-0 pt-6">
                   <p class="font-semibold truncate">{{ form.displayName || user.displayName }}</p>
                   <p class="text-xs text-gear-muted truncate">@{{ form.username }}</p>
@@ -158,6 +198,7 @@
 <script setup lang="ts">
 import gsap from 'gsap'
 import { toApiFailure } from '~/composables/useAuth'
+import { ringAppearance } from '~/composables/useGearData'
 
 const BIO_MAX = 240
 const ACCEPT = 'image/jpeg,image/png,image/webp'
@@ -170,7 +211,7 @@ const STEPS = [
 ]
 
 // Em qual etapa fica cada campo: um erro leva a pessoa até ele
-const FIELD_STEP: Record<string, number> = { username: 0, displayName: 0, bio: 0, website: 2, twitter: 2, instagram: 2, youtube: 2 }
+const FIELD_STEP: Record<string, number> = { username: 0, displayName: 0, bio: 0, ringStyle: 1, website: 2, twitter: 2, instagram: 2, youtube: 2 }
 
 type ImageKind = 'avatar' | 'banner'
 
@@ -188,6 +229,8 @@ const form = reactive({
   twitter: user.value?.twitter ?? '',
   instagram: user.value?.instagram ?? '',
   youtube: user.value?.youtube ?? '',
+  // Vazio é automático: cor do rank atual, ou RGB para fundador
+  ringStyle: user.value?.ringStyle ?? '',
 })
 const fields = ref<Record<string, string>>({})
 const step = ref(0)
@@ -203,7 +246,27 @@ const reviewRows = computed(() => [
   { label: 'Twitter', value: form.twitter },
   { label: 'Instagram', value: form.instagram },
   { label: 'YouTube', value: form.youtube },
+  { label: 'Contorno', value: ringChoices.value.find(option => option.value === form.ringStyle)?.label },
 ])
+
+// Opções de contorno: a API diz quais ranks a pessoa já liberou
+interface RingOption { value: string, label: string, available: boolean, minLevel: number | null }
+const ringOptions = ref<RingOption[]>([])
+const isFounder = computed(() => ringOptions.value.some(option => option.value === 'founder'))
+const ringChoices = computed<RingOption[]>(() => [
+  { value: '', label: 'Automático', available: true, minLevel: null },
+  ...ringOptions.value,
+])
+const ringOf = (value: string) => ringAppearance(value || null, user.value?.rankName ?? 'Cobre', isFounder.value)
+
+onMounted(async () => {
+  try {
+    ringOptions.value = await $fetch<RingOption[]>('/api/v1/me/ring-styles')
+  }
+  catch {
+    // Sem a lista, fica só o automático
+  }
+})
 
 async function save() {
   fields.value = {}

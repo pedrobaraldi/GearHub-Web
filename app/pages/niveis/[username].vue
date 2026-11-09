@@ -3,8 +3,8 @@
     <div class="flex items-center gap-3">
       <BackButton />
       <NuxtLink :to="`/profile/${data.username}`" class="flex items-center gap-2 min-w-0 min-h-11 hover:opacity-80 transition-opacity">
-        <span v-if="founder" class="founder-ring relative rounded-full p-[2px] shrink-0"><UserPhoto :src="data.avatarUrl" :name="data.displayName" class="w-8 h-8 text-xs" /></span>
-        <UserPhoto v-else :src="data.avatarUrl" :name="data.displayName" class="w-8 h-8 text-xs shrink-0 ring-2" :style="{ '--tw-ring-color': rankColor }" />
+        <span v-if="ring.founder" class="founder-ring relative rounded-full p-[2px] shrink-0"><UserPhoto :src="data.avatarUrl" :name="data.displayName" class="w-8 h-8 text-xs" /></span>
+        <UserPhoto v-else :src="data.avatarUrl" :name="data.displayName" class="w-8 h-8 text-xs shrink-0 ring-2" :style="{ '--tw-ring-color': ring.color }" />
         <span class="text-sm font-semibold truncate">{{ data.displayName }}</span>
       </NuxtLink>
     </div>
@@ -145,7 +145,7 @@
 
 <script setup lang="ts">
 import gsap from 'gsap'
-import { rankHasAura, userRank } from '~/composables/useGearData'
+import { rankHasAura, ringAppearance, userRank } from '~/composables/useGearData'
 import type { User } from '~/composables/useGearData'
 
 interface Progress {
@@ -160,6 +160,7 @@ interface Progress {
   activities: { key: string, label: string, points: number, count: number, xp: number }[]
   ranks: { name: string, minLevel: number, reached: boolean, current: boolean }[]
   badges: { key: string, name: string, description: string, grantedAt: string | null, number?: number | null }[]
+  ringStyle?: string | null
 }
 
 const LABELS: Record<string, string> = {
@@ -192,6 +193,7 @@ const rankColor = computed(() => colorOf(data.value!.rankName))
 
 // Fundador vira patente especial; a lista de insígnias fica com as outras
 const founder = computed(() => data.value?.badges?.find(badge => badge.key === 'founder') ?? null)
+const ring = computed(() => ringAppearance(data.value?.ringStyle, data.value!.rankName, !!founder.value))
 const otherBadges = computed(() => data.value?.badges?.filter(badge => badge.key !== 'founder') ?? [])
 
 const rankOfLevel = (level: number) =>
