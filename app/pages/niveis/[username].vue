@@ -24,7 +24,7 @@
           <RankEmblem data-emblem animated class="w-44 h-44 mx-auto mt-2" :style="rankHasAura(data.rankName) ? { filter: `drop-shadow(0 0 calc(var(--glow, 6) * 1px) ${rankColor})` } : undefined" :rank="data.rankName" :title="`Nível ${data.level}, ${data.rankName}`" />
 
           <div class="flex items-center gap-2 mt-5">
-            <span class="shrink-0 text-center"><RankEmblem class="w-10 h-10" :rank="data.rankName" :title="`Nível ${data.level}`" /><span class="block text-[11px] font-mono text-gear-muted">Nv {{ data.level }}</span></span>
+            <span class="shrink-0 text-center"><RankEmblem no-hover class="w-10 h-10" :rank="data.rankName" :title="`Nível ${data.level}`" /><span class="block text-[11px] font-mono text-gear-muted">Nv {{ data.level }}</span></span>
             <div class="flex-1 min-w-0">
               <div class="h-1.5 rounded-full bg-gear-surface overflow-hidden" role="progressbar" :aria-valuenow="percent" aria-valuemin="0" aria-valuemax="100" :aria-label="`Progresso para o nível ${data.level + 1}`">
                 <div data-xp-bar class="h-full rounded-full" :style="{ width: `${percent}%`, background: rankColor }" />
@@ -34,7 +34,7 @@
                 <span>{{ format(data.nextLevelXp) }}</span>
               </div>
             </div>
-            <span class="shrink-0 text-center opacity-60"><RankEmblem class="w-10 h-10" :rank="nextRank" :title="`Nível ${data.level + 1}`" /><span class="block text-[11px] font-mono text-gear-muted">Nv {{ data.level + 1 }}</span></span>
+            <span class="shrink-0 text-center opacity-60"><RankEmblem no-hover class="w-10 h-10" :rank="nextRank" :title="`Nível ${data.level + 1}`" /><span class="block text-[11px] font-mono text-gear-muted">Nv {{ data.level + 1 }}</span></span>
           </div>
           <p class="text-xs text-gear-muted mt-2">Faltam {{ format(missing) }} XP para o nível {{ data.level + 1 }}</p>
         </div>
