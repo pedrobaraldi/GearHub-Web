@@ -12,9 +12,10 @@
           <div v-else class="space-y-4">
             <fieldset>
               <legend class="block text-sm font-medium mb-1.5">Categoria<span class="text-gear-accent" aria-hidden="true"> *</span></legend>
-              <div class="flex flex-wrap gap-2">
+              <!-- Fechado mostra as primeiras e a escolhida; o resto abre no botão -->
+              <div id="review-categories" class="flex flex-wrap gap-2">
                 <button
-                  v-for="option in categories ?? []"
+                  v-for="option in visibleCategories"
                   :key="option.slug"
                   type="button"
                   class="h-9 px-3 rounded-full border text-xs font-medium transition-colors"
@@ -23,6 +24,17 @@
                   @click="categorySlug = option.slug"
                 >
                   {{ option.name }}
+                </button>
+                <button
+                  v-if="hiddenCategoryCount"
+                  type="button"
+                  class="inline-flex items-center gap-1 h-9 px-3 rounded-full text-xs font-semibold text-gear-accent hover:bg-gear-accent/10 transition-colors"
+                  :aria-expanded="showAllCategories"
+                  aria-controls="review-categories"
+                  @click="showAllCategories = !showAllCategories"
+                >
+                  {{ showAllCategories ? 'Menos categorias' : `Mais categorias (${hiddenCategoryCount})` }}
+                  <AppIcon name="chevron-down" class="w-3.5 h-3.5 transition-transform" :class="{ 'rotate-180': showAllCategories }" />
                 </button>
               </div>
               <p v-if="fields.category" class="text-xs text-gear-red mt-1.5">{{ fields.category }}</p>
@@ -240,6 +252,18 @@ const sending = ref(false)
 
 const selectedCategory = computed(() =>
   categories.value?.find(category => category.slug === (draft ? draft.category : categorySlug.value)))
+
+// Categorias que aparecem com a lista fechada; a escolhida sempre aparece
+const COLLAPSED_CATEGORIES = 6
+const showAllCategories = ref(false)
+const visibleCategories = computed(() => {
+  const all = categories.value ?? []
+  if (showAllCategories.value) return all
+  const first = all.slice(0, COLLAPSED_CATEGORIES)
+  const chosen = all.find(option => option.slug === categorySlug.value)
+  return chosen && !first.includes(chosen) ? [...first, chosen] : first
+})
+const hiddenCategoryCount = computed(() => Math.max(0, (categories.value?.length ?? 0) - COLLAPSED_CATEGORIES))
 
 // Sugestões tiradas do catálogo da categoria escolhida
 const sameCategory = computed(() => (products.value ?? []).filter(product => product.category === selectedCategory.value?.name))
