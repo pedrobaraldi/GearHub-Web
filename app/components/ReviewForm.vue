@@ -7,16 +7,36 @@
   >
     <form novalidate @submit.prevent="submit">
       <div data-step>
-        <FormSection title="Produto" icon="package">
+        <FormSection title="Produto" icon="package" :subtitle="editing ? undefined : 'Diga qual produto você está avaliando. Se ele já existir na GearHub, sua review entra nele.'">
           <p v-if="editing" class="text-sm font-medium">{{ editing.draft.productName }}</p>
-          <ProductPicker
-            v-else
-            v-model="productId"
-            label="Produto avaliado"
-            placeholder="Buscar produto..."
-            :products="products ?? []"
-            :error="fields.productId"
-          />
+          <div v-else class="space-y-4">
+            <fieldset>
+              <legend class="block text-sm font-medium mb-1.5">Categoria<span class="text-gear-accent" aria-hidden="true"> *</span></legend>
+              <div class="flex flex-wrap gap-2">
+                <button
+                  v-for="option in categories ?? []"
+                  :key="option.slug"
+                  type="button"
+                  class="h-9 px-3 rounded-full border text-xs font-medium transition-colors"
+                  :class="categorySlug === option.slug ? 'border-gear-primary bg-gear-primary/10 text-gear-primary' : 'border-gear-border text-gear-muted hover:text-gear-text hover:border-gear-text/30'"
+                  :aria-pressed="categorySlug === option.slug"
+                  @click="categorySlug = option.slug"
+                >
+                  {{ option.name }}
+                </button>
+              </div>
+              <p v-if="fields.category" class="text-xs text-gear-red mt-1.5">{{ fields.category }}</p>
+            </fieldset>
+            <!-- Marca e modelo sugerem o que já existe, para o mesmo produto não aparecer duas vezes -->
+            <div class="grid sm:grid-cols-2 gap-4">
+              <FormField id="brand" v-model="brand" label="Marca" placeholder="Ex: Logitech" :options="brandSuggestions" :error="fields.brand" required />
+              <FormField id="model" v-model="model" label="Modelo" placeholder="Ex: G Pro X Superlight 2" :options="modelSuggestions" :error="fields.model" required />
+            </div>
+            <p v-if="matchedProduct" class="text-xs text-gear-green flex items-center gap-1.5">
+              <AppIcon name="check" class="w-3.5 h-3.5" />
+              Esse produto já está na GearHub: sua review vai somar às outras.
+            </p>
+          </div>
         </FormSection>
       </div>
 
@@ -199,7 +219,10 @@ const { data: categories } = await useFetch<CategoryOption[]>('/api/v1/categorie
 const { data: products } = await useFetch<PickerProduct[]>('/api/v1/products', { key: 'form-products' })
 
 const draft = props.editing?.draft
-const productId = ref('')
+// Produto informado por categoria, marca e modelo (a API encontra o existente ou cria)
+const categorySlug = ref('')
+const brand = ref('')
+const model = ref('')
 const images = ref<string[]>(draft?.images ?? [])
 const form = reactive({
   title: draft?.title ?? '',
@@ -215,11 +238,17 @@ const showOptional = ref(false)
 const fields = ref<Record<string, string>>({})
 const sending = ref(false)
 
-const selectedCategory = computed(() => {
-  if (draft) return categories.value?.find(category => category.slug === draft.category)
-  const product = products.value?.find(item => item.id === productId.value)
-  return categories.value?.find(category => category.name === product?.category)
-})
+const selectedCategory = computed(() =>
+  categories.value?.find(category => category.slug === (draft ? draft.category : categorySlug.value)))
+
+// Sugestões tiradas do catálogo da categoria escolhida
+const sameCategory = computed(() => (products.value ?? []).filter(product => product.category === selectedCategory.value?.name))
+const brandSuggestions = computed(() => [...new Set(sameCategory.value.map(product => product.brand))].sort())
+const modelSuggestions = computed(() =>
+  sameCategory.value.filter(product => product.brand.toLowerCase() === brand.value.trim().toLowerCase()).map(product => product.name))
+const matchedProduct = computed(() => sameCategory.value.find(product =>
+  product.brand.toLowerCase() === brand.value.trim().toLowerCase()
+  && [product.name.toLowerCase(), productTitle(product).toLowerCase()].includes(model.value.trim().replace(/\s+/g, ' ').toLowerCase())))
 
 const requiredFields = computed(() => selectedCategory.value?.specFields.filter(field => field.required) ?? [])
 const optionalFields = computed(() => selectedCategory.value?.specFields.filter(field => !field.required) ?? [])
@@ -246,10 +275,9 @@ watch(selectedCategory, async (next, previous) => {
   }
 })
 
-// O modelo já vem do produto escolhido, e a pessoa pode detalhar
-watch(productId, (id) => {
-  const product = products.value?.find(item => item.id === id)
-  if (product) specs.value.modelo = productTitle(product)
+// O campo "modelo" da ficha acompanha marca e modelo, e a pessoa pode detalhar
+watch([brand, model], ([nextBrand, nextModel]) => {
+  specs.value.modelo = [nextBrand.trim(), nextModel.trim()].filter(Boolean).join(' ')
 }, { flush: 'post' })
 
 useGsapContext(root, (el) => {
@@ -270,11 +298,8 @@ function fieldError(prefix: string) {
 
 const filled = (items: string[]) => items.map(item => item.trim()).filter(Boolean)
 
-const previewProductName = computed(() => {
-  if (draft) return draft.productName
-  const product = products.value?.find(item => item.id === productId.value)
-  return product ? productTitle(product) : undefined
-})
+const previewProductName = computed(() =>
+  draft ? draft.productName : [brand.value.trim(), model.value.trim()].filter(Boolean).join(' ') || undefined)
 
 async function submit() {
   fields.value = {}
@@ -290,7 +315,7 @@ async function submit() {
   }
   try {
     if (props.editing) await $fetch(`/api/v1/reviews/${props.editing.id}`, { method: 'PATCH', body: review })
-    else await $fetch('/api/v1/reviews', { method: 'POST', body: { ...review, productId: productId.value || null } })
+    else await $fetch('/api/v1/reviews', { method: 'POST', body: { ...review, category: categorySlug.value || null, brand: brand.value, model: model.value } })
     // Publicar dá XP: confere na hora se a pessoa subiu de patente
     rankUp.check(true)
     clearNuxtData('feed')
