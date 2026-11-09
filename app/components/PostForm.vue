@@ -7,21 +7,33 @@
   >
     <form novalidate @submit.prevent="submit">
       <div data-step>
-        <FormSection title="Sobre o que é?" icon="message-square">
+        <FormSection title="Sobre o que é?" icon="message-square" :subtitle="selectedTopicName ? `Tópico: ${selectedTopicName}` : 'Escolha um tópico.'">
           <fieldset>
             <legend class="sr-only">Categoria do post</legend>
-            <div class="grid grid-cols-3 sm:grid-cols-5 gap-2">
+            <!-- Chips compactos: fechado mostra os primeiros e o escolhido; o resto abre no botão -->
+            <div id="post-topics" class="flex flex-wrap gap-2">
               <button
-                v-for="option in topics"
+                v-for="option in visibleTopics"
                 :key="option.slug"
                 type="button"
-                class="flex flex-col items-center justify-center gap-1.5 min-h-[72px] px-1 py-2 rounded-xl border text-xs font-medium text-center transition-colors"
+                class="inline-flex items-center gap-1.5 h-9 px-3 rounded-full border text-xs font-medium transition-colors"
                 :class="topic === option.slug ? 'border-gear-primary bg-gear-primary/10 text-gear-primary' : 'border-gear-border text-gear-muted hover:text-gear-text hover:border-gear-text/30'"
                 :aria-pressed="topic === option.slug"
                 @click="topic = option.slug"
               >
-                <TopicIcon :slug="option.slug" class="w-5 h-5" />
+                <TopicIcon :slug="option.slug" class="w-4 h-4" />
                 {{ option.name }}
+              </button>
+              <button
+                v-if="hiddenTopicCount"
+                type="button"
+                class="inline-flex items-center gap-1 h-9 px-3 rounded-full text-xs font-semibold text-gear-accent hover:bg-gear-accent/10 transition-colors"
+                :aria-expanded="showAllTopics"
+                aria-controls="post-topics"
+                @click="showAllTopics = !showAllTopics"
+              >
+                {{ showAllTopics ? 'Menos tópicos' : `Mais tópicos (${hiddenTopicCount})` }}
+                <AppIcon name="chevron-down" class="w-3.5 h-3.5 transition-transform" :class="{ 'rotate-180': showAllTopics }" />
               </button>
             </div>
             <p v-if="fields.topic" class="text-xs text-gear-red mt-1.5">{{ fields.topic }}</p>
@@ -98,6 +110,20 @@ const toast = useToast()
 const goBack = useGoBack()
 
 const { data: topics } = await useFetch<{ slug: string, name: string }[]>('/api/v1/post-topics', { key: 'post-topics' })
+
+// Tópicos que aparecem com a lista fechada; o escolhido sempre aparece, mesmo fora deles
+const COLLAPSED_TOPICS = 6
+const showAllTopics = ref(false)
+const visibleTopics = computed(() => {
+  const all = topics.value ?? []
+  if (showAllTopics.value) return all
+  const first = all.slice(0, COLLAPSED_TOPICS)
+  const chosen = all.find(option => option.slug === topic.value)
+  return chosen && !first.includes(chosen) ? [...first, chosen] : first
+})
+// O botão continua aparecendo aberto, para poder fechar a lista
+const hiddenTopicCount = computed(() => Math.max(0, (topics.value?.length ?? 0) - COLLAPSED_TOPICS))
+const selectedTopicName = computed(() => topics.value?.find(option => option.slug === topic.value)?.name)
 
 const draft = props.editing?.draft
 const topic = ref(draft?.topic ?? 'discussao')
