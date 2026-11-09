@@ -1,6 +1,7 @@
 <template>
   <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-10 py-6">
     <header class="mb-6">
+      <BackButton class="mb-4" />
       <h1 class="font-display italic font-extrabold uppercase text-4xl sm:text-5xl leading-[0.95] tracking-tight">Games</h1>
       <p class="text-sm text-gear-muted mt-2 max-w-xl">Preço, descontos e jogadores online dos jogos da Steam, com o histórico que a GearHub coleta de hora em hora.</p>
     </header>

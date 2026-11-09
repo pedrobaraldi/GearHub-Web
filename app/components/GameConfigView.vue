@@ -1,12 +1,13 @@
 <template>
-  <div class="space-y-4">
+  <!-- Seções em duas colunas no desktop; cada uma com o equipamento usado e os valores -->
+  <div class="grid md:grid-cols-2 gap-4">
     <section v-for="section in config.sections" :key="section.key" class="glass-card p-5">
       <h3 class="flex items-center gap-2 font-semibold mb-3">
         <AppIcon :name="SECTION_ICONS[section.key] ?? 'settings'" class="w-[18px] h-[18px] text-gear-accent" />
         {{ section.label }}
       </h3>
       <GameGearRow v-if="gearFor(section.key)" :item="gearFor(section.key)!" class="mb-4" />
-      <dl class="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-3">
+      <dl class="grid grid-cols-2 gap-x-4 gap-y-3">
         <div v-for="item in section.items" :key="item.key" class="min-w-0">
           <dt class="text-xs text-gear-muted">{{ item.label }}</dt>
           <dd class="text-sm font-semibold mt-0.5 break-words">{{ item.value }}<span v-if="item.unit" class="font-normal text-gear-muted ml-1">{{ item.unit }}</span></dd>
@@ -14,7 +15,7 @@
       </dl>
     </section>
 
-    <section v-if="otherGear.length" class="glass-card p-5">
+    <section v-if="otherGear.length" class="glass-card p-5 md:col-span-2">
       <h3 class="flex items-center gap-2 font-semibold mb-3">
         <AppIcon name="package" class="w-[18px] h-[18px] text-gear-accent" />
         Equipamentos
@@ -24,7 +25,7 @@
       </div>
     </section>
 
-    <p v-if="!config.sections.length && !config.gear.length" class="glass-card p-6 text-sm text-gear-muted text-center">Sem configurações preenchidas.</p>
+    <p v-if="!config.sections.length && !config.gear.length" class="glass-card p-6 text-sm text-gear-muted text-center md:col-span-2">Sem configurações preenchidas.</p>
   </div>
 </template>
 
