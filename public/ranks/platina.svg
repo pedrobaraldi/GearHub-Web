@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="lc-title">
+  <title id="lc-title">Platina</title>
+  <style>
+    /* ===== construção (tier 4) ===== */
+    .lc-ring { stroke-dasharray: 100; animation: lc-draw 1.0s cubic-bezier(.6,0,.3,1) 0.35s both; }
+    @keyframes lc-draw { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
+    .lc-symbol { transform-box: view-box; transform-origin: 128px 128px;
+      animation: lc-pop .5s cubic-bezier(.3,1.6,.5,1) 1.55s both; }
+    @keyframes lc-pop { from { opacity: 0; transform: scale(.4); } to { opacity: 1; transform: none; } }
+    .lc-table { transform-box: view-box; transform-origin: 128px 128px;
+      animation: lc-table .45s ease-out 1.30s both; }
+    @keyframes lc-table { from { opacity: 0; transform: scale(.5); } to { opacity: 1; transform: none; } }
+    .lc-plate { transform-box: view-box; transform-origin: 128px 128px;
+      animation: lc-plate .6s ease-out both; }
+    @keyframes lc-plate { from { opacity: 0; transform: scale(.85); } to { opacity: 1; transform: none; } }
+    .lc-facet { animation: lc-facet .55s cubic-bezier(.2,.8,.3,1) both; }
+    @keyframes lc-facet { from { opacity: 0; transform: translate(var(--dx), var(--dy)); } to { opacity: 1; transform: none; } }
+    .lc-edge { animation: lc-fade .4s ease-out 1.40s both; }
+    @keyframes lc-fade { from { opacity: 0; } to { opacity: 1; } }
+    /* ===== aura (nível 2) ===== */
+    .lc-aura-in { opacity: 0; animation: lc-aura-in 1s ease-out 1.60s forwards; }
+    @keyframes lc-aura-in { to { opacity: 1; } }
+    .lc-mote { opacity: 0; animation-name: lc-mote; animation-timing-function: ease-out; animation-iteration-count: infinite; }
+    @keyframes lc-mote {
+      0%   { opacity: 0; transform: translateY(0); }
+      20%  { opacity: 1; }
+      100% { opacity: 0; transform: translateY(-95px); }
+    }
+    .lc-shard { opacity: 0; animation: lc-shard-in .5s cubic-bezier(.3,1.5,.5,1) forwards, lc-bob 3s ease-in-out infinite; }
+    @keyframes lc-shard-in { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes lc-bob { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(var(--sx), var(--sy)); } }
+    /* marcadores de tier: surgem um a um, devagar, e ficam */
+    .lc-tick { opacity: 0; transform-box: fill-box; transform-origin: center;
+      animation: lc-tick-in 0.9s cubic-bezier(.2,.7,.3,1) forwards; }
+    @keyframes lc-tick-in {
+      0%   { opacity: 0; transform: scale(.3); }
+      60%  { opacity: 1; transform: scale(1.25); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    /* brilho atravessando o emblema inteiro, em loop */
+    .lc-shine { opacity: 0; animation: lc-shine 4.0s ease-in-out 4.75s infinite; }
+    @keyframes lc-shine {
+      0%   { transform: translateX(0); opacity: 0; }
+      4%   { opacity: 1; }
+      32%  { transform: translateX(279px); opacity: 1; }
+      33%, 100% { transform: translateX(279px); opacity: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .lc-root * { animation: none !important; }
+      .lc-tick, .lc-aura-in, .lc-shard { opacity: 1; }
+      .lc-shine, .lc-flash, .lc-wave, .lc-mote { opacity: 0; }
+    }
+  </style>
+  <defs>
+    <filter id="lc-aura-blur" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="7"/></filter><filter id="lc-glow" x="-200%" y="-200%" width="500%" height="500%"><feGaussianBlur stdDeviation="1.8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <linearGradient id="lc-shine-grad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset=".5" stop-color="#ffffff" stop-opacity="1"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="lc-flash-grad">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset=".4" stop-color="#dcd3ff" stop-opacity=".8"/>
+      <stop offset="1" stop-color="#9c8cff" stop-opacity="0"/>
+    </radialGradient>
+    <mask id="lc-shine-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="256" height="256">
+      <polygon points="93.1,43.7 162.9,43.7 212.3,93.1 212.3,162.9 162.9,212.3 93.1,212.3 43.7,162.9 43.7,93.1" fill="#fff" fill-opacity=".18"/>
+      <polygon points="95.4,49.4 160.6,49.4 206.6,95.4 206.6,160.6 160.6,206.6 95.4,206.6 49.4,160.6 49.4,95.4" fill="none" stroke="#fff" stroke-width="3" stroke-linejoin="round"/>
+      <polygon points="98.9,57.8 157.1,57.8 198.2,98.9 198.2,157.1 157.1,198.2 98.9,198.2 57.8,157.1 57.8,98.9" fill="#fff" fill-opacity=".5"/>
+      <polygon points="117.8,103.4 138.2,103.4 152.6,117.8 152.6,138.2 138.2,152.6 117.8,152.6 103.4,138.2 103.4,117.8" fill="none" stroke="#fff" stroke-width="2.6" stroke-linejoin="round"/>
+      <polygon points="121.9,113.3 134.1,113.3 142.7,121.9 142.7,134.1 134.1,142.7 121.9,142.7 113.3,134.1 113.3,121.9" fill="#fff"/>
+    </mask>
+  </defs>
+
+  <g class="lc-root">
+  <!-- aura -->
+  <g class="lc-aura-in"><polygon points="92.5,42.3 163.5,42.3 213.7,92.5 213.7,163.5 163.5,213.7 92.5,213.7 42.3,163.5 42.3,92.5" fill="#9c8cff" opacity="0.42" filter="url(#lc-aura-blur)"/><g fill="#dcd3ff" filter="url(#lc-glow)"></g><g filter="url(#lc-glow)"><g class="lc-shard" style="--sx:2.83px;--sy:-2.83px;animation-delay:2.20s, 0.00s"><polygon points="199.9,56.1 196.5,65.4 189.7,66.3" fill="#dcd3ff"/><polygon points="199.9,56.1 189.7,66.3 190.6,59.5" fill="#6a5ae8"/><polygon points="199.9,56.1 196.5,65.4 189.7,66.3 190.6,59.5" fill="none" stroke="#0b0d14" stroke-width="1.4" stroke-linejoin="round"/></g><g class="lc-shard" style="--sx:2.83px;--sy:2.83px;animation-delay:2.32s, -0.50s"><polygon points="199.9,199.9 190.6,196.5 189.7,189.7" fill="#dcd3ff"/><polygon points="199.9,199.9 189.7,189.7 196.5,190.6" fill="#6a5ae8"/><polygon points="199.9,199.9 190.6,196.5 189.7,189.7 196.5,190.6" fill="none" stroke="#0b0d14" stroke-width="1.4" stroke-linejoin="round"/></g><g class="lc-shard" style="--sx:-2.83px;--sy:2.83px;animation-delay:2.44s, -1.00s"><polygon points="56.1,199.9 59.5,190.6 66.3,189.7" fill="#dcd3ff"/><polygon points="56.1,199.9 66.3,189.7 65.4,196.5" fill="#6a5ae8"/><polygon points="56.1,199.9 59.5,190.6 66.3,189.7 65.4,196.5" fill="none" stroke="#0b0d14" stroke-width="1.4" stroke-linejoin="round"/></g><g class="lc-shard" style="--sx:-2.83px;--sy:-2.83px;animation-delay:2.56s, -1.50s"><polygon points="56.1,56.1 65.4,59.5 66.3,66.3" fill="#dcd3ff"/><polygon points="56.1,56.1 66.3,66.3 59.5,65.4" fill="#6a5ae8"/><polygon points="56.1,56.1 65.4,59.5 66.3,66.3 59.5,65.4" fill="none" stroke="#0b0d14" stroke-width="1.4" stroke-linejoin="round"/></g></g></g>
+  <!-- placa de fundo e anel -->
+  <g class="rank-plate lc-plate">
+    <polygon points="93.1,43.7 162.9,43.7 212.3,93.1 212.3,162.9 162.9,212.3 93.1,212.3 43.7,162.9 43.7,93.1" fill="#1b1f2b" stroke="#0b0d14" stroke-width="3" stroke-linejoin="round"/>
+  </g>
+  <polygon class="rank-ring lc-ring" pathLength="100" points="95.4,49.4 160.6,49.4 206.6,95.4 206.6,160.6 160.6,206.6 95.4,206.6 49.4,160.6 49.4,95.4" fill="none" stroke="#9c8cff" stroke-width="3" stroke-linejoin="round"/>
+
+  <!-- gema facetada -->
+  <g class="rank-gem lc-gem">
+    <polygon class="lc-edge" points="98.9,57.8 157.1,57.8 198.2,98.9 198.2,157.1 157.1,198.2 98.9,198.2 57.8,157.1 57.8,98.9" transform="translate(0 4)" fill="#000" opacity=".35"/>
+    <polygon class="lc-facet" style="--dx:0.0px;--dy:-26.0px;animation-delay:0.20s" points="98.9,57.8 157.1,57.8 142.5,92.9 113.5,92.9" fill="#d2c9f8"/><polygon class="lc-facet" style="--dx:18.4px;--dy:-18.4px;animation-delay:0.33s" points="157.1,57.8 198.2,98.9 163.1,113.5 142.5,92.9" fill="#9d94d3"/><polygon class="lc-facet" style="--dx:26.0px;--dy:0.0px;animation-delay:0.45s" points="198.2,98.9 198.2,157.1 163.1,142.5 163.1,113.5" fill="#574ea3"/><polygon class="lc-facet" style="--dx:18.4px;--dy:18.4px;animation-delay:0.57s" points="198.2,157.1 157.1,198.2 142.5,163.1 163.1,142.5" fill="#2a2083"/><polygon class="lc-facet" style="--dx:0.0px;--dy:26.0px;animation-delay:0.70s" points="157.1,198.2 98.9,198.2 113.5,163.1 142.5,163.1" fill="#2f2587"/><polygon class="lc-facet" style="--dx:-18.4px;--dy:18.4px;animation-delay:0.82s" points="98.9,198.2 57.8,157.1 92.9,142.5 113.5,163.1" fill="#645aac"/><polygon class="lc-facet" style="--dx:-26.0px;--dy:0.0px;animation-delay:0.95s" points="57.8,157.1 57.8,98.9 92.9,113.5 92.9,142.5" fill="#aaa0dc"/><polygon class="lc-facet" style="--dx:-18.4px;--dy:-18.4px;animation-delay:1.07s" points="57.8,98.9 98.9,57.8 113.5,92.9 92.9,113.5" fill="#d7cefc"/>
+    <polygon class="lc-table" points="113.5,92.9 142.5,92.9 163.1,113.5 163.1,142.5 142.5,163.1 113.5,163.1 92.9,142.5 92.9,113.5" fill="#6a5ae8"/>
+    <polygon class="lc-edge" points="98.9,57.8 157.1,57.8 198.2,98.9 198.2,157.1 157.1,198.2 98.9,198.2 57.8,157.1 57.8,98.9" fill="none" stroke="#0b0d14" stroke-width="3" stroke-linejoin="round"/>
+  </g>
+
+  <!-- símbolo: a forma do rank em miniatura -->
+  <g class="rank-symbol lc-symbol">
+    <g transform="translate(0 3)" opacity=".3">
+      <polygon points="117.8,103.4 138.2,103.4 152.6,117.8 152.6,138.2 138.2,152.6 117.8,152.6 103.4,138.2 103.4,117.8" fill="none" stroke="#000" stroke-width="2.6" stroke-linejoin="round"/>
+      <polygon points="121.9,113.3 134.1,113.3 142.7,121.9 142.7,134.1 134.1,142.7 121.9,142.7 113.3,134.1 113.3,121.9" fill="#000"/>
+    </g>
+    <polygon points="117.8,103.4 138.2,103.4 152.6,117.8 152.6,138.2 138.2,152.6 117.8,152.6 103.4,138.2 103.4,117.8" fill="none" stroke="#fff" stroke-width="2.6" stroke-linejoin="round"/>
+    <polygon points="121.9,113.3 134.1,113.3 142.7,121.9 142.7,134.1 134.1,142.7 121.9,142.7 113.3,134.1 113.3,121.9" fill="#fff"/>
+    <polygon points="128.0,128.0 121.9,113.3 134.1,113.3" fill="#dcd3ff" opacity=".55"/>
+  </g>
+
+  <!-- brilho (recortado no emblema inteiro) -->
+  <g class="rank-shine" mask="url(#lc-shine-mask)">
+    <polygon class="lc-shine" points="-26.3,216.3 9.7,216.3 49.7,39.7 13.7,39.7" fill="url(#lc-shine-grad)"/>
+  </g>
+
+  <!-- marcadores de tier -->
+  <g class="rank-tier"><polygon class="lc-tick" style="animation-delay:2.30s" points="92.0,218.3 98.5,226.3 92.0,234.3 85.5,226.3" fill="#dcd3ff" stroke="#0b0d14" stroke-width="1.8" stroke-linejoin="round"/><polygon class="lc-tick" style="animation-delay:2.75s" points="110.0,218.3 116.5,226.3 110.0,234.3 103.5,226.3" fill="#dcd3ff" stroke="#0b0d14" stroke-width="1.8" stroke-linejoin="round"/><polygon class="lc-tick" style="animation-delay:3.20s" points="128.0,218.3 134.5,226.3 128.0,234.3 121.5,226.3" fill="#dcd3ff" stroke="#0b0d14" stroke-width="1.8" stroke-linejoin="round"/><polygon class="lc-tick" style="animation-delay:3.65s" points="146.0,218.3 152.5,226.3 146.0,234.3 139.5,226.3" fill="#dcd3ff" stroke="#0b0d14" stroke-width="1.8" stroke-linejoin="round"/><polygon class="lc-tick" style="animation-delay:4.10s" points="164.0,218.3 170.5,226.3 164.0,234.3 157.5,226.3" fill="#dcd3ff" stroke="#0b0d14" stroke-width="1.8" stroke-linejoin="round"/></g>
+  </g>
+</svg>

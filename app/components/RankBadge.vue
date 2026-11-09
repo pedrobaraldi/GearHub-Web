@@ -11,7 +11,7 @@
       background: `color-mix(in oklab, ${rank.color} 12%, transparent)`,
     }"
   >
-    <AppIcon name="compass" class="w-2.5 h-2.5" />
+    <RankEmblem :rank="rank.label" title="" no-hover class="w-4 h-4 -my-1" />
     {{ rank.label }}
   </NuxtLink>
   <span

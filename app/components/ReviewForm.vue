@@ -175,6 +175,7 @@ interface SpecFieldOption {
 const UNKNOWN_VALUES = ['Não se aplica', 'Não informado']
 
 const props = defineProps<{ editing?: { id: string, draft: ReviewDraft } }>()
+const rankUp = useRankUp()
 
 const toast = useToast()
 const goBack = useGoBack()
@@ -269,6 +270,8 @@ async function submit() {
   try {
     if (props.editing) await $fetch(`/api/v1/reviews/${props.editing.id}`, { method: 'PATCH', body: review })
     else await $fetch('/api/v1/reviews', { method: 'POST', body: { ...review, productId: productId.value || null } })
+    // Publicar dá XP: confere na hora se a pessoa subiu de patente
+    rankUp.check(true)
     clearNuxtData('feed')
     await navigateTo('/')
   }

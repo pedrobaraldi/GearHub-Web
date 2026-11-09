@@ -2,6 +2,10 @@
   <div>
     <NuxtRouteAnnouncer />
     <ToastHost />
+    <!-- Animação de subida de rank: consulta a sessão, então só roda no navegador -->
+    <ClientOnly>
+      <RankUpOverlay />
+    </ClientOnly>
     <NuxtLayout>
       <NuxtPage :transition="pageTransition" />
     </NuxtLayout>

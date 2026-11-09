@@ -3,7 +3,8 @@
     <div class="flex items-center gap-3">
       <BackButton />
       <NuxtLink :to="`/profile/${data.username}`" class="flex items-center gap-2 min-w-0 min-h-11 hover:opacity-80 transition-opacity">
-        <UserPhoto :src="data.avatarUrl" :name="data.displayName" class="w-8 h-8 text-xs shrink-0" />
+        <span v-if="founder" class="founder-ring relative rounded-full p-[2px] shrink-0"><UserPhoto :src="data.avatarUrl" :name="data.displayName" class="w-8 h-8 text-xs" /></span>
+        <UserPhoto v-else :src="data.avatarUrl" :name="data.displayName" class="w-8 h-8 text-xs shrink-0 ring-2" :style="{ '--tw-ring-color': rankColor }" />
         <span class="text-sm font-semibold truncate">{{ data.displayName }}</span>
       </NuxtLink>
     </div>
@@ -20,10 +21,10 @@
         <div class="lg:order-2 text-center">
           <p class="text-xs text-gear-muted">Patente atual</p>
           <p data-rank-name class="font-display italic font-extrabold uppercase text-4xl leading-none mt-1" :style="{ color: rankColor }">{{ data.rankName }}</p>
-          <RankEmblem data-emblem glow class="w-36 h-44 mx-auto mt-4" :style="{ filter: `drop-shadow(0 0 calc(var(--glow, 6) * 1px) ${rankColor})` }" :color="rankColor" :label="data.level" :title="`Nível ${data.level}, ${data.rankName}`" />
+          <RankEmblem data-emblem animated class="w-44 h-44 mx-auto mt-2" :style="rankHasAura(data.rankName) ? { filter: `drop-shadow(0 0 calc(var(--glow, 6) * 1px) ${rankColor})` } : undefined" :rank="data.rankName" :title="`Nível ${data.level}, ${data.rankName}`" />
 
           <div class="flex items-center gap-2 mt-5">
-            <RankEmblem class="w-9 h-11 shrink-0" :color="rankColor" :label="data.level" :title="`Nível ${data.level}`" />
+            <span class="shrink-0 text-center"><RankEmblem class="w-10 h-10" :rank="data.rankName" :title="`Nível ${data.level}`" /><span class="block text-[11px] font-mono text-gear-muted">Nv {{ data.level }}</span></span>
             <div class="flex-1 min-w-0">
               <div class="h-1.5 rounded-full bg-gear-surface overflow-hidden" role="progressbar" :aria-valuenow="percent" aria-valuemin="0" aria-valuemax="100" :aria-label="`Progresso para o nível ${data.level + 1}`">
                 <div data-xp-bar class="h-full rounded-full" :style="{ width: `${percent}%`, background: rankColor }" />
@@ -33,13 +34,14 @@
                 <span>{{ format(data.nextLevelXp) }}</span>
               </div>
             </div>
-            <RankEmblem class="w-9 h-11 shrink-0 opacity-50" :color="nextColor" :label="data.level + 1" :title="`Nível ${data.level + 1}`" />
+            <span class="shrink-0 text-center opacity-60"><RankEmblem class="w-10 h-10" :rank="nextRank" :title="`Nível ${data.level + 1}`" /><span class="block text-[11px] font-mono text-gear-muted">Nv {{ data.level + 1 }}</span></span>
           </div>
           <p class="text-xs text-gear-muted mt-2">Faltam {{ format(missing) }} XP para o nível {{ data.level + 1 }}</p>
         </div>
 
         <!-- Números -->
-        <dl class="lg:order-1 grid grid-cols-2 gap-x-4 gap-y-4 content-start">
+        <div class="lg:order-1 space-y-6">
+        <dl class="grid grid-cols-2 gap-x-4 gap-y-4 content-start">
           <div data-stat class="col-span-2">
             <dt class="text-xs text-gear-muted">XP total</dt>
             <dd data-count-up :data-value="data.xp" class="font-display italic font-extrabold text-4xl leading-none mt-1 tabular-nums">{{ format(data.xp) }}</dd>
@@ -50,14 +52,40 @@
           </div>
         </dl>
 
+        <!-- Insígnias: lista vertical, espelhando as patentes do outro lado -->
+        <div v-if="otherBadges.length">
+          <h2 class="font-display italic font-extrabold uppercase text-lg" :style="{ color: rankColor }">Insígnias</h2>
+          <ul class="mt-3 space-y-3">
+            <li v-for="badge in otherBadges" :key="badge.key" data-badge class="flex items-center gap-3" :title="badge.description">
+              <BadgeEmblem :badge="badge.key" :title="badge.name" class="w-11 h-11 shrink-0" />
+              <span class="min-w-0">
+                <span class="block font-semibold text-sm">{{ badge.name }}</span>
+                <span class="block text-xs text-gear-muted whitespace-nowrap">{{ badge.grantedAt ? `Desde ${formatDate(badge.grantedAt)}` : badge.description }}</span>
+              </span>
+            </li>
+          </ul>
+        </div>
+        </div>
+
         <!-- Patentes -->
         <div class="lg:order-3 lg:justify-self-end">
+          <!-- Patente especial: Fundador, junto das patentes normais e com o número da pessoa -->
+          <template v-if="founder">
+            <h2 class="founder-text font-display italic font-extrabold uppercase text-lg">Patente especial</h2>
+            <div data-rank-row class="flex items-center gap-3 mt-3 mb-6">
+              <FounderEmblem :number="founder.number" class="block w-14 h-14 shrink-0" />
+              <span class="min-w-0">
+                <span class="block font-semibold text-sm">Fundador nº {{ founder.number }}</span>
+                <span class="block text-xs text-gear-muted">Um dos 100 primeiros</span>
+              </span>
+            </div>
+          </template>
           <h2 class="font-display italic font-extrabold uppercase text-lg" :style="{ color: rankColor }">Patentes</h2>
           <ol class="mt-3 space-y-3">
-            <li v-for="rank in data.ranks" :key="rank.name" data-rank-row class="flex items-center gap-3" :class="{ 'opacity-50': !rank.reached }">
-              <RankEmblem class="w-9 h-11 shrink-0" :color="colorOf(rank.name)" :label="rank.minLevel" :title="rank.name" />
+            <li v-for="rank in data.ranks" :key="rank.name" data-rank-row class="flex items-center gap-3">
+              <RankEmblem no-hover class="w-11 h-11 shrink-0" :rank="rank.name" :title="rank.reached ? rank.name : `${rank.name}, bloqueado`" :locked="!rank.reached" />
               <span class="min-w-0">
-                <span class="block font-semibold text-sm">{{ rank.name }}</span>
+                <span class="block font-semibold text-sm" :class="{ 'text-gear-muted': !rank.reached }">{{ rank.name }}</span>
                 <span class="block text-xs text-gear-muted">
                   {{ rank.current ? 'Atual' : rank.reached ? 'Alcançada' : `A partir do nível ${rank.minLevel}` }}
                 </span>
@@ -66,15 +94,20 @@
           </ol>
         </div>
       </div>
+
     </section>
 
     <!-- Escada de níveis -->
     <section data-ladder class="glass-card p-5 sm:p-6" aria-label="Escada de níveis">
-      <div class="grid grid-cols-3 sm:grid-cols-5 gap-y-4">
-        <div v-for="tier in tiers" :key="tier.name" data-tier class="min-w-0 text-center" :class="{ 'opacity-40': data.level < tier.start }">
-          <RankEmblem class="w-9 h-11 mx-auto" :color="tier.color" :label="tier.start" :title="tier.name" />
-          <p class="text-[11px] font-semibold sm:uppercase tracking-tight mt-1" :style="{ color: data.level >= tier.start ? tier.color : undefined }">{{ tier.name }}</p>
-          <p class="text-[11px] font-mono text-gear-muted tabular-nums">{{ format(xpForLevel(tier.start)) }} XP</p>
+      <!-- Uma coluna por patente, sempre em uma linha; no celular a linha rola de lado -->
+      <div class="-mx-5 px-5 sm:mx-0 sm:px-0 overflow-x-auto">
+        <div class="grid gap-x-2 min-w-[600px] sm:min-w-0" :style="{ gridTemplateColumns: `repeat(${tiers.length}, minmax(0, 1fr))` }">
+          <div v-for="tier in tiers" :key="tier.name" data-tier class="min-w-0 text-center">
+            <RankEmblem no-hover class="w-12 h-12 mx-auto" :rank="tier.name" :title="`${tier.name}, a partir do nível ${tier.start}`" :locked="data.level < tier.start" />
+            <p class="text-[11px] font-semibold lg:uppercase tracking-tight whitespace-nowrap mt-1" :style="{ color: data.level >= tier.start ? tier.color : undefined }">{{ tier.name }}</p>
+            <p class="text-[11px] font-mono text-gear-muted tabular-nums whitespace-nowrap">Nv {{ tier.start }}</p>
+            <p class="text-[11px] font-mono text-gear-muted tabular-nums whitespace-nowrap">{{ format(xpForLevel(tier.start)) }} XP</p>
+          </div>
         </div>
       </div>
       <div class="flex items-end gap-px sm:gap-0.5 h-24 mt-5 border-b border-gear-border" aria-hidden="true">
@@ -112,7 +145,7 @@
 
 <script setup lang="ts">
 import gsap from 'gsap'
-import { userRank } from '~/composables/useGearData'
+import { rankHasAura, userRank } from '~/composables/useGearData'
 import type { User } from '~/composables/useGearData'
 
 interface Progress {
@@ -126,6 +159,7 @@ interface Progress {
   nextLevelXp: number
   activities: { key: string, label: string, points: number, count: number, xp: number }[]
   ranks: { name: string, minLevel: number, reached: boolean, current: boolean }[]
+  badges: { key: string, name: string, description: string, grantedAt: string | null, number?: number | null }[]
 }
 
 const LABELS: Record<string, string> = {
@@ -149,15 +183,21 @@ if (error.value || !data.value) {
 useHead({ title: () => `Nível de ${data.value?.displayName} · GearHub` })
 
 const format = (value: number) => value.toLocaleString('pt-BR')
+// Mês e ano bastam aqui, e cabem numa linha ao lado do emblema
+const formatDate = (value: string) => new Date(value).toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' })
 const xpForLevel = (level: number) => 50 * level * (level - 1)
 const colorOf = (rank: string) => userRank({ badge: rank as User['badge'] }).color
 
 const rankColor = computed(() => colorOf(data.value!.rankName))
 
+// Fundador vira patente especial; a lista de insígnias fica com as outras
+const founder = computed(() => data.value?.badges?.find(badge => badge.key === 'founder') ?? null)
+const otherBadges = computed(() => data.value?.badges?.filter(badge => badge.key !== 'founder') ?? [])
+
 const rankOfLevel = (level: number) =>
   [...data.value!.ranks].reverse().find(rank => level >= rank.minLevel) ?? data.value!.ranks[0]!
 
-const nextColor = computed(() => colorOf(rankOfLevel(data.value!.level + 1).name))
+const nextRank = computed(() => rankOfLevel(data.value!.level + 1).name)
 
 const percent = computed(() => {
   const { xp, levelStartXp, nextLevelXp } = data.value!
@@ -189,6 +229,7 @@ useGsapContext(root, (el) => {
     .from('[data-emblem]', { autoAlpha: 0, scale: 0.4, rotate: -14, transformOrigin: '50% 50%', duration: 0.8, ease: 'back.out(1.9)' }, 0.25)
     .from('[data-stat]', { autoAlpha: 0, x: -16, duration: 0.45, stagger: 0.06 }, 0.45)
     .from('[data-rank-row]', { autoAlpha: 0, x: 16, duration: 0.45, stagger: 0.08 }, 0.5)
+    .from('[data-badge]', { autoAlpha: 0, y: 10, duration: 0.4, stagger: 0.06 }, 0.6)
     .from('[data-xp-bar]', { width: 0, duration: 1.1, ease: 'power2.out' }, 0.7)
 
   // Os números sobem junto com a entrada dos cartões
@@ -203,9 +244,8 @@ useGsapContext(root, (el) => {
     }, 0.5)
   })
 
-  // Depois de entrar, o emblema respira e os anéis giram devagar
+  // Depois de entrar, o emblema respira
   gsap.fromTo('[data-emblem]', { '--glow': 6 }, { '--glow': 22, duration: 2.2, ease: 'sine.inOut', repeat: -1, yoyo: true, delay: 1 })
-  gsap.to('[data-emblem] [data-rings]', { rotation: 360, svgOrigin: '50 51', duration: 40, ease: 'none', repeat: -1 })
 
   // A escada anima quando entra na tela
   const ladder = { trigger: '[data-ladder]', start: 'top 92%', once: true }

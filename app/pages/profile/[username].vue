@@ -15,24 +15,35 @@
 
     <div class="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-10 -mt-14 sm:-mt-20">
       <div class="flex items-end justify-between gap-4 mb-5">
-        <div
-          data-ring
-          class="relative neon-ring rounded-full w-[108px] h-[108px] sm:w-[150px] sm:h-[150px] p-1 sm:p-[6px] shrink-0"
-          :style="{ background: rank.color }"
-          :title="rank.label"
-        >
-          <UserPhoto :src="person.avatar" :name="person.name" class="w-[100px] h-[100px] sm:w-[138px] sm:h-[138px] text-4xl sm:text-5xl" />
-          <NuxtLink
-            :to="`/niveis/${person.username}`"
-            :aria-label="`Nível ${person.level}, ${rank.label}. Ver progresso de ${person.name}`"
-            :title="`Nível ${person.level} · ${rank.label}`"
-            class="absolute -bottom-2 -right-2 sm:bottom-0 sm:right-0 drop-shadow-lg hover:scale-105 transition-transform"
+        <div class="flex items-end gap-3 sm:gap-4 min-w-0">
+          <div
+            data-ring
+            class="relative neon-ring rounded-full w-[108px] h-[108px] sm:w-[150px] sm:h-[150px] p-1 sm:p-[6px] shrink-0"
+            :class="{ 'founder-ring': founder }"
+            :style="founder ? undefined : { background: rank.color }"
+            :title="rank.label"
           >
-            <RankEmblem class="block w-10 h-12 sm:w-12 sm:h-[58px]" :color="rank.color" :label="person.level" :title="rank.label" />
-          </NuxtLink>
+            <UserPhoto :src="person.avatar" :name="person.name" class="w-[100px] h-[100px] sm:w-[138px] sm:h-[138px] text-4xl sm:text-5xl" />
+          </div>
+          <!-- Insígnias ao lado da foto, sobre o banner: fundo escuro próprio para ler em qualquer imagem -->
+          <ul v-if="shownBadges.length || isAdmin" data-enter class="flex items-center gap-1 rounded-lg border border-white/20 bg-black/60 backdrop-blur-md px-1.5 py-1 mb-[60px] sm:mb-[82px] min-w-0 flex-wrap" aria-label="Insígnias">
+            <li v-for="badge in shownBadges" :key="badge.key" class="group relative">
+              <button type="button" class="block rounded-md hover:bg-white/15 focus-visible:bg-white/15 transition-colors" :aria-label="`Ver insígnia ${badge.name}`" @click="openBadge(badge.key)">
+                <BadgeEmblem :badge="badge.key" :title="badge.name" class="block w-9 h-9" />
+              </button>
+              <span role="tooltip" class="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 whitespace-nowrap rounded-md bg-gear-sidebar border border-gear-border px-2 py-1 text-xs font-semibold opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity z-10">
+                {{ badge.name }}
+              </span>
+            </li>
+            <li v-if="isAdmin">
+              <button type="button" class="w-9 h-9 grid place-items-center rounded-md text-white/70 hover:text-white hover:bg-white/15 transition-colors" aria-label="Gerenciar insígnias" title="Gerenciar insígnias" @click="badgesOpen = true">
+                <AppIcon name="pencil" class="w-4 h-4" />
+              </button>
+            </li>
+          </ul>
         </div>
 
-        <div data-enter class="pb-2">
+        <div data-enter class="pb-2 shrink-0">
           <NuxtLink v-if="isMine" to="/account" class="btn-outline">
             <AppIcon name="pencil" class="w-4 h-4" />
             Editar perfil
@@ -52,9 +63,23 @@
 
       <div data-enter class="mb-2 flex items-center gap-2 flex-wrap">
         <h1 class="font-display italic font-extrabold uppercase text-4xl sm:text-5xl leading-none tracking-tight">{{ person.name }}</h1>
-        <RankBadge :user="person" large />
+        <NuxtLink
+          :to="`/niveis/${person.username}`"
+          :aria-label="`Nível ${person.level}, ${rank.label}. Ver progresso de ${person.name}`"
+          :title="`Nível ${person.level} · ${rank.label}`"
+          class="shrink-0 hover:scale-105 transition-transform"
+        >
+          <RankEmblem animated no-hover class="block w-10 h-10 sm:w-12 sm:h-12" :rank="rank.label" :title="`Nível ${person.level}, ${rank.label}`" />
+        </NuxtLink>
+        <!-- Fundador fica junto do rank normal, com o número da pessoa -->
+        <button v-if="founder" type="button" class="shrink-0 hover:scale-105 transition-transform" :aria-label="`Fundador nº ${founder.number} de 100`" :title="`Fundador nº ${founder.number} de 100`" @click="openBadge('founder')">
+          <FounderEmblem :number="founder.number" class="block w-10 h-10 sm:w-12 sm:h-12" />
+        </button>
+        <span v-if="person.pro" class="text-[10px] font-bold text-gear-primary uppercase tracking-wider px-1.5 py-0.5 rounded-md border border-gear-primary/40 bg-gear-primary/10">Pro</span>
       </div>
-      <p data-enter class="text-gear-muted text-sm">@{{ person.username }}</p>
+      <div data-enter class="flex items-center gap-2 flex-wrap">
+        <p class="text-gear-muted text-sm">@{{ person.username }}</p>
+      </div>
       <p v-if="profileData?.bio" data-enter class="text-gear-text-secondary leading-relaxed mt-4 max-w-2xl whitespace-pre-line">{{ profileData.bio }}</p>
 
       <ul v-if="links.length" data-enter class="flex flex-wrap gap-x-5 gap-y-2 mt-4" aria-label="Redes">
@@ -65,6 +90,60 @@
           </a>
         </li>
       </ul>
+
+
+      <!-- Detalhe da insígnia: a única exibição animada, as outras do perfil ficam paradas -->
+      <AppModal :open="!!selectedBadge" :title="selectedBadge?.name ?? ''" :subtitle="selectedBadge?.description" @close="selectedBadgeKey = null">
+        <template v-if="selectedBadge">
+          <FounderEmblem v-if="selectedBadge.key === 'founder'" :number="selectedBadge.number" animated class="block w-40 h-40 mx-auto" />
+          <BadgeEmblem v-else :key="selectedBadge.key" :badge="selectedBadge.key" :title="selectedBadge.name" animated class="w-40 h-40 mx-auto" />
+          <p v-if="selectedBadge.number" class="font-display italic font-extrabold uppercase text-2xl text-center mt-2">Nº {{ selectedBadge.number }} de 100</p>
+          <p class="text-sm text-gear-text-secondary text-center mt-4">{{ BADGE_DETAILS[selectedBadge.key] ?? selectedBadge.description }}</p>
+          <p v-if="selectedBadge.grantedAt" class="text-xs text-gear-muted text-center mt-2">
+            {{ person.name }} recebeu em {{ formatDate(selectedBadge.grantedAt) }}
+          </p>
+          <div v-if="badges.length > 1" class="mt-6 pt-4 border-t border-gear-border">
+            <p class="editorial-eyebrow mb-2 text-center">Insígnias de {{ person.name }}</p>
+            <ul class="flex justify-center flex-wrap gap-2">
+              <li v-for="badge in badges" :key="badge.key">
+                <button
+                  type="button"
+                  class="block p-1 rounded-lg border transition-colors"
+                  :class="badge.key === selectedBadge.key ? 'border-gear-accent bg-gear-accent/10' : 'border-transparent hover:border-gear-border'"
+                  :aria-pressed="badge.key === selectedBadge.key"
+                  :aria-label="badge.name"
+                  :title="badge.name"
+                  @click="selectedBadgeKey = badge.key"
+                >
+                  <BadgeEmblem :badge="badge.key" :title="badge.name" class="block w-10 h-10" />
+                </button>
+              </li>
+            </ul>
+          </div>
+        </template>
+      </AppModal>
+
+      <AppModal v-if="isAdmin" :open="badgesOpen" title="Insígnias" :subtitle="`Destaques de ${person.name}`" @close="badgesOpen = false">
+        <ul class="space-y-2">
+          <li v-for="badge in grantableBadges" :key="badge.key">
+            <button
+              type="button"
+              class="w-full flex items-center gap-3 p-2 rounded-xl border transition-colors text-left"
+              :class="hasBadge(badge.key) ? 'border-gear-accent bg-gear-accent/10' : 'border-gear-border hover:border-gear-text/30'"
+              :aria-pressed="hasBadge(badge.key)"
+              :disabled="savingBadge === badge.key"
+              @click="toggleBadge(badge.key)"
+            >
+              <BadgeEmblem :badge="badge.key" :title="badge.name" class="w-12 h-12 shrink-0" :locked="!hasBadge(badge.key)" />
+              <span class="min-w-0 flex-1">
+                <span class="block text-sm font-semibold">{{ badge.name }}</span>
+                <span class="block text-xs text-gear-muted">{{ badge.description }}</span>
+              </span>
+              <AppIcon v-if="hasBadge(badge.key)" name="check" class="w-4 h-4 text-gear-accent shrink-0" />
+            </button>
+          </li>
+        </ul>
+      </AppModal>
 
       <dl class="flex flex-wrap gap-x-5 gap-y-1 mt-4 text-sm">
         <div v-for="stat in stats" :key="stat.label" data-enter class="flex flex-row-reverse items-baseline gap-1.5">
@@ -173,6 +252,25 @@ import type { GameConfig } from '~/components/GameConfigView.vue'
 import type { FeedAuthor, FeedPage } from '~/composables/useFeed'
 import { toReview, toUser } from '~/composables/useFeed'
 import { userRank } from '~/composables/useGearData'
+import { toApiFailure } from '~/composables/useAuth'
+
+interface Badge {
+  key: string
+  name: string
+  description: string
+  grantedAt: string | null
+  number?: number | null
+}
+
+// Texto da tela de detalhe: o que a insígnia reconhece
+const BADGE_DETAILS: Record<string, string> = {
+  'founder': 'Um dos 100 primeiros a entrar na GearHub. Essa insígnia não pode mais ser conquistada.',
+  'developer': 'Faz parte da equipe que constrói a GearHub.',
+  'partner': 'Influencer ou criador de conteúdo parceiro da GearHub.',
+  'pro-player': 'Jogador profissional, que compete em alto nível.',
+  'reviewer': 'Se destaca pela quantidade e qualidade das reviews publicadas.',
+  'game-talker': 'Uma das vozes mais ativas da comunidade quando o assunto é games.',
+}
 
 interface PublicProfile extends FeedAuthor {
   bio: string | null
@@ -184,6 +282,7 @@ interface PublicProfile extends FeedAuthor {
   followerCount: number
   followingCount: number
   followedByMe: boolean
+  badges: Badge[]
 }
 
 const TABS = [
@@ -270,6 +369,51 @@ const stats = computed(() => [
   { label: 'Seguidores', value: followerCount.value },
   { label: 'Seguindo', value: profileData.value?.followingCount ?? 0 },
 ])
+
+// Insígnias: todo mundo vê, só admin dá ou tira
+const toast = useToast()
+const isAdmin = computed(() => user.value?.role === 'admin')
+const badges = ref<Badge[]>(profileData.value.badges ?? [])
+const badgesOpen = ref(false)
+const savingBadge = ref<string | null>(null)
+const catalog = ref<Badge[]>([])
+
+// O catálogo só é buscado quando o admin abre o painel
+watch(badgesOpen, async (open) => {
+  if (!open || catalog.value.length) return
+  try {
+    catalog.value = await $fetch<Badge[]>('/api/v1/badges')
+  }
+  catch (failure) {
+    toast.failure(toApiFailure(failure))
+  }
+})
+
+// Fundador aparece ao lado do rank; a fileira de insígnias fica com as outras
+const founder = computed(() => badges.value.find(badge => badge.key === 'founder') ?? null)
+const shownBadges = computed(() => badges.value.filter(badge => badge.key !== 'founder'))
+// O Fundador é automático (100 primeiros): não aparece no painel do admin
+const grantableBadges = computed(() => catalog.value.filter(badge => badge.key !== 'founder'))
+
+const selectedBadgeKey = ref<string | null>(null)
+const selectedBadge = computed(() => badges.value.find(badge => badge.key === selectedBadgeKey.value) ?? null)
+const openBadge = (key: string) => { selectedBadgeKey.value = key }
+const formatDate = (value: string) => new Date(value).toLocaleDateString('pt-BR', { day: 'numeric', month: 'short', year: 'numeric' })
+
+const hasBadge = (key: string) => badges.value.some(badge => badge.key === key)
+
+async function toggleBadge(key: string) {
+  savingBadge.value = key
+  try {
+    badges.value = await $fetch<Badge[]>(`/api/v1/users/${username}/badges/${key}`, { method: hasBadge(key) ? 'DELETE' : 'PUT' })
+  }
+  catch (failure) {
+    toast.failure(toApiFailure(failure))
+  }
+  finally {
+    savingBadge.value = null
+  }
+}
 
 async function toggleFollow() {
   if (!ensureUser()) return

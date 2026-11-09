@@ -75,6 +75,7 @@ export interface PostDraft {
 const MAX_LENGTH = 1000
 
 const props = defineProps<{ editing?: { id: string, draft: PostDraft } }>()
+const rankUp = useRankUp()
 
 const toast = useToast()
 const goBack = useGoBack()
@@ -112,6 +113,8 @@ async function submit() {
   try {
     if (props.editing) await $fetch(`/api/v1/posts/${props.editing.id}`, { method: 'PATCH', body })
     else await $fetch('/api/v1/posts', { method: 'POST', body })
+    // Publicar dá XP: confere na hora se a pessoa subiu de patente
+    rankUp.check(true)
     clearNuxtData('feed')
     await navigateTo('/')
   }

@@ -17,8 +17,12 @@
     --gear-on-primary: #ffffff;
     --gear-accent: #fe8e04;
     --gear-gold: #b45309;
-    --rank-analista: #0369a1;
-    --rank-lenda: #7c3aed;
+    --rank-cobre: #a8551f;
+    --rank-prata: #5b6b82;
+    --rank-cobalto: #1d6fb8;
+    --rank-esmeralda: #15803d;
+    --rank-platina: #6d4fd8;
+    --rank-diamante: #b45309;
     --gear-warn: #c2410c;
     --gear-green: #15803d;
     --gear-red: #dc2626;
@@ -46,8 +50,12 @@
     --gear-on-primary: #000000;
     --gear-accent: #fe8e04;
     --gear-gold: #fbbf24;
-    --rank-analista: #38bdf8;
-    --rank-lenda: #c084fc;
+    --rank-cobre: #e8a06a;
+    --rank-prata: #cfd9e8;
+    --rank-cobalto: #5cb8ff;
+    --rank-esmeralda: #5be38a;
+    --rank-platina: #9c8cff;
+    --rank-diamante: #ffc443;
     --gear-warn: #fb923c;
     --gear-green: #4ade80;
     --gear-red: #f87171;
@@ -236,6 +244,53 @@
     box-shadow:
       0 0 calc(var(--glow) * 1px) var(--neon),
       0 0 calc(var(--glow) * 2.5px) var(--neon-soft);
+  }
+
+  /* Contorno RGB do Fundador: arco-íris girando atrás da foto (a foto fica por cima) */
+  .founder-ring {
+    background: transparent !important;
+    isolation: isolate;
+    box-shadow: 0 0 18px rgb(255 255 255 / 0.18);
+  }
+  .founder-ring::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: conic-gradient(#ff4d4d, #ffb84d, #f5ff4d, #4dff88, #4dfff3, #4d7dff, #b44dff, #ff4dd2, #ff4d4d);
+    animation: founder-spin 4s linear infinite;
+  }
+  .founder-ring::after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    z-index: -2;
+    border-radius: inherit;
+    background: conic-gradient(#ff4d4d, #ffb84d, #f5ff4d, #4dff88, #4dfff3, #4d7dff, #b44dff, #ff4dd2, #ff4d4d);
+    filter: blur(12px);
+    opacity: 0.45;
+    animation: founder-spin 4s linear infinite;
+  }
+  /* Título em arco-íris para a patente especial */
+  .founder-text {
+    background: linear-gradient(90deg, #ff4d4d, #ffb84d, #4dff88, #4dfff3, #b44dff, #ff4dd2, #ff4d4d);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: founder-text 6s linear infinite;
+  }
+  @keyframes founder-text {
+    to { background-position: 200% 0; }
+  }
+  @keyframes founder-spin {
+    to { transform: rotate(360deg); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .founder-ring::before,
+    .founder-ring::after,
+    .founder-text { animation: none; }
   }
 
   .neon-hover {

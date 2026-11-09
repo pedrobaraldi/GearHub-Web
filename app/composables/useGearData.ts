@@ -3,7 +3,7 @@ export interface User {
   name: string
   username: string
   avatar: string
-  badge: 'ExploradorPro' | 'Explorador' | 'Analista' | 'Reviewer' | 'Especialista' | 'Lenda'
+  badge: 'Cobre' | 'Prata' | 'Cobalto' | 'Esmeralda' | 'Platina' | 'Diamante'
   level: number
   pro?: boolean
   bio?: string
@@ -68,16 +68,24 @@ export function productPath(product: Pick<Product, 'id'>): string {
 }
 
 const USER_RANKS: Record<User['badge'], { label: string; color: string }> = {
-  ExploradorPro: { label: 'Explorador', color: 'var(--gear-text)' },
-  Explorador: { label: 'Explorador', color: 'var(--gear-text)' },
-  Analista: { label: 'Analista', color: 'var(--rank-analista)' },
-  Reviewer: { label: 'Reviewer', color: 'var(--gear-green)' },
-  Especialista: { label: 'Especialista', color: 'var(--gear-gold)' },
-  Lenda: { label: 'Lenda', color: 'var(--rank-lenda)' },
+  'Cobre': { label: 'Cobre', color: 'var(--rank-cobre)' },
+  'Prata': { label: 'Prata', color: 'var(--rank-prata)' },
+  'Cobalto': { label: 'Cobalto', color: 'var(--rank-cobalto)' },
+  'Esmeralda': { label: 'Esmeralda', color: 'var(--rank-esmeralda)' },
+  'Platina': { label: 'Platina', color: 'var(--rank-platina)' },
+  'Diamante': { label: 'Diamante', color: 'var(--rank-diamante)' },
 }
 
+// Patente desconhecida cai na primeira, para nunca quebrar a tela
 export function userRank(user: Pick<User, 'badge'>) {
-  return USER_RANKS[user.badge]
+  return USER_RANKS[user.badge] ?? USER_RANKS['Cobre']
+}
+
+// Os três primeiros ranks não têm aura (brilho pulsante) em volta do emblema, igual aos SVGs
+const RANKS_WITHOUT_AURA = new Set(['Cobre', 'Prata', 'Cobalto'])
+
+export function rankHasAura(rank: string) {
+  return !RANKS_WITHOUT_AURA.has(rank)
 }
 
 export function profilePath(user: Pick<User, 'username'>): string {
