@@ -1,7 +1,7 @@
 <template>
   <div ref="page">
     <!-- Banner de ponta a ponta, com altura contida; foto, insígnias e botão alinhados à coluna do perfil -->
-    <div class="relative h-36 sm:h-48 lg:h-60 overflow-hidden border-b border-gear-border bg-gradient-to-br from-gear-card via-gear-sidebar to-gear-bg">
+    <div class="relative h-40 sm:h-52 lg:h-[272px] overflow-hidden border-b border-gear-border bg-gradient-to-br from-gear-card via-gear-sidebar to-gear-bg">
       <img v-if="profileData?.bannerUrl" :src="profileData.bannerUrl" alt="" class="absolute inset-0 w-full h-full object-cover" />
       <template v-else>
         <span data-orb class="absolute -top-24 right-[12%] w-80 h-80 rounded-full bg-gear-accent/25 blur-3xl" aria-hidden="true" />

@@ -148,21 +148,18 @@
         </dl>
       </section>
 
-      <div class="flex items-center justify-between gap-3 mt-6">
-        <button type="button" class="btn-cancel inline-flex items-center gap-2 uppercase text-xs tracking-wider" @click="signOut">
-          <AppIcon name="log-out" class="w-4 h-4" />
-          Sair
-        </button>
+      <div class="flex items-center justify-end gap-3 mt-6">
         <div class="flex items-center gap-2">
-          <button v-if="step > 0" type="button" class="btn-outline !rounded-xl uppercase text-xs tracking-wider" @click="goTo(step - 1)">
+          <!-- Mesmo tamanho do Próximo: só muda o estilo (contorno) -->
+          <button v-if="step > 0" type="button" class="btn-outline !rounded-xl !px-5 !py-0 min-h-[2.75rem] uppercase text-xs font-bold tracking-wider" @click="goTo(step - 1)">
             <AppIcon name="chevron-left" class="w-4 h-4" />
             Voltar
           </button>
-          <button v-if="step < STEPS.length - 1" type="button" class="btn-publish" :disabled="saving" @click="goTo(step + 1)">
+          <button v-if="step < STEPS.length - 1" type="button" class="btn-publish !py-0 min-h-[2.75rem]" :disabled="saving" @click="goTo(step + 1)">
             Próximo
             <AppIcon name="chevron-right" class="w-4 h-4" />
           </button>
-          <button v-else type="button" class="btn-publish" :disabled="saving" @click="finish">
+          <button v-else type="button" class="btn-publish !py-0 min-h-[2.75rem]" :disabled="saving" @click="finish">
             <AppIcon name="check" class="w-4 h-4" />
             Concluir
           </button>
@@ -219,7 +216,7 @@ type ImageKind = 'avatar' | 'banner'
 definePageMeta({ middleware: 'auth' })
 useHead({ title: 'Configurações · GearHub' })
 
-const { user, updateProfile, uploadAvatar, uploadBanner, removeAvatar, removeBanner, logout } = useAuth()
+const { user, updateProfile, uploadAvatar, uploadBanner, removeAvatar, removeBanner } = useAuth()
 const toast = useToast()
 
 const form = reactive({
@@ -300,16 +297,6 @@ async function finish() {
   if (await save()) {
     toast.success('Perfil atualizado.')
     await navigateTo(`/profile/${form.username}`, { replace: true })
-  }
-}
-
-async function signOut() {
-  try {
-    await logout()
-    await navigateTo('/')
-  }
-  catch (error) {
-    toast.error(toApiFailure(error).message)
   }
 }
 
