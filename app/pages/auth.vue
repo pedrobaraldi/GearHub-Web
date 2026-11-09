@@ -1,43 +1,14 @@
 <template>
   <div class="min-h-[100dvh] grid lg:grid-cols-2">
-    <!-- Lado da marca, à direita como a prévia dos outros formulários.
-         No cadastro, mostra o perfil que vai nascer; no login, a escada das patentes -->
-    <aside class="hidden lg:flex lg:order-2 flex-col justify-between p-14 preview-mat !rounded-none !border-0 border-l !border-l-gear-border">
+    <!-- Apresentação da marca à esquerda; login e cadastro ficam à direita -->
+    <aside class="hidden lg:flex flex-col justify-between p-14 bg-gear-sidebar border-r border-gear-border">
       <AppLogo />
-
-      <div v-if="isRegister" class="reveal max-w-sm w-full" v-reveal>
-        <p class="flex items-center gap-2 text-xs font-medium text-gear-muted mb-4">
-          <span class="preview-live" aria-hidden="true" />
-          Seu perfil vai começar assim
-        </p>
-        <div class="glass-card overflow-hidden">
-          <div class="h-20 bg-gradient-to-br from-gear-card via-gear-sidebar to-gear-bg" />
-          <div class="px-5 pb-5 -mt-9">
-            <span class="relative inline-block rounded-full p-[3px]" :style="{ background: 'var(--rank-cobre)' }">
-              <UserPhoto :src="null" :name="form.displayName || 'Você'" class="w-16 h-16 text-xl border-2 border-gear-card" />
-            </span>
-            <div class="flex items-center gap-2 mt-3">
-              <p class="font-display italic font-extrabold uppercase text-3xl leading-none tracking-tight truncate">{{ form.displayName || 'Seu nome' }}</p>
-              <RankEmblem rank="Cobre" title="Cobre, nível 1" no-hover class="w-9 h-9 shrink-0" />
-            </div>
-            <p class="text-sm text-gear-muted mt-1">@{{ form.username || 'usuario' }}</p>
-            <p class="text-xs text-gear-muted mt-4">Nível 1 · Cobre. Publique reviews e posts para ganhar XP e subir de patente.</p>
-          </div>
-        </div>
-      </div>
-
-      <div v-else class="reveal max-w-md" v-reveal>
+      <div class="reveal max-w-md" v-reveal>
         <h1 class="font-display italic font-extrabold uppercase leading-[0.95] tracking-tight text-6xl mb-5">
           Reviews honestos.<br>Hardware sério.<br><span class="neon-text">Comunidade real.</span>
         </h1>
-        <p class="text-gear-muted leading-relaxed">Avalie, compare e suba de patente, do Cobre ao Diamante.</p>
-        <ol class="flex items-end gap-2 mt-8" aria-label="Patentes">
-          <li v-for="(rank, index) in RANK_LADDER" :key="rank" :style="{ width: `${36 + index * 6}px` }">
-            <RankEmblem :rank="rank" :title="rank" no-hover class="w-full aspect-square" />
-          </li>
-        </ol>
+        <p class="text-gear-muted leading-relaxed">Avalie, compare e descubra o melhor hardware com a profundidade que ele merece.</p>
       </div>
-
       <p class="text-xs text-gear-muted">© GearHub</p>
     </aside>
 
@@ -143,9 +114,6 @@
 
 <script setup lang="ts">
 import { toApiFailure } from '~/composables/useAuth'
-
-// Escada exibida no login, do primeiro ao último rank
-const RANK_LADDER = ['Cobre', 'Prata', 'Cobalto', 'Esmeralda', 'Platina', 'Diamante']
 
 definePageMeta({ layout: false })
 
