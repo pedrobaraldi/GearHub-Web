@@ -1,22 +1,25 @@
 <template>
   <div ref="page">
-    <!-- Banner de ponta a ponta, com altura contida; foto, insígnias e botão alinhados à coluna do perfil -->
-    <div class="relative h-28 sm:h-40 lg:h-48 overflow-hidden border-b border-gear-border bg-gradient-to-br from-gear-card via-gear-sidebar to-gear-bg">
-      <img v-if="profileData?.bannerUrl" :src="profileData.bannerUrl" alt="" class="absolute inset-0 w-full h-full object-cover" />
-      <template v-else>
-        <span data-orb class="absolute -top-24 right-[12%] w-80 h-80 rounded-full bg-gear-accent/25 blur-3xl" aria-hidden="true" />
-        <span data-orb class="absolute -bottom-32 left-[8%] w-96 h-96 rounded-full bg-gear-primary/15 blur-3xl" aria-hidden="true" />
-      </template>
-      <!-- Escurece a base para a foto se destacar em qualquer banner -->
-      <div class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-gear-bg/70 to-transparent" aria-hidden="true" />
-      <div class="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-10 pt-4">
-        <!-- Fundo próprio: precisa ser legível sobre qualquer banner, em qualquer tema -->
-        <BackButton class="!bg-black/60 !text-white !border-white/25 backdrop-blur-md hover:!bg-black/75" />
+    <!-- Como no X: barra com Voltar e nome, banner 3:1 na largura da coluna e a foto metade sobre ele -->
+    <div class="max-w-3xl mx-auto sm:px-6 lg:px-10">
+      <div class="flex items-center gap-4 px-4 sm:px-0 py-3">
+        <BackButton />
+        <div class="min-w-0">
+          <p class="font-bold leading-tight truncate">{{ person.name }}</p>
+          <p class="text-xs text-gear-muted">{{ items.length }} {{ items.length === 1 ? 'publicação' : 'publicações' }}</p>
+        </div>
+      </div>
+      <div class="relative aspect-[3/1] overflow-hidden bg-gradient-to-br from-gear-card via-gear-sidebar to-gear-bg">
+        <img v-if="profileData?.bannerUrl" :src="profileData.bannerUrl" alt="" class="absolute inset-0 w-full h-full object-cover" />
+        <template v-else>
+          <span data-orb class="absolute -top-24 right-[12%] w-80 h-80 rounded-full bg-gear-accent/25 blur-3xl" aria-hidden="true" />
+          <span data-orb class="absolute -bottom-32 left-[8%] w-96 h-96 rounded-full bg-gear-primary/15 blur-3xl" aria-hidden="true" />
+        </template>
       </div>
     </div>
 
     <div class="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-10">
-      <div class="relative flex items-end justify-between gap-4 -mt-12 sm:-mt-16 mb-5">
+      <div class="relative flex items-end justify-between gap-4 -mt-[50px] sm:-mt-[68px] mb-5">
         <div class="flex items-end gap-3 sm:gap-4 min-w-0">
           <div
             data-ring
