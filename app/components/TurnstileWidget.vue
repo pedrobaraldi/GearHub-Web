@@ -52,7 +52,8 @@ onMounted(async () => {
     'sitekey': siteKey,
     'theme': colorMode.value === 'light' ? 'light' : 'dark',
     'language': 'pt-br',
-    'size': 'flexible',
+    // O formato normal exige 300px: em telas de 320px ele vazaria da página
+    'size': box.value.clientWidth < 300 ? 'compact' : 'flexible',
     'callback': (token: string) => emit('update:modelValue', token),
     'expired-callback': () => emit('update:modelValue', ''),
     'error-callback': () => emit('update:modelValue', ''),

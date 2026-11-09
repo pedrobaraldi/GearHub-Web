@@ -19,12 +19,12 @@
 
 <script setup lang="ts">
 import type { Category } from '~/composables/useGearData'
-import { useAvailableCategories } from '~/composables/useGearData'
 
 defineProps<{ modelValue: Category }>()
 defineEmits<{ 'update:modelValue': [v: Category] }>()
 
-const categories = useAvailableCategories()
+const { categories: available } = await useCatalog()
+const categories = computed(() => ['Todos', ...available.value.map(category => category.name)])
 </script>
 
 <style scoped>

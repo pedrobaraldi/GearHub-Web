@@ -1,9 +1,9 @@
 <template>
   <div class="relative z-10">
-    <div class="flex items-center gap-4 pt-4 border-t border-gear-border text-gear-muted">
+    <div class="flex items-center gap-0.5 sm:gap-4 pt-1 sm:pt-4 border-t border-gear-border text-gear-muted">
       <button
         ref="likeButton"
-        class="flex items-center gap-1.5 transition-colors duration-200"
+        class="hit gap-1.5 transition-colors duration-200"
         :class="liked ? 'text-gear-accent' : 'hover:text-gear-text'"
         :aria-pressed="liked"
         aria-label="Curtir"
@@ -16,7 +16,7 @@
       </button>
 
       <button
-        class="flex items-center gap-1.5 hover:text-gear-text transition-colors duration-200"
+        class="hit gap-1.5 hover:text-gear-text transition-colors duration-200"
         :class="{ 'text-gear-text': open }"
         :aria-expanded="open"
         aria-label="Comentários"
@@ -29,10 +29,10 @@
       </button>
 
       <template v-if="mine">
-        <NuxtLink :to="`/edit/${kind}/${id}`" class="hover:text-gear-text transition-colors" aria-label="Editar" title="Editar">
+        <NuxtLink :to="`/edit/${kind}/${id}`" class="hit hover:text-gear-text transition-colors" aria-label="Editar" title="Editar">
           <AppIcon name="pencil" class="w-4 h-4" />
         </NuxtLink>
-        <button class="hover:text-gear-red transition-colors" aria-label="Apagar" title="Apagar" @click="confirming = true">
+        <button class="hit hover:text-gear-red transition-colors" aria-label="Apagar" title="Apagar" @click="confirming = true">
           <AppIcon name="trash" class="w-4 h-4" />
         </button>
       </template>
@@ -40,7 +40,7 @@
       <span class="ml-auto text-xs font-medium" aria-live="polite">{{ copied ? 'Link copiado' : '' }}</span>
 
       <button
-        class="transition-colors duration-200"
+        class="hit transition-colors duration-200"
         :class="saved ? 'text-gear-accent' : 'hover:text-gear-text'"
         :aria-pressed="saved"
         :aria-label="saved ? 'Remover dos salvos' : 'Salvar'"
@@ -50,7 +50,7 @@
         <AppIcon name="bookmark" class="w-4 h-4" :class="{ 'fill-current': saved }" />
       </button>
 
-      <button class="hover:text-gear-text transition-colors duration-200" aria-label="Compartilhar" title="Compartilhar" @click="share">
+      <button class="hit hover:text-gear-text transition-colors duration-200" aria-label="Compartilhar" title="Compartilhar" @click="share">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
         </svg>

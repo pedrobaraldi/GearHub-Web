@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="fd-title">
+  <title id="fd-title">Fundador · 100 primeiros</title>
+  <style>
+    /* ===== cores: o arco-íris gira pelas facetas, sempre com o mesmo brilho ===== */
+    .fd-hue { animation: fd-flow 6.0s linear infinite; }
+    @keyframes fd-flow { 0% { fill: hsl(0 88% 60%); } 10% { fill: hsl(36 88% 60%); } 20% { fill: hsl(72 88% 60%); } 30% { fill: hsl(108 88% 60%); } 40% { fill: hsl(144 88% 60%); } 50% { fill: hsl(180 88% 60%); } 60% { fill: hsl(216 88% 60%); } 70% { fill: hsl(252 88% 60%); } 80% { fill: hsl(288 88% 60%); } 90% { fill: hsl(324 88% 60%); } 100% { fill: hsl(360 88% 60%); } }
+
+    /* ===== entrada ===== */
+    /* 1. a gema surge apagada */
+    .fd-body { transform-box: view-box; transform-origin: 128px 128px; animation: fd-rise .6s cubic-bezier(.2,.8,.3,1) both; }
+    @keyframes fd-rise { from { opacity: 0; transform: scale(.75) rotate(-36deg); } to { opacity: 1; transform: none; } }
+    /* 2. cada faceta acende em sequência, com um lampejo branco */
+    .fd-cover { fill: #23202f; animation: fd-ignite .45s ease-out both; }
+    @keyframes fd-ignite { 0% { fill: #23202f; opacity: 1; } 35% { fill: #ffffff; opacity: 1; } 100% { fill: #ffffff; opacity: 0; } }
+    .fd-ring { stroke-dasharray: 100; animation: fd-draw 1.10s linear 0.55s both; }
+    @keyframes fd-draw { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
+    /* 3. a coroa cai e assenta */
+    .fd-crown { transform-box: view-box; transform-origin: 128px 150px; animation: fd-drop .55s cubic-bezier(.5,0,.7,.4) 1.75s both, fd-land .4s ease-out 2.20s; }
+    @keyframes fd-drop { from { opacity: 0; transform: translateY(-60px) scale(1.4); } to { opacity: 1; transform: none; } }
+    @keyframes fd-land { 0% { transform: scale(1.12, .86); } 50% { transform: scale(.96, 1.06); } 100% { transform: none; } }
+    /* 4. impacto: clarão e onda arco-íris */
+    .fd-burst { transform-box: view-box; transform-origin: 128px 128px; opacity: 0; animation: fd-burst .9s ease-out 2.20s both; }
+    @keyframes fd-burst { 0% { opacity: 0; transform: scale(.3); } 20% { opacity: 1; } 100% { opacity: 0; transform: scale(1.6); } }
+    .fd-shock { transform-box: view-box; transform-origin: 128px 128px; opacity: 0; animation: fd-shock 1.1s cubic-bezier(.2,.7,.3,1) 2.20s both; }
+    @keyframes fd-shock { 0% { opacity: 0; transform: scale(.6); } 6% { opacity: 1; } 100% { opacity: 0; transform: scale(1.3); } }
+    .fd-aura-in { opacity: 0; animation: fd-fade 1s ease-out 2.20s forwards; }
+    @keyframes fd-fade { to { opacity: 1; } }
+    .fd-plaque { animation: fd-up .6s cubic-bezier(.2,.8,.3,1) 2.45s both; }
+    @keyframes fd-up { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+
+    /* ===== loop ===== */
+    .fd-spin { transform-box: view-box; transform-origin: 128px 128px; animation: fd-spin 12s linear infinite; }
+    .fd-spin--b { animation: fd-spin-rev 18s linear infinite; }
+    .fd-spin--c { animation: fd-spin 24s linear infinite; }
+    @keyframes fd-spin { to { transform: rotate(360deg); } }
+    @keyframes fd-spin-rev { to { transform: rotate(-360deg); } }
+    .fd-glint { opacity: 0; transform-box: fill-box; transform-origin: center; animation-name: fd-glint; animation-iteration-count: infinite; animation-timing-function: ease-in-out; }
+    @keyframes fd-glint { 0%, 70%, 100% { opacity: 0; transform: scale(.2) rotate(0deg); } 82% { opacity: 1; transform: scale(1) rotate(45deg); } }
+
+    @media all {
+      .fd-root * { animation: none !important; }
+      .fd-aura-in { opacity: 1; }
+      .fd-cover, .fd-burst, .fd-shock, .fd-glint { opacity: 0; }
+    }
+  </style>
+  <defs>
+    <filter id="fd-blur" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="7"/></filter>
+    <filter id="fd-glow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="1.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <linearGradient id="fd-rainbow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="hsl(190 88% 60%)"/><stop offset=".25" stop-color="hsl(270 88% 60%)"/>
+      <stop offset=".5" stop-color="hsl(320 88% 60%)"/><stop offset=".75" stop-color="hsl(40 88% 60%)"/>
+      <stop offset="1" stop-color="hsl(120 88% 60%)"/>
+    </linearGradient>
+    <radialGradient id="fd-burst-grad"><stop offset="0" stop-color="#fff"/><stop offset=".45" stop-color="#fff" stop-opacity=".5"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+    <radialGradient id="fd-core" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#2a2150"/><stop offset="1" stop-color="#0b0818"/></radialGradient>
+  </defs>
+
+  <g class="fd-root">
+  <!-- aura arco-íris girando e órbitas -->
+  <g class="fd-aura-in">
+    <g class="fd-spin fd-spin--c"><polygon points="128.0,36.2 181.9,53.8 215.3,99.6 215.3,156.4 181.9,202.2 128.0,219.8 74.1,202.2 40.7,156.4 40.7,99.6 74.1,53.8" fill="url(#fd-rainbow)" opacity=".5" filter="url(#fd-blur)"/></g>
+    <g class="fd-spin" filter="url(#fd-glow)">
+      <circle cx="128" cy="128" r="106" fill="none" stroke="url(#fd-rainbow)" stroke-width="1.6" stroke-dasharray="70 263" stroke-linecap="round"/>
+      <circle cx="128" cy="22" r="3" fill="#fff"/>
+    </g>
+    <g class="fd-spin fd-spin--b" filter="url(#fd-glow)">
+      <circle cx="128" cy="128" r="100" fill="none" stroke="url(#fd-rainbow)" stroke-width="1" stroke-dasharray="40 274" stroke-linecap="round" opacity=".7"/>
+      <circle cx="228" cy="128" r="2.2" fill="#fff"/>
+    </g>
+  </g>
+
+  <g class="fd-body">
+    <!-- placa e anel -->
+    <polygon points="128.0,39.2 180.2,56.2 212.5,100.6 212.5,155.4 180.2,199.8 128.0,216.8 75.8,199.8 43.5,155.4 43.5,100.6 75.8,56.2" fill="#120e22" stroke="#07060d" stroke-width="3" stroke-linejoin="round"/>
+    <polygon class="fd-ring" pathLength="100" points="128.0,45.1 176.7,60.9 206.8,102.4 206.8,153.6 176.7,195.1 128.0,210.9 79.3,195.1 49.2,153.6 49.2,102.4 79.3,60.9" fill="none" stroke="url(#fd-rainbow)" stroke-width="3" stroke-linejoin="round"/>
+    <!-- gema arco-íris -->
+    <g class="rank-gem">
+      <polygon points="128.0,54.0 171.5,68.1 198.4,105.1 198.4,150.9 171.5,187.9 128.0,202.0 84.5,187.9 57.6,150.9 57.6,105.1 84.5,68.1" transform="translate(0 4)" fill="#000" opacity=".4"/>
+      <polygon class="fd-hue" style="animation-delay:-0.00s" points="128.0,54.0 171.5,68.1 149.7,98.1 128.0,91.0" fill="hsl(0 88% 60%)"/><polygon class="fd-hue" style="animation-delay:-0.60s" points="171.5,68.1 198.4,105.1 163.2,116.6 149.7,98.1" fill="hsl(36 88% 60%)"/><polygon class="fd-hue" style="animation-delay:-1.20s" points="198.4,105.1 198.4,150.9 163.2,139.4 163.2,116.6" fill="hsl(72 88% 60%)"/><polygon class="fd-hue" style="animation-delay:-1.80s" points="198.4,150.9 171.5,187.9 149.7,157.9 163.2,139.4" fill="hsl(108 88% 60%)"/><polygon class="fd-hue" style="animation-delay:-2.40s" points="171.5,187.9 128.0,202.0 128.0,165.0 149.7,157.9" fill="hsl(144 88% 60%)"/><polygon class="fd-hue" style="animation-delay:-3.00s" points="128.0,202.0 84.5,187.9 106.3,157.9 128.0,165.0" fill="hsl(180 88% 60%)"/><polygon class="fd-hue" style="animation-delay:-3.60s" points="84.5,187.9 57.6,150.9 92.8,139.4 106.3,157.9" fill="hsl(216 88% 60%)"/><polygon class="fd-hue" style="animation-delay:-4.20s" points="57.6,150.9 57.6,105.1 92.8,116.6 92.8,139.4" fill="hsl(252 88% 60%)"/><polygon class="fd-hue" style="animation-delay:-4.80s" points="57.6,105.1 84.5,68.1 106.3,98.1 92.8,116.6" fill="hsl(288 88% 60%)"/><polygon class="fd-hue" style="animation-delay:-5.40s" points="84.5,68.1 128.0,54.0 128.0,91.0 106.3,98.1" fill="hsl(324 88% 60%)"/>
+      <polygon class="fd-cover" style="animation-delay:0.55s" points="128.0,54.0 171.5,68.1 149.7,98.1 128.0,91.0"/><polygon class="fd-cover" style="animation-delay:0.66s" points="171.5,68.1 198.4,105.1 163.2,116.6 149.7,98.1"/><polygon class="fd-cover" style="animation-delay:0.77s" points="198.4,105.1 198.4,150.9 163.2,139.4 163.2,116.6"/><polygon class="fd-cover" style="animation-delay:0.88s" points="198.4,150.9 171.5,187.9 149.7,157.9 163.2,139.4"/><polygon class="fd-cover" style="animation-delay:0.99s" points="171.5,187.9 128.0,202.0 128.0,165.0 149.7,157.9"/><polygon class="fd-cover" style="animation-delay:1.10s" points="128.0,202.0 84.5,187.9 106.3,157.9 128.0,165.0"/><polygon class="fd-cover" style="animation-delay:1.21s" points="84.5,187.9 57.6,150.9 92.8,139.4 106.3,157.9"/><polygon class="fd-cover" style="animation-delay:1.32s" points="57.6,150.9 57.6,105.1 92.8,116.6 92.8,139.4"/><polygon class="fd-cover" style="animation-delay:1.43s" points="57.6,105.1 84.5,68.1 106.3,98.1 92.8,116.6"/><polygon class="fd-cover" style="animation-delay:1.54s" points="84.5,68.1 128.0,54.0 128.0,91.0 106.3,98.1"/>
+      <polygon points="128.0,91.0 149.7,98.1 163.2,116.6 163.2,139.4 149.7,157.9 128.0,165.0 106.3,157.9 92.8,139.4 92.8,116.6 106.3,98.1" fill="url(#fd-core)" stroke="#07060d" stroke-width="2"/>
+      <polygon points="128.0,54.0 171.5,68.1 198.4,105.1 198.4,150.9 171.5,187.9 128.0,202.0 84.5,187.9 57.6,150.9 57.6,105.1 84.5,68.1" fill="none" stroke="#07060d" stroke-width="3" stroke-linejoin="round"/>
+      <g fill="#fff" filter="url(#fd-glow)"><polygon class="fd-glint" style="animation-duration:2.8s;animation-delay:2.7s" points="170.7,90.0 172.3,95.4 177.7,97.0 172.3,98.6 170.7,104.0 169.1,98.6 163.7,97.0 169.1,95.4"/><polygon class="fd-glint" style="animation-duration:3.6s;animation-delay:3.3s" points="144.3,171.2 145.9,176.6 151.3,178.2 145.9,179.8 144.3,185.2 142.7,179.8 137.3,178.2 142.7,176.6"/><polygon class="fd-glint" style="animation-duration:3.1s;animation-delay:3.9s" points="75.2,121.0 76.8,126.4 82.2,128.0 76.8,129.6 75.2,135.0 73.6,129.6 68.2,128.0 73.6,126.4"/><polygon class="fd-glint" style="animation-duration:4.2s;animation-delay:4.5s" points="111.7,70.8 113.3,76.2 118.7,77.8 113.3,79.4 111.7,84.8 110.1,79.4 104.7,77.8 110.1,76.2"/></g>
+    </g>
+  </g>
+
+  <!-- coroa do fundador -->
+  <g class="fd-crown">
+    <g transform="translate(0 3)" fill="#000" opacity=".35"><path d="M106 139 L101 112 L116 123 L128 104 L140 123 L155 112 L150 139 Z" stroke-linejoin="round"/><rect x="106" y="143" width="44" height="7" rx="2.5"/><circle cx="101" cy="110" r="3.6"/><circle cx="128" cy="102" r="3.6"/><circle cx="155" cy="110" r="3.6"/></g>
+    <g fill="#fff"><path d="M106 139 L101 112 L116 123 L128 104 L140 123 L155 112 L150 139 Z" stroke-linejoin="round"/><rect x="106" y="143" width="44" height="7" rx="2.5"/><circle cx="101" cy="110" r="3.6"/><circle cx="128" cy="102" r="3.6"/><circle cx="155" cy="110" r="3.6"/></g>
+  </g>
+
+  <!-- impacto -->
+  <circle class="fd-burst" cx="128" cy="128" r="74" fill="url(#fd-burst-grad)"/>
+  <polygon class="fd-shock" points="128.0,45.1 176.7,60.9 206.8,102.4 206.8,153.6 176.7,195.1 128.0,210.9 79.3,195.1 49.2,153.6 49.2,102.4 79.3,60.9" fill="none" stroke="url(#fd-rainbow)" stroke-width="3" stroke-linejoin="round"/>
+
+  <!-- placa "100" -->
+  <g class="fd-plaque">
+    <polygon points="104.0,214.0 152.0,214.0 160.0,224.0 152.0,234.0 104.0,234.0 96.0,224.0" fill="#120e22" stroke="url(#fd-rainbow)" stroke-width="2" stroke-linejoin="round"/>
+    <text x="128" y="228.5" text-anchor="middle" font-family="'Chakra Petch','Segoe UI',Arial,sans-serif" font-weight="700" font-size="13" letter-spacing="1.5" fill="#fff">100</text>
+  </g>
+  </g>
+</svg>

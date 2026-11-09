@@ -1,97 +1,174 @@
 <template>
-  <div>
-    <PageHeader title="Hall of" accent="Fame." subtitle="Setups, reviewers e produtos que marcaram o ano." />
+  <div ref="root">
+    <PageHeader root title="Hall of" accent="Fame." subtitle="Os destaques da comunidade, calculados com a atividade real." />
 
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-10 py-6 lg:py-8 space-y-10">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-10 py-6 lg:py-8 space-y-8">
+      <SearchBar v-model="term" placeholder="Buscar reviewer, setup ou produto..." />
+
       <!-- Pódio -->
-      <section class="reveal" v-reveal>
-        <h2 class="editorial-eyebrow mb-4">Top reviewers 2024</h2>
-        <div class="glass-card p-6 flex items-end justify-center gap-3 sm:gap-6">
-          <NuxtLink
-            v-for="reviewer in podium"
-            :key="reviewer.place"
-            :to="`/profile/${reviewer.slug}`"
-            class="group text-center flex flex-col items-center gap-1 min-w-0"
-          >
-            <img
-              :src="reviewer.avatar"
-              :alt="reviewer.name"
-              class="rounded-full object-cover ring-2 mb-1"
-              :class="reviewer.place === 1 ? 'w-16 h-16 ring-gear-accent' : 'w-14 h-14 ring-gear-border'"
-            />
-            <p class="text-sm font-semibold truncate max-w-full group-hover:text-gear-primary transition-colors">{{ reviewer.name }}</p>
-            <p class="text-xs text-gear-muted mb-1">{{ reviewer.reviews }} reviews</p>
-            <div
-              class="w-20 sm:w-24 rounded-t-xl border grid place-items-center"
-              :class="reviewer.place === 1 ? 'h-24 border-gear-accent/40 bg-gear-accent/10' : `${reviewer.height} border-gear-border bg-gear-surface`"
-            >
-              <span
-                class="font-display italic font-extrabold text-3xl leading-none"
-                :class="reviewer.place === 1 ? 'text-gear-primary' : 'text-gear-muted'"
-              >{{ reviewer.place }}</span>
+      <section v-if="first && !searching" class="relative glass-card overflow-hidden" aria-label="Pódio">
+        <div class="relative grid grid-cols-2 lg:grid-cols-[1fr_1.3fr_1fr] gap-x-4 gap-y-6 items-end p-5 sm:p-8">
+          <NuxtLink :to="`/niveis/${first.username}`" data-first class="col-span-2 lg:col-span-1 lg:order-2 text-center group">
+            <p class="text-xs text-gear-muted">1º lugar</p>
+            <RankEmblem data-emblem animated class="w-36 h-36 mx-auto mt-2" :style="rankHasAura(first.rankName) ? { filter: `drop-shadow(0 0 calc(var(--glow, 6) * 1px) ${first.color})` } : undefined" :rank="first.rankName" :title="`Nível ${first.level}, ${first.rankName}`" />
+            <div class="flex items-center justify-center gap-3 mt-3 min-w-0">
+              <UserPhoto :src="first.avatarUrl" :name="first.displayName" class="w-12 h-12 text-base shrink-0 ring-2" :style="{ '--tw-ring-color': first.color }" />
+              <p class="font-display italic font-extrabold uppercase text-3xl leading-none truncate group-hover:opacity-80 transition-opacity" :style="{ color: first.color }">{{ first.displayName }}</p>
             </div>
+            <p class="text-sm font-semibold mt-3">Nível {{ first.level }} · <span :style="{ color: first.color }">{{ first.rankName }}</span></p>
+            <p class="font-display italic font-extrabold text-3xl leading-none tabular-nums mt-1"><span data-count-up :data-value="first.xp">{{ format(first.xp) }}</span> XP</p>
+          </NuxtLink>
+
+          <NuxtLink v-for="(person, index) in runnersUp" :key="person.username" :to="`/niveis/${person.username}`" data-runner class="text-center min-w-0 group" :class="index === 0 ? 'lg:order-1' : 'lg:order-3'">
+            <p class="text-xs text-gear-muted">{{ person.place }}º lugar</p>
+            <div class="relative w-16 h-16 mx-auto mt-2">
+              <UserPhoto :src="person.avatarUrl" :name="person.displayName" class="w-16 h-16 text-xl ring-2" :style="{ '--tw-ring-color': person.color }" />
+              <RankEmblem class="absolute -bottom-3 -right-4 w-10 h-10 drop-shadow-lg" :rank="person.rankName" :title="`Nível ${person.level}, ${person.rankName}`" />
+            </div>
+            <p class="font-semibold truncate mt-3 group-hover:opacity-80 transition-opacity">{{ person.displayName }}</p>
+            <p class="text-xs font-medium mt-0.5 truncate">Nível {{ person.level }} · <span :style="{ color: person.color }">{{ person.rankName }}</span></p>
+            <p class="font-mono text-sm font-semibold tabular-nums mt-1">{{ format(person.xp) }} XP</p>
           </NuxtLink>
         </div>
       </section>
 
-      <!-- Melhores setups -->
-      <section>
-        <h2 class="editorial-eyebrow mb-4">Melhores setups do ano</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <article
-            v-for="setup in topSetups"
-            :key="setup.id"
-            class="reveal glass-card neon-hover group overflow-hidden"
+      <p v-if="!people.length && !searching" class="glass-card p-8 text-center text-sm text-gear-muted">Ainda não há reviews publicadas.</p>
+
+      <!-- Classificação -->
+      <section v-if="ranking.length">
+        <h2 class="editorial-eyebrow mb-4">Classificação</h2>
+        <ol class="glass-card divide-y divide-gear-border overflow-hidden">
+          <li v-for="person in ranking" :key="person.username" data-row>
+            <NuxtLink :to="`/niveis/${person.username}`" class="flex items-center gap-3 px-4 py-2.5 hover:bg-gear-surface transition-colors">
+              <span class="w-7 font-display italic font-extrabold text-lg text-gear-muted tabular-nums shrink-0">{{ person.place }}</span>
+              <UserPhoto :src="person.avatarUrl" :name="person.displayName" class="w-9 h-9 text-xs shrink-0" />
+              <span class="flex-1 min-w-0">
+                <span class="block text-sm font-semibold truncate">{{ person.displayName }}</span>
+                <span class="block text-xs text-gear-muted truncate">Nível {{ person.level }} · {{ person.rankName }}</span>
+              </span>
+              <RankEmblem class="w-9 h-9 shrink-0" :rank="person.rankName" :title="`Nível ${person.level}, ${person.rankName}`" />
+              <span class="font-mono text-sm font-semibold tabular-nums shrink-0">{{ format(person.xp) }} XP</span>
+            </NuxtLink>
+          </li>
+        </ol>
+      </section>
+
+      <!-- Setups -->
+      <section v-if="setups.length || !searching">
+        <h2 class="editorial-eyebrow mb-4">Setups da comunidade</h2>
+        <div v-if="setups.length" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <NuxtLink
+            v-for="setup in setups"
+            :key="setup.username"
+            :to="`/profile/${setup.username}`"
+            class="reveal glass-card neon-hover group overflow-hidden block"
             v-reveal
           >
             <div class="aspect-video bg-gear-surface overflow-hidden">
               <img
-                :src="setup.image"
-                :alt="setup.title"
+                :src="setup.photo"
+                :alt="`Setup de ${setup.displayName}`"
                 loading="lazy"
                 class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
               />
             </div>
-            <div class="p-4">
-              <h3 class="text-sm font-semibold mb-2 truncate">{{ setup.title }}</h3>
-              <div class="flex items-center gap-2 text-xs text-gear-muted">
-                <img :src="setup.user.avatar" class="w-5 h-5 rounded-full" alt="" />
-                <span>{{ setup.user.name }}</span>
-                <span class="ml-auto">{{ setup.likes }} curtidas</span>
-              </div>
+            <div class="p-4 flex items-center gap-2 text-sm font-semibold">
+              <UserPhoto :src="setup.avatarUrl" :name="setup.displayName" class="w-6 h-6 text-[10px] shrink-0" />
+              <span class="truncate">Setup de {{ setup.displayName }}</span>
             </div>
-          </article>
+          </NuxtLink>
         </div>
+        <p v-else class="glass-card p-8 text-center text-sm text-gear-muted">Nenhum setup com foto ainda. <NuxtLink to="/setup" class="font-semibold text-gear-primary hover:underline underline-offset-2">Adicione o seu</NuxtLink>.</p>
       </section>
 
-      <!-- Produtos do ano -->
-      <section>
-        <h2 class="editorial-eyebrow mb-4">Produtos do ano</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <ProductCard v-for="p in yearProducts" :key="p.id" :product="p" />
+      <!-- Produtos -->
+      <section v-if="topProducts.length || !searching">
+        <h2 class="editorial-eyebrow mb-4">Produtos mais bem avaliados</h2>
+        <div v-if="topProducts.length" class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <ProductCard v-for="p in topProducts" :key="p.id" :product="p" />
         </div>
+        <p v-else class="glass-card p-8 text-center text-sm text-gear-muted">Ainda não há produtos avaliados.</p>
       </section>
+
+      <p v-if="searching && !ranking.length && !setups.length && !topProducts.length" class="glass-card p-8 text-center text-sm text-gear-muted">Nada encontrado para "{{ term.trim() }}".</p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useMockProducts } from '~/composables/useGearData'
+import gsap from 'gsap'
+import { rankHasAura, userRank } from '~/composables/useGearData'
+import type { User } from '~/composables/useGearData'
+
+interface Hall {
+  reviewers: { username: string, displayName: string, avatarUrl: string | null, reviewCount: number, xp: number, level: number, rankName: string }[]
+  setups: { username: string, displayName: string, avatarUrl: string | null, photo: string }[]
+  products: Parameters<typeof toProduct>[0][]
+}
+
+const PODIUM_SIZE = 3
 
 useHead({ title: 'Hall of Fame · GearHub' })
 
-const yearProducts = useMockProducts().slice(0, 4)
+const { data: hall } = await useFetch<Hall>('/api/v1/hall', { key: 'hall' })
 
-// Na ordem de exibição: 2º, 1º e 3º
-const podium = [
-  { place: 2, name: 'Nayara HZ', slug: 'nayarahz', reviews: 28, avatar: 'https://i.pravatar.cc/56?img=5', height: 'h-16' },
-  { place: 1, name: 'Pedro LM', slug: 'pedrolm', reviews: 45, avatar: 'https://i.pravatar.cc/64?img=12', height: 'h-24' },
-  { place: 3, name: 'Mariana Eng.', slug: 'marianaeng', reviews: 21, avatar: 'https://i.pravatar.cc/56?img=25', height: 'h-10' },
-]
+const term = ref('')
+const searching = computed(() => term.value.trim().length > 0)
+const matches = (text: string) => text.toLowerCase().includes(term.value.trim().toLowerCase())
 
-const topSetups = [
-  { id: '1', title: 'Setup Minimalista Branco — Foco Total', image: 'https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?w=600&q=80', user: { name: 'pedro_lm', avatar: 'https://i.pravatar.cc/32?img=12' }, likes: 892 },
-  { id: '2', title: 'RGB Battlestation — Dark Aesthetic', image: 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=600&q=80', user: { name: 'gabriel_a', avatar: 'https://i.pravatar.cc/32?img=15' }, likes: 754 },
-  { id: '3', title: 'Home Office Produtivo com Dual Monitor', image: 'https://images.unsplash.com/photo-1547082299-de196ea013d6?w=600&q=80', user: { name: 'mariana_e', avatar: 'https://i.pravatar.cc/32?img=25' }, likes: 611 },
-]
+const format = (value: number) => value.toLocaleString('pt-BR')
+
+const people = computed(() =>
+  (hall.value?.reviewers ?? []).map((reviewer, index) => ({
+    ...reviewer,
+    place: index + 1,
+    color: userRank({ badge: reviewer.rankName as User['badge'] }).color,
+  })),
+)
+
+const first = computed(() => people.value[0])
+const runnersUp = computed(() => people.value.slice(1, PODIUM_SIZE))
+
+// Com busca, todos entram na lista, mantendo a posição real de cada um
+const ranking = computed(() =>
+  searching.value
+    ? people.value.filter(person => matches(`${person.displayName} ${person.username} ${person.rankName}`))
+    : people.value.slice(PODIUM_SIZE),
+)
+
+const setups = computed(() => (hall.value?.setups ?? []).filter(setup => matches(setup.displayName)))
+
+const topProducts = computed(() =>
+  (hall.value?.products ?? []).map(toProduct).filter(product => matches(`${product.brand} ${product.name} ${product.category}`)),
+)
+
+const root = ref<HTMLElement | null>(null)
+
+useGsapContext(root, (el) => {
+  if (!first.value) return
+
+  const timeline = gsap.timeline({ defaults: { ease: 'power3.out' } })
+    .from('[data-emblem]', { autoAlpha: 0, scale: 0.4, rotate: -14, transformOrigin: '50% 50%', duration: 0.8, ease: 'back.out(1.9)' })
+
+  if (runnersUp.value.length) {
+    timeline.from('[data-runner]', { autoAlpha: 0, y: 24, duration: 0.5, stagger: 0.12 }, 0.45)
+  }
+
+  el.querySelectorAll<HTMLElement>('[data-count-up]').forEach((node) => {
+    const target = Number(node.dataset.value)
+    const counter = { value: 0 }
+    timeline.to(counter, {
+      value: target,
+      duration: 1.1,
+      ease: 'power2.out',
+      onUpdate: () => { node.textContent = format(Math.round(counter.value)) },
+    }, 0.4)
+  })
+
+  gsap.fromTo('[data-emblem]', { '--glow': 6 }, { '--glow': 22, duration: 2.2, ease: 'sine.inOut', repeat: -1, yoyo: true, delay: 1 })
+
+  if (ranking.value.length) {
+    gsap.from('[data-row]', { autoAlpha: 0, x: -14, duration: 0.4, ease: 'power3.out', stagger: 0.05, delay: 0.5 })
+  }
+})
 </script>

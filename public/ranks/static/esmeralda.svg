@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="cm-title">
+  <title id="cm-title">Esmeralda</title>
+  <style>
+    /* ===== construção (tier 3) ===== */
+    .cm-ring { stroke-dasharray: 100; animation: cm-draw 0.9s cubic-bezier(.6,0,.3,1) 0.1s both; }
+    @keyframes cm-draw { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
+    .cm-symbol { transform-box: view-box; transform-origin: 128px 128px;
+      animation: cm-pop .5s cubic-bezier(.3,1.6,.5,1) 0.85s both; }
+    @keyframes cm-pop { from { opacity: 0; transform: scale(.4); } to { opacity: 1; transform: none; } }
+    .cm-table { transform-box: view-box; transform-origin: 128px 128px;
+      animation: cm-table .45s ease-out 0.60s both; }
+    @keyframes cm-table { from { opacity: 0; transform: scale(.5); } to { opacity: 1; transform: none; } }
+    .cm-gem { transform-box: view-box; transform-origin: 128px 128px;
+      animation: cm-gem .8s cubic-bezier(.2,.9,.3,1.15) both; }
+    @keyframes cm-gem { from { opacity: 0; transform: scale(.55); } to { opacity: 1; transform: none; } }
+    /* ===== aura (nível 1) ===== */
+    .cm-aura-in { opacity: 0; animation: cm-aura-in 1s ease-out 0.90s forwards; }
+    @keyframes cm-aura-in { to { opacity: 1; } }
+    .cm-mote { opacity: 0; animation-name: cm-mote; animation-timing-function: ease-out; animation-iteration-count: infinite; }
+    @keyframes cm-mote {
+      0%   { opacity: 0; transform: translateY(0); }
+      20%  { opacity: 1; }
+      100% { opacity: 0; transform: translateY(-96px); }
+    }
+    /* marcadores de tier: surgem um a um, devagar, e ficam */
+    .cm-tick { opacity: 0; transform-box: fill-box; transform-origin: center;
+      animation: cm-tick-in 0.9s cubic-bezier(.2,.7,.3,1) forwards; }
+    @keyframes cm-tick-in {
+      0%   { opacity: 0; transform: scale(.3); }
+      60%  { opacity: 1; transform: scale(1.25); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    /* brilho atravessando o emblema inteiro, em loop */
+    .cm-shine { opacity: 0; animation: cm-shine 4.0s ease-in-out 3.60s infinite; }
+    @keyframes cm-shine {
+      0%   { transform: translateX(0); opacity: 0; }
+      4%   { opacity: 1; }
+      32%  { transform: translateX(290px); opacity: 1; }
+      33%, 100% { transform: translateX(290px); opacity: 0; }
+    }
+    @media all {
+      .cm-root * { animation: none !important; }
+      .cm-tick, .cm-aura-in { opacity: 1; }
+      .cm-shine, .cm-flash, .cm-wave, .cm-mote { opacity: 0; }
+    }
+  </style>
+  <defs>
+    <filter id="cm-aura-blur" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="6"/></filter><filter id="cm-glow" x="-200%" y="-200%" width="500%" height="500%"><feGaussianBlur stdDeviation="1.8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <linearGradient id="cm-shine-grad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset=".5" stop-color="#ffffff" stop-opacity="1"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="cm-flash-grad">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset=".4" stop-color="#c2ffd2" stop-opacity=".8"/>
+      <stop offset="1" stop-color="#5be38a" stop-opacity="0"/>
+    </radialGradient>
+    <mask id="cm-shine-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="256" height="256">
+      <polygon points="128.0,35.6 200.2,70.4 218.1,148.6 168.1,211.2 87.9,211.2 37.9,148.6 55.8,70.4" fill="#fff" fill-opacity=".18"/>
+      <polygon points="128.0,41.8 195.4,74.2 212.1,147.2 165.4,205.7 90.6,205.7 43.9,147.2 60.6,74.2" fill="none" stroke="#fff" stroke-width="3" stroke-linejoin="round"/>
+      <polygon points="128.0,51.0 188.2,80.0 203.1,145.1 161.4,197.4 94.6,197.4 52.9,145.1 67.8,80.0" fill="#fff" fill-opacity=".5"/>
+      <polygon points="128.0,101.0 149.1,111.2 154.3,134.0 139.7,152.3 116.3,152.3 101.7,134.0 106.9,111.2" fill="none" stroke="#fff" stroke-width="2.6" stroke-linejoin="round"/>
+      <polygon points="128.0,111.8 140.6,117.9 143.8,131.6 135.0,142.6 121.0,142.6 112.2,131.6 115.4,117.9" fill="#fff"/>
+    </mask>
+  </defs>
+
+  <g class="cm-root">
+  <!-- aura -->
+  <g class="cm-aura-in"><polygon points="128.0,36.4 199.6,70.9 217.3,148.4 167.8,210.6 88.2,210.6 38.7,148.4 56.4,70.9" fill="#5be38a" opacity="0.3" filter="url(#cm-aura-blur)"/><g fill="#c2ffd2" filter="url(#cm-glow)"><circle class="cm-mote" cx="51.0" cy="170.4" r="2.1" style="animation-duration:3.20s;animation-delay:0.00s"/><circle class="cm-mote" cx="209.6" cy="170.4" r="2.5" style="animation-duration:4.60s;animation-delay:3.90s"/><circle class="cm-mote" cx="41.8" cy="170.4" r="2.9" style="animation-duration:4.25s;animation-delay:2.85s"/><circle class="cm-mote" cx="207.3" cy="170.4" r="3.3" style="animation-duration:3.90s;animation-delay:1.80s"/></g></g>
+  <!-- placa de fundo e anel -->
+  <g class="rank-plate cm-plate">
+    <polygon points="128.0,35.6 200.2,70.4 218.1,148.6 168.1,211.2 87.9,211.2 37.9,148.6 55.8,70.4" fill="#1b1f2b" stroke="#0b0d14" stroke-width="3" stroke-linejoin="round"/>
+  </g>
+  <polygon class="rank-ring cm-ring" pathLength="100" points="128.0,41.8 195.4,74.2 212.1,147.2 165.4,205.7 90.6,205.7 43.9,147.2 60.6,74.2" fill="none" stroke="#5be38a" stroke-width="3" stroke-linejoin="round"/>
+
+  <!-- gema facetada -->
+  <g class="rank-gem cm-gem">
+    <polygon class="cm-edge" points="128.0,51.0 188.2,80.0 203.1,145.1 161.4,197.4 94.6,197.4 52.9,145.1 67.8,80.0" transform="translate(0 4)" fill="#000" opacity=".35"/>
+    <polygon points="128.0,51.0 188.2,80.0 158.1,104.0 128.0,89.5" fill="#9eddb1"/><polygon points="188.2,80.0 203.1,145.1 165.5,136.6 158.1,104.0" fill="#509469"/><polygon points="203.1,145.1 161.4,197.4 144.7,162.7 165.5,136.6" fill="#145a31"/><polygon points="161.4,197.4 94.6,197.4 111.3,162.7 144.7,162.7" fill="#155c32"/><polygon points="94.6,197.4 52.9,145.1 90.5,136.6 111.3,162.7" fill="#54976c"/><polygon points="52.9,145.1 67.8,80.0 97.9,104.0 90.5,136.6" fill="#a1e0b3"/><polygon points="67.8,80.0 128.0,51.0 128.0,89.5 97.9,104.0" fill="#c2ffd2"/>
+    <polygon class="cm-table" points="128.0,89.5 158.1,104.0 165.5,136.6 144.7,162.7 111.3,162.7 90.5,136.6 97.9,104.0" fill="#2cc75c"/>
+    <polygon class="cm-edge" points="128.0,51.0 188.2,80.0 203.1,145.1 161.4,197.4 94.6,197.4 52.9,145.1 67.8,80.0" fill="none" stroke="#0b0d14" stroke-width="3" stroke-linejoin="round"/>
+  </g>
+
+  <!-- símbolo: a forma do rank em miniatura -->
+  <g class="rank-symbol cm-symbol">
+    <g transform="translate(0 3)" opacity=".3">
+      <polygon points="128.0,101.0 149.1,111.2 154.3,134.0 139.7,152.3 116.3,152.3 101.7,134.0 106.9,111.2" fill="none" stroke="#000" stroke-width="2.6" stroke-linejoin="round"/>
+      <polygon points="128.0,111.8 140.6,117.9 143.8,131.6 135.0,142.6 121.0,142.6 112.2,131.6 115.4,117.9" fill="#000"/>
+    </g>
+    <polygon points="128.0,101.0 149.1,111.2 154.3,134.0 139.7,152.3 116.3,152.3 101.7,134.0 106.9,111.2" fill="none" stroke="#fff" stroke-width="2.6" stroke-linejoin="round"/>
+    <polygon points="128.0,111.8 140.6,117.9 143.8,131.6 135.0,142.6 121.0,142.6 112.2,131.6 115.4,117.9" fill="#fff"/>
+    <polygon points="128.0,128.0 128.0,111.8 140.6,117.9" fill="#c2ffd2" opacity=".55"/>
+  </g>
+
+  <!-- brilho (recortado no emblema inteiro) -->
+  <g class="rank-shine" mask="url(#cm-shine-mask)">
+    <polygon class="cm-shine" points="-32.1,215.2 3.9,215.2 43.9,31.6 7.9,31.6" fill="url(#cm-shine-grad)"/>
+  </g>
+
+  <!-- marcadores de tier -->
+  <g class="rank-tier"><polygon class="cm-tick" style="animation-delay:1.60s" points="101.0,217.2 107.5,225.2 101.0,233.2 94.5,225.2" fill="#c2ffd2" stroke="#0b0d14" stroke-width="1.8" stroke-linejoin="round"/><polygon class="cm-tick" style="animation-delay:2.05s" points="119.0,217.2 125.5,225.2 119.0,233.2 112.5,225.2" fill="#c2ffd2" stroke="#0b0d14" stroke-width="1.8" stroke-linejoin="round"/><polygon class="cm-tick" style="animation-delay:2.50s" points="137.0,217.2 143.5,225.2 137.0,233.2 130.5,225.2" fill="#c2ffd2" stroke="#0b0d14" stroke-width="1.8" stroke-linejoin="round"/><polygon class="cm-tick" style="animation-delay:2.95s" points="155.0,217.2 161.5,225.2 155.0,233.2 148.5,225.2" fill="#c2ffd2" stroke="#0b0d14" stroke-width="1.8" stroke-linejoin="round"/></g>
+  </g>
+</svg>

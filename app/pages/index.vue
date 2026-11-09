@@ -2,15 +2,16 @@
   <div class="flex">
     <div class="flex-1 min-w-0">
       <PageHeader title="Comunidade" accent="GearHub." subtitle="Reviews, discussões e novidades sobre hardware e periféricos." :back="false" lines>
-        <button type="button" class="btn-primary inline-flex items-center gap-2 shrink-0" aria-label="Nova Publicação" @click="start">
+        <button type="button" class="btn-primary hidden lg:inline-flex items-center gap-2 shrink-0" aria-label="Nova Publicação" @click="start">
           <AppIcon name="plus" class="w-4 h-4" />
-          <span class="hidden sm:inline">Nova Publicação</span>
+          <span>Nova Publicação</span>
         </button>
       </PageHeader>
 
       <!-- Filtros ficam visíveis durante a rolagem -->
-      <div class="sticky top-12 lg:top-0 z-20 bg-gear-bg/85 backdrop-blur-lg px-4 sm:px-6 lg:px-10 pt-3">
+      <div class="lg:sticky lg:top-0 z-20 lg:bg-gear-bg/85 lg:backdrop-blur-lg px-4 sm:px-6 lg:px-10 pt-3">
         <div class="max-w-2xl mx-auto">
+          <SearchBar v-model="search" class="mb-3" placeholder="Buscar publicações, produtos ou pessoas..." />
           <FeedFilter v-model="activeFeedFilter" />
           <div class="xl:hidden pb-2">
             <CategoryFilter v-model="activeCategory" />
@@ -67,12 +68,15 @@ const toast = useToast()
 const activeFeedFilter = useState('feed-type', () => 'todos')
 const activeCategory = useState<Category>('feed-category', () => 'Todos')
 
-const categorySlug = computed(() =>
-  activeCategory.value === 'Todos' ? undefined : activeCategory.value.toLowerCase(),
-)
+const { categories } = await useCatalog()
+const categorySlug = computed(() => categories.value.find(category => category.name === activeCategory.value)?.slug)
+
+const search = useState('feed-search', () => '')
+const debouncedSearch = refDebounced(search, 300)
+const searchTerm = computed(() => debouncedSearch.value.trim() || undefined)
 
 const { data, error, status, refresh } = await useFetch<FeedPage>('/api/v1/feed', {
-  query: { size: PAGE_SIZE, category: categorySlug },
+  query: { size: PAGE_SIZE, category: categorySlug, q: searchTerm },
   key: 'feed',
   headers: useRequestHeaders(['cookie']),
 })
@@ -96,7 +100,7 @@ async function loadMore() {
   loadingMore.value = true
   try {
     const page = await $fetch<FeedPage>('/api/v1/feed', {
-      query: { size: PAGE_SIZE, category: categorySlug.value, before: cursor.value },
+      query: { size: PAGE_SIZE, category: categorySlug.value, q: searchTerm.value, before: cursor.value },
     })
     extraItems.value = [...extraItems.value, ...page.items]
     extraCursor.value = page.nextCursor
@@ -110,6 +114,7 @@ async function loadMore() {
 }
 
 function clearFilters() {
+  search.value = ''
   activeFeedFilter.value = 'todos'
   activeCategory.value = 'Todos'
 }

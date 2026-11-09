@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="cr-title">
+  <title id="cr-title">Cobalto</title>
+  <style>
+    /* marcadores de tier: surgem um a um, devagar, e ficam */
+    .cr-tick { opacity: 0; transform-box: fill-box; transform-origin: center;
+      animation: cr-tick-in 0.9s cubic-bezier(.2,.7,.3,1) forwards; }
+    @keyframes cr-tick-in {
+      0%   { opacity: 0; transform: scale(.3); }
+      60%  { opacity: 1; transform: scale(1.25); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    /* brilho atravessando o emblema inteiro, em loop */
+    .cr-shine { opacity: 0; animation: cr-shine 4.0s ease-in-out 1.85s infinite; }
+    @keyframes cr-shine {
+      0%   { transform: translateX(0); opacity: 0; }
+      4%   { opacity: 1; }
+      32%  { transform: translateX(268px); opacity: 1; }
+      33%, 100% { transform: translateX(268px); opacity: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .cr-root * { animation: none !important; }
+      .cr-tick, .cr-aura-in { opacity: 1; }
+      .cr-shine, .cr-flash, .cr-wave, .cr-mote { opacity: 0; }
+    }
+  </style>
+  <defs>
+    
+    <linearGradient id="cr-shine-grad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset=".5" stop-color="#ffffff" stop-opacity="1"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="cr-flash-grad">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset=".4" stop-color="#cfe9ff" stop-opacity=".8"/>
+      <stop offset="1" stop-color="#5cb8ff" stop-opacity="0"/>
+    </radialGradient>
+    <mask id="cr-shine-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="256" height="256">
+      <polygon points="128.0,36.8 207.0,82.4 207.0,173.6 128.0,219.2 49.0,173.6 49.0,82.4" fill="#fff" fill-opacity=".18"/>
+      <polygon points="128.0,42.9 201.7,85.4 201.7,170.6 128.0,213.1 54.3,170.6 54.3,85.4" fill="none" stroke="#fff" stroke-width="3" stroke-linejoin="round"/>
+      <polygon points="128.0,52.0 193.8,90.0 193.8,166.0 128.0,204.0 62.2,166.0 62.2,90.0" fill="#fff" fill-opacity=".5"/>
+      <polygon points="128.0,101.4 151.0,114.7 151.0,141.3 128.0,154.6 105.0,141.3 105.0,114.7" fill="none" stroke="#fff" stroke-width="2.6" stroke-linejoin="round"/>
+      <polygon points="128.0,112.0 141.8,120.0 141.8,136.0 128.0,144.0 114.2,136.0 114.2,120.0" fill="#fff"/>
+    </mask>
+  </defs>
+
+  <g class="cr-root">
+  <!-- placa de fundo e anel -->
+  <g class="rank-plate cr-plate">
+    <polygon points="128.0,36.8 207.0,82.4 207.0,173.6 128.0,219.2 49.0,173.6 49.0,82.4" fill="#1b1f2b" stroke="#0b0d14" stroke-width="3" stroke-linejoin="round"/>
+  </g>
+  <polygon class="rank-ring cr-ring" pathLength="100" points="128.0,42.9 201.7,85.4 201.7,170.6 128.0,213.1 54.3,170.6 54.3,85.4" fill="none" stroke="#5cb8ff" stroke-width="3" stroke-linejoin="round"/>
+
+  <!-- gema facetada -->
+  <g class="rank-gem cr-gem">
+    <polygon class="cr-edge" points="128.0,52.0 193.8,90.0 193.8,166.0 128.0,204.0 62.2,166.0 62.2,90.0" transform="translate(0 4)" fill="#000" opacity=".35"/>
+    <polygon points="128.0,52.0 193.8,90.0 160.9,109.0 128.0,90.0" fill="#a2bfda"/><polygon points="193.8,90.0 193.8,166.0 160.9,147.0 160.9,109.0" fill="#41628a"/><polygon points="193.8,166.0 128.0,204.0 128.0,166.0 160.9,147.0" fill="#0b2f5e"/><polygon points="128.0,204.0 62.2,166.0 95.1,147.0 128.0,166.0" fill="#385983"/><polygon points="62.2,166.0 62.2,90.0 95.1,109.0 95.1,147.0" fill="#99b6d3"/><polygon points="62.2,90.0 128.0,52.0 128.0,90.0 95.1,109.0" fill="#cfe9ff"/>
+    <polygon class="cr-table" points="128.0,90.0 160.9,109.0 160.9,147.0 128.0,166.0 95.1,147.0 95.1,109.0" fill="#2f86e0"/>
+    <polygon class="cr-edge" points="128.0,52.0 193.8,90.0 193.8,166.0 128.0,204.0 62.2,166.0 62.2,90.0" fill="none" stroke="#0b0d14" stroke-width="3" stroke-linejoin="round"/>
+  </g>
+
+  <!-- símbolo: a forma do rank em miniatura -->
+  <g class="rank-symbol cr-symbol">
+    <g transform="translate(0 3)" opacity=".3">
+      <polygon points="128.0,101.4 151.0,114.7 151.0,141.3 128.0,154.6 105.0,141.3 105.0,114.7" fill="none" stroke="#000" stroke-width="2.6" stroke-linejoin="round"/>
+      <polygon points="128.0,112.0 141.8,120.0 141.8,136.0 128.0,144.0 114.2,136.0 114.2,120.0" fill="#000"/>
+    </g>
+    <polygon points="128.0,101.4 151.0,114.7 151.0,141.3 128.0,154.6 105.0,141.3 105.0,114.7" fill="none" stroke="#fff" stroke-width="2.6" stroke-linejoin="round"/>
+    <polygon points="128.0,112.0 141.8,120.0 141.8,136.0 128.0,144.0 114.2,136.0 114.2,120.0" fill="#fff"/>
+    <polygon points="128.0,128.0 128.0,112.0 141.8,120.0" fill="#cfe9ff" opacity=".55"/>
+  </g>
+
+  <!-- brilho (recortado no emblema inteiro) -->
+  <g class="rank-shine" mask="url(#cr-shine-mask)">
+    <polygon class="cr-shine" points="-21.0,223.2 15.0,223.2 55.0,32.8 19.0,32.8" fill="url(#cr-shine-grad)"/>
+  </g>
+
+  <!-- marcadores de tier -->
+  <g class="rank-tier"><polygon class="cr-tick" style="animation-delay:0.30s" points="110.0,225.2 116.5,233.2 110.0,241.2 103.5,233.2" fill="#cfe9ff" stroke="#0b0d14" stroke-width="1.8" stroke-linejoin="round"/><polygon class="cr-tick" style="animation-delay:0.75s" points="128.0,225.2 134.5,233.2 128.0,241.2 121.5,233.2" fill="#cfe9ff" stroke="#0b0d14" stroke-width="1.8" stroke-linejoin="round"/><polygon class="cr-tick" style="animation-delay:1.20s" points="146.0,225.2 152.5,233.2 146.0,241.2 139.5,233.2" fill="#cfe9ff" stroke="#0b0d14" stroke-width="1.8" stroke-linejoin="round"/></g>
+  </g>
+</svg>

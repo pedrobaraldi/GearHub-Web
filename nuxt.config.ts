@@ -26,7 +26,21 @@ export default defineNuxtConfig({
   },
   app: {
     head: {
-      link: [{ rel: 'icon', type: 'image/png', href: '/favicon.png' }],
+      // cover: o conteúdo usa a tela inteira, e as margens seguras ficam com o CSS
+      viewport: 'width=device-width, initial-scale=1, viewport-fit=cover',
+      meta: [
+        { name: 'mobile-web-app-capable', content: 'yes' },
+        { name: 'apple-mobile-web-app-capable', content: 'yes' },
+        { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
+        { name: 'apple-mobile-web-app-title', content: 'GearHub' },
+      ],
+      link: [
+        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+        { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
+        { rel: 'icon', type: 'image/png', href: '/favicon.png' },
+        { rel: 'apple-touch-icon', href: '/icons/apple-touch-icon.png' },
+        { rel: 'manifest', href: '/manifest.webmanifest' },
+      ],
     },
   },
   colorMode: {

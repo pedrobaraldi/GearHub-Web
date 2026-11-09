@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="sc-title">
+  <title id="sc-title">Prata</title>
+  <style>
+    /* marcadores de tier: surgem um a um, devagar, e ficam */
+    .sc-tick { opacity: 0; transform-box: fill-box; transform-origin: center;
+      animation: sc-tick-in 0.9s cubic-bezier(.2,.7,.3,1) forwards; }
+    @keyframes sc-tick-in {
+      0%   { opacity: 0; transform: scale(.3); }
+      60%  { opacity: 1; transform: scale(1.25); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    /* brilho atravessando o emblema inteiro, em loop */
+    .sc-shine { opacity: 0; animation: sc-shine 4.0s ease-in-out 1.40s infinite; }
+    @keyframes sc-shine {
+      0%   { transform: translateX(0); opacity: 0; }
+      4%   { opacity: 1; }
+      32%  { transform: translateX(283px); opacity: 1; }
+      33%, 100% { transform: translateX(283px); opacity: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .sc-root * { animation: none !important; }
+      .sc-tick, .sc-aura-in { opacity: 1; }
+      .sc-shine, .sc-flash, .sc-wave, .sc-mote { opacity: 0; }
+    }
+  </style>
+  <defs>
+    
+    <linearGradient id="sc-shine-grad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset=".5" stop-color="#ffffff" stop-opacity="1"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="sc-flash-grad">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset=".4" stop-color="#f4f8ff" stop-opacity=".8"/>
+      <stop offset="1" stop-color="#cfd9e8" stop-opacity="0"/>
+    </radialGradient>
+    <mask id="sc-shine-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="256" height="256">
+      <polygon points="128.0,219.2 41.3,156.2 74.4,54.2 181.6,54.2 214.7,156.2" fill="#fff" fill-opacity=".18"/>
+      <polygon points="128.0,213.1 47.0,154.3 78.0,59.1 178.0,59.1 209.0,154.3" fill="none" stroke="#fff" stroke-width="3" stroke-linejoin="round"/>
+      <polygon points="128.0,204.0 55.7,151.5 83.3,66.5 172.7,66.5 200.3,151.5" fill="#fff" fill-opacity=".5"/>
+      <polygon points="128.0,154.6 102.7,136.2 112.4,106.5 143.6,106.5 153.3,136.2" fill="none" stroke="#fff" stroke-width="2.6" stroke-linejoin="round"/>
+      <polygon points="128.0,144.0 112.8,132.9 118.6,115.1 137.4,115.1 143.2,132.9" fill="#fff"/>
+    </mask>
+  </defs>
+
+  <g class="sc-root">
+  <!-- placa de fundo e anel -->
+  <g class="rank-plate sc-plate">
+    <polygon points="128.0,219.2 41.3,156.2 74.4,54.2 181.6,54.2 214.7,156.2" fill="#1b1f2b" stroke="#0b0d14" stroke-width="3" stroke-linejoin="round"/>
+  </g>
+  <polygon class="rank-ring sc-ring" pathLength="100" points="128.0,213.1 47.0,154.3 78.0,59.1 178.0,59.1 209.0,154.3" fill="none" stroke="#cfd9e8" stroke-width="3" stroke-linejoin="round"/>
+
+  <!-- gema facetada -->
+  <g class="rank-gem sc-gem">
+    <polygon class="sc-edge" points="128.0,204.0 55.7,151.5 83.3,66.5 172.7,66.5 200.3,151.5" transform="translate(0 4)" fill="#000" opacity=".35"/>
+    <polygon points="128.0,204.0 55.7,151.5 91.9,139.7 128.0,166.0" fill="#68758b"/><polygon points="55.7,151.5 83.3,66.5 105.7,97.3 91.9,139.7" fill="#d7dde7"/><polygon points="83.3,66.5 172.7,66.5 150.3,97.3 105.7,97.3" fill="#e9eef6"/><polygon points="172.7,66.5 200.3,151.5 164.1,139.7 150.3,97.3" fill="#8590a3"/><polygon points="200.3,151.5 128.0,204.0 128.0,166.0 164.1,139.7" fill="#354560"/>
+    <polygon class="sc-table" points="128.0,166.0 91.9,139.7 105.7,97.3 150.3,97.3 164.1,139.7" fill="#8fa6c8"/>
+    <polygon class="sc-edge" points="128.0,204.0 55.7,151.5 83.3,66.5 172.7,66.5 200.3,151.5" fill="none" stroke="#0b0d14" stroke-width="3" stroke-linejoin="round"/>
+  </g>
+
+  <!-- símbolo: a forma do rank em miniatura -->
+  <g class="rank-symbol sc-symbol">
+    <g transform="translate(0 3)" opacity=".3">
+      <polygon points="128.0,154.6 102.7,136.2 112.4,106.5 143.6,106.5 153.3,136.2" fill="none" stroke="#000" stroke-width="2.6" stroke-linejoin="round"/>
+      <polygon points="128.0,144.0 112.8,132.9 118.6,115.1 137.4,115.1 143.2,132.9" fill="#000"/>
+    </g>
+    <polygon points="128.0,154.6 102.7,136.2 112.4,106.5 143.6,106.5 153.3,136.2" fill="none" stroke="#fff" stroke-width="2.6" stroke-linejoin="round"/>
+    <polygon points="128.0,144.0 112.8,132.9 118.6,115.1 137.4,115.1 143.2,132.9" fill="#fff"/>
+    <polygon points="128.0,128.0 128.0,144.0 112.8,132.9" fill="#f4f8ff" opacity=".55"/>
+  </g>
+
+  <!-- brilho (recortado no emblema inteiro) -->
+  <g class="rank-shine" mask="url(#sc-shine-mask)">
+    <polygon class="sc-shine" points="-28.7,223.2 7.3,223.2 47.3,50.2 11.3,50.2" fill="url(#sc-shine-grad)"/>
+  </g>
+
+  <!-- marcadores de tier -->
+  <g class="rank-tier"><polygon class="sc-tick" style="animation-delay:0.30s" points="119.0,225.2 125.5,233.2 119.0,241.2 112.5,233.2" fill="#f4f8ff" stroke="#0b0d14" stroke-width="1.8" stroke-linejoin="round"/><polygon class="sc-tick" style="animation-delay:0.75s" points="137.0,225.2 143.5,233.2 137.0,241.2 130.5,233.2" fill="#f4f8ff" stroke="#0b0d14" stroke-width="1.8" stroke-linejoin="round"/></g>
+  </g>
+</svg>

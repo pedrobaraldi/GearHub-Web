@@ -215,7 +215,7 @@ async function save() {
   catch (error) {
     const failure = toApiFailure(error)
     fields.value = failure.fields
-    toast.error(failure.message)
+    toast.failure(failure)
     const failed = Object.keys(failure.fields).map(key => FIELD_STEP[key]).find(index => index !== undefined)
     if (failed !== undefined) step.value = failed
     return false

@@ -5,6 +5,8 @@ const token = name => `color-mix(in srgb, var(--gear-${name}) calc(<alpha-value>
 /** @type {import('tailwindcss').Config} */
 export default {
   darkMode: 'class',
+  // No toque, o hover ficaria preso no último item tocado
+  future: { hoverOnlyWhenSupported: true },
   content: [
     './app/**/*.{vue,js,ts}',
     './components/**/*.{vue,js,ts}',

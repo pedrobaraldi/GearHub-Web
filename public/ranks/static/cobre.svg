@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="bm-title">
+  <title id="bm-title">Cobre</title>
+  <style>
+    /* marcadores de tier: surgem um a um, devagar, e ficam */
+    .bm-tick { opacity: 0; transform-box: fill-box; transform-origin: center;
+      animation: bm-tick-in 0.9s cubic-bezier(.2,.7,.3,1) forwards; }
+    @keyframes bm-tick-in {
+      0%   { opacity: 0; transform: scale(.3); }
+      60%  { opacity: 1; transform: scale(1.25); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    /* brilho atravessando o emblema inteiro, em loop */
+    .bm-shine { opacity: 0; animation: bm-shine 4.0s ease-in-out 0.95s infinite; }
+    @keyframes bm-shine {
+      0%   { transform: translateX(0); opacity: 0; }
+      4%   { opacity: 1; }
+      32%  { transform: translateX(253px); opacity: 1; }
+      33%, 100% { transform: translateX(253px); opacity: 0; }
+    }
+    @media all {
+      .bm-root * { animation: none !important; }
+      .bm-tick, .bm-aura-in { opacity: 1; }
+      .bm-shine, .bm-flash, .bm-wave, .bm-mote { opacity: 0; }
+    }
+  </style>
+  <defs>
+    
+    <linearGradient id="bm-shine-grad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset=".5" stop-color="#ffffff" stop-opacity="1"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="bm-flash-grad">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset=".4" stop-color="#ffc58f" stop-opacity=".8"/>
+      <stop offset="1" stop-color="#e8a06a" stop-opacity="0"/>
+    </radialGradient>
+    <mask id="bm-shine-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="256" height="256">
+      <polygon points="199.3,199.3 56.7,199.3 56.7,56.7 199.3,56.7" fill="#fff" fill-opacity=".18"/>
+      <polygon points="194.5,194.5 61.5,194.5 61.5,61.5 194.5,61.5" fill="none" stroke="#fff" stroke-width="3" stroke-linejoin="round"/>
+      <polygon points="187.4,187.4 68.6,187.4 68.6,68.6 187.4,68.6" fill="#fff" fill-opacity=".5"/>
+      <polygon points="148.8,148.8 107.2,148.8 107.2,107.2 148.8,107.2" fill="none" stroke="#fff" stroke-width="2.6" stroke-linejoin="round"/>
+      <polygon points="140.5,140.5 115.5,140.5 115.5,115.5 140.5,115.5" fill="#fff"/>
+    </mask>
+  </defs>
+
+  <g class="bm-root">
+  <!-- placa de fundo e anel -->
+  <g class="rank-plate bm-plate">
+    <polygon points="199.3,199.3 56.7,199.3 56.7,56.7 199.3,56.7" fill="#1b1f2b" stroke="#0b0d14" stroke-width="3" stroke-linejoin="round"/>
+  </g>
+  <polygon class="rank-ring bm-ring" pathLength="100" points="194.5,194.5 61.5,194.5 61.5,61.5 194.5,61.5" fill="none" stroke="#e8a06a" stroke-width="3" stroke-linejoin="round"/>
+
+  <!-- gema facetada -->
+  <g class="rank-gem bm-gem">
+    <polygon class="bm-edge" points="187.4,187.4 68.6,187.4 68.6,68.6 187.4,68.6" transform="translate(0 4)" fill="#000" opacity=".35"/>
+    <polygon points="187.4,187.4 68.6,187.4 98.3,157.7 157.7,157.7" fill="#633317"/><polygon points="68.6,187.4 68.6,68.6 98.3,98.3 98.3,157.7" fill="#d29a6c"/><polygon points="68.6,68.6 187.4,68.6 157.7,98.3 98.3,98.3" fill="#f6bc88"/><polygon points="187.4,68.6 187.4,187.4 157.7,157.7 157.7,98.3" fill="#875533"/>
+    <polygon class="bm-table" points="157.7,157.7 98.3,157.7 98.3,98.3 157.7,98.3" fill="#c8743a"/>
+    <polygon class="bm-edge" points="187.4,187.4 68.6,187.4 68.6,68.6 187.4,68.6" fill="none" stroke="#0b0d14" stroke-width="3" stroke-linejoin="round"/>
+  </g>
+
+  <!-- símbolo: a forma do rank em miniatura -->
+  <g class="rank-symbol bm-symbol">
+    <g transform="translate(0 3)" opacity=".3">
+      <polygon points="148.8,148.8 107.2,148.8 107.2,107.2 148.8,107.2" fill="none" stroke="#000" stroke-width="2.6" stroke-linejoin="round"/>
+      <polygon points="140.5,140.5 115.5,140.5 115.5,115.5 140.5,115.5" fill="#000"/>
+    </g>
+    <polygon points="148.8,148.8 107.2,148.8 107.2,107.2 148.8,107.2" fill="none" stroke="#fff" stroke-width="2.6" stroke-linejoin="round"/>
+    <polygon points="140.5,140.5 115.5,140.5 115.5,115.5 140.5,115.5" fill="#fff"/>
+    <polygon points="128.0,128.0 140.5,140.5 115.5,140.5" fill="#ffc58f" opacity=".55"/>
+  </g>
+
+  <!-- brilho (recortado no emblema inteiro) -->
+  <g class="rank-shine" mask="url(#bm-shine-mask)">
+    <polygon class="bm-shine" points="-13.3,203.3 22.7,203.3 62.7,52.7 26.7,52.7" fill="url(#bm-shine-grad)"/>
+  </g>
+
+  <!-- marcadores de tier -->
+  <g class="rank-tier"><polygon class="bm-tick" style="animation-delay:0.30s" points="128.0,205.3 134.5,213.3 128.0,221.3 121.5,213.3" fill="#ffc58f" stroke="#0b0d14" stroke-width="1.8" stroke-linejoin="round"/></g>
+  </g>
+</svg>

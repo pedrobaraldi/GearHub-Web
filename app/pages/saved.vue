@@ -1,6 +1,6 @@
 <template>
   <div>
-    <PageHeader title="Seus" accent="Salvos." subtitle="Publicações que você guardou para ver depois." />
+    <PageHeader root title="Seus" accent="Salvos." subtitle="Publicações que você guardou para ver depois." />
 
     <div class="px-4 sm:px-6 lg:px-10 py-6 lg:py-8">
       <div class="max-w-2xl mx-auto space-y-8">
