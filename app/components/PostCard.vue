@@ -2,7 +2,8 @@
   <article v-if="!removed" class="reveal space-y-4" v-reveal>
     <UserAvatar :user="toUser(item.author)" :meta="meta" />
 
-    <div class="glass-card neon-hover group overflow-hidden">
+    <!-- O post não é clicável inteiro: sem brilho no card, só nos links dentro dele -->
+    <div class="glass-card overflow-hidden">
       <MediaGallery v-if="item.images.length" :images="item.images" :alt="`Imagem de ${item.author.displayName}`" />
 
       <div class="p-6 lg:p-8">

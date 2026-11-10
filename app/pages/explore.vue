@@ -11,9 +11,14 @@
 
       <div v-if="products.length" class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
         <ProductCard v-for="product in products" :key="product.id" :product="product">
-          <NuxtLink :to="{ path: '/compare', query: { p: product.id } }" class="inline-flex items-center gap-1 text-xs font-semibold text-gear-accent hover:underline" :aria-label="`Comparar ${product.name}`">
+          <!-- Comparar discreto: o produto é o destaque do card -->
+          <NuxtLink
+            :to="{ path: '/compare', query: { p: product.id } }"
+            class="w-8 h-8 grid place-items-center rounded-full border border-gear-border text-gear-muted hover:text-gear-accent hover:border-gear-accent transition-colors"
+            :aria-label="`Comparar ${product.name}`"
+            title="Comparar"
+          >
             <AppIcon name="git-compare" class="w-3.5 h-3.5" />
-            Comparar
           </NuxtLink>
         </ProductCard>
       </div>
