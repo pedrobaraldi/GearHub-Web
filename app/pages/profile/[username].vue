@@ -245,7 +245,7 @@
           <div v-if="!games?.length" class="glass-card p-10 text-center">
             <p class="text-sm font-semibold">Nenhum jogo cadastrado</p>
           </div>
-          <NuxtLink v-if="isMine" to="/games" class="btn-outline">
+          <NuxtLink v-if="isMine" to="/games/config" class="btn-outline">
             <AppIcon name="pencil" class="w-4 h-4" />
             Editar jogos
           </NuxtLink>

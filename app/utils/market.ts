@@ -13,6 +13,8 @@ export interface MarketGame {
   peakPlayers24h: number | null
   reviewPercent: number | null
   lowestCents: number | null
+  // Página do jogo no catálogo, quando já ligada
+  slug: string | null
 }
 
 export interface MarketGameDetail {

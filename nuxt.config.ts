@@ -23,6 +23,9 @@ export default defineNuxtConfig({
       },
     },
     '/uploads/**': { proxy: `${process.env.NUXT_API_URL ?? 'http://localhost:8080'}/uploads/**` },
+    // A antiga aba /mercado virou /games: links salvos e compartilhados continuam funcionando
+    '/mercado': { redirect: { to: '/games', statusCode: 301 } },
+    '/mercado/**': { redirect: { to: '/games/steam/**', statusCode: 301 } },
   },
   app: {
     head: {

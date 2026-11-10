@@ -14,7 +14,7 @@ const props = defineProps<{ slug: string, name: string }>()
 const hasIcon = computed(() => ICONS.includes(props.slug))
 
 const maskStyle = computed(() => {
-  const mask = `url(/games/${props.slug}.svg) center / contain no-repeat`
+  const mask = `url(/game-icons/${props.slug}.svg) center / contain no-repeat`
   return { mask, WebkitMask: mask }
 })
 </script>

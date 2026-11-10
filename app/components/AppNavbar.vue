@@ -220,7 +220,7 @@ watch(collapsed, async () => {
 
 const route = useRoute()
 // A aba Games também fica ativa na página de cada jogo
-const isActive = (to: string) => route.path === to || (to === '/mercado' && route.path.startsWith('/mercado/'))
+const isActive = (to: string) => route.path === to || (to === '/games' && route.path.startsWith('/games/') && !route.path.startsWith('/games/config'))
 
 const { user, logout } = useAuth()
 const { start } = useNewPost()
@@ -243,7 +243,7 @@ const navLinks = [
   { label: 'Rankings', to: '/rankings', icon: 'trophy' },
   { label: 'Comparar', to: '/compare', icon: 'git-compare' },
   { label: 'Hall', to: '/hall', icon: 'medal' },
-  { label: 'Games', to: '/mercado', icon: 'gamepad' },
+  { label: 'Games', to: '/games', icon: 'gamepad' },
   { label: 'Notificações', to: '/notifications', icon: 'bell' },
   { label: 'Salvos', to: '/saved', icon: 'bookmark' },
 ]
@@ -251,7 +251,7 @@ const navLinks = [
 const shortcutLinks = computed(() => [
   ...(user.value ? [{ label: 'Meu nível', to: `/niveis/${user.value.username}`, icon: 'trending-up' }] : []),
   { label: 'Meu setup', to: '/setup', icon: 'monitor' },
-  { label: 'Configurações de jogo', to: '/games', icon: 'settings' },
+  { label: 'Configurações de jogo', to: '/games/config', icon: 'settings' },
   { label: 'Segurança', to: '/seguranca', icon: 'shield' },
 ])
 
@@ -263,8 +263,8 @@ const mobileLinks = [
 
 // O restante fica no menu "Mais"
 const menuOpen = ref(false)
-const MENU_ROUTES = ['/compare', '/hall', '/saved', '/setup', '/games', '/account', '/seguranca']
-const inMenu = computed(() => MENU_ROUTES.includes(route.path) || route.path.startsWith('/mercado') || route.path === `/niveis/${user.value?.username}`)
+const MENU_ROUTES = ['/compare', '/hall', '/saved', '/setup', '/games', '/games/config', '/account', '/seguranca']
+const inMenu = computed(() => MENU_ROUTES.includes(route.path) || route.path.startsWith('/games/') || route.path === `/niveis/${user.value?.username}`)
 
 watch(() => route.path, () => {
   menuOpen.value = false

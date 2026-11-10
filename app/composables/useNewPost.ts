@@ -12,16 +12,16 @@ export function useNewPost() {
 }
 
 // Telas de formulário: depois de sair delas, o Voltar não deve levar de novo para lá
-const FORM_ROUTES = [/^\/new/, /^\/edit\//, /^\/setup$/, /^\/account$/, /^\/games\/[^/]+$/, /^\/auth/, /^\/recuperar-senha/, /^\/redefinir-senha/]
+const FORM_ROUTES = [/^\/new/, /^\/edit\//, /^\/setup$/, /^\/account$/, /^\/games\/config\/[^/]+$/, /^\/auth/, /^\/recuperar-senha/, /^\/redefinir-senha/]
 
 // Página "mãe" de cada tela, usada quando não há histórico útil (link aberto direto, ou veio de um formulário)
 function parentOf(path: string, username?: string): string {
-  if (/^\/mercado\/.+/.test(path)) return '/mercado'
   const levels = path.match(/^\/niveis\/([^/]+)/)
   if (levels) return `/profile/${levels[1]}`
+  if (/^\/games\/config\/.+/.test(path)) return '/games/config'
   if (/^\/games\/.+/.test(path)) return '/games'
   if (/^\/product\/.+/.test(path)) return '/explore'
-  if (/^\/(setup|games|account)$/.test(path) && username) return `/profile/${username}`
+  if ((/^\/(setup|account)$/.test(path) || path === '/games/config') && username) return `/profile/${username}`
   return '/'
 }
 
