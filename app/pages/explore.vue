@@ -3,7 +3,7 @@
     <PageHeader root title="Explorar" accent="Produtos." subtitle="Encontre produtos por nome, marca ou categoria." />
 
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-10 py-6 lg:py-8 space-y-4">
-      <SearchBar v-model="search" placeholder="Buscar produto ou marca..." />
+      <SearchBar v-model="search" placeholder="Buscar por nome, marca, categoria ou especificação..." />
 
       <CategoryFilter v-model="category" />
 
@@ -34,6 +34,7 @@
 
 <script setup lang="ts">
 import type { Category } from '~/composables/useGearData'
+import { matchesSearch, productSearchFields } from '~/utils/search'
 
 useHead({ title: 'Explorar · GearHub' })
 
@@ -41,13 +42,10 @@ const { products: allProducts } = await useCatalog()
 const search = useState('explore-search', () => '')
 const category = useState<Category>('explore-category', () => 'Todos')
 
-const products = computed(() => {
-  const term = search.value.trim().toLowerCase()
-  return allProducts.value.filter(p =>
-    (category.value === 'Todos' || p.category === category.value)
-    && (!term || `${p.name} ${p.brand}`.toLowerCase().includes(term)),
-  )
-})
+const products = computed(() => allProducts.value.filter(p =>
+  (category.value === 'Todos' || p.category === category.value)
+  && matchesSearch(search.value, ...productSearchFields(p)),
+))
 
 function clearFilters() {
   search.value = ''

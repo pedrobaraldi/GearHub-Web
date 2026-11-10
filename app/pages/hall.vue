@@ -125,6 +125,7 @@
 <script setup lang="ts">
 import gsap from 'gsap'
 import { rankHasAura, userRank } from '~/composables/useGearData'
+import { matchesSearch, productSearchFields } from '~/utils/search'
 import type { User } from '~/composables/useGearData'
 
 interface Hall {
@@ -141,7 +142,8 @@ const { data: hall } = await useFetch<Hall>('/api/v1/hall', { key: 'hall' })
 
 const term = ref('')
 const searching = computed(() => term.value.trim().length > 0)
-const matches = (text: string) => text.toLowerCase().includes(term.value.trim().toLowerCase())
+// Sem acento, e cada palavra pode estar em qualquer campo
+const matches = (...fields: (string | number | null | undefined)[]) => matchesSearch(term.value, ...fields)
 
 const format = (value: number) => value.toLocaleString('pt-BR')
 
@@ -159,14 +161,14 @@ const runnersUp = computed(() => people.value.slice(1, PODIUM_SIZE))
 // Com busca, todos entram na lista, mantendo a posição real de cada um
 const ranking = computed(() =>
   searching.value
-    ? people.value.filter(person => matches(`${person.displayName} ${person.username} ${person.rankName}`))
+    ? people.value.filter(person => matches(person.displayName, person.username, person.rankName, `nivel ${person.level}`))
     : people.value.slice(PODIUM_SIZE),
 )
 
-const setups = computed(() => (hall.value?.setups ?? []).filter(setup => matches(setup.displayName)))
+const setups = computed(() => (hall.value?.setups ?? []).filter(setup => matches(setup.displayName, setup.username)))
 
 const topProducts = computed(() =>
-  (hall.value?.products ?? []).map(toProduct).filter(product => matches(`${product.brand} ${product.name} ${product.category}`)),
+  (hall.value?.products ?? []).map(toProduct).filter(product => matches(...productSearchFields(product))),
 )
 
 const root = ref<HTMLElement | null>(null)
