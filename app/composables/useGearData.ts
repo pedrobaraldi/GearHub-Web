@@ -28,6 +28,8 @@ export interface Review {
   specs?: { label: string, value: string }[]
   unrated?: boolean
   images?: string[]
+  // Review de jogo: o jogo do catálogo, com link para a página dele
+  game?: { slug: string, name: string, coverUrl: string | null } | null
   likedByMe?: boolean
   savedByMe?: boolean
   mine?: boolean

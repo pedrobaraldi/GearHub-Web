@@ -168,7 +168,7 @@ const selectedProducts = computed(() => slots.value.filter(Boolean) as Product[]
 const availableProducts = computed(() =>
   products.value.filter(p =>
     !slots.value.some(s => s?.id === p.id)
-    && `${p.brand} ${p.name}`.toLowerCase().includes(search.value.trim().toLowerCase()),
+    && matchesSearch(search.value, ...productSearchFields(p)),
   ),
 )
 

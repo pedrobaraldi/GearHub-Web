@@ -53,16 +53,21 @@
             <AppIcon name="pencil" class="w-4 h-4" />
             Editar perfil
           </NuxtLink>
-          <button
-            v-else
-            class="px-5 py-2 rounded-lg text-sm font-semibold transition-colors"
-            :class="followedByMe ? 'border border-gear-border text-gear-text' : 'bg-gear-primary text-gear-on-primary hover:bg-gear-primary-hover'"
-            :aria-pressed="followedByMe"
-            :disabled="following"
-            @click="toggleFollow"
-          >
-            {{ followedByMe ? 'Seguindo' : 'Seguir' }}
-          </button>
+          <div v-else class="flex items-center gap-2">
+            <button
+              class="px-5 py-2 rounded-lg text-sm font-semibold transition-colors"
+              :class="followedByMe ? 'border border-gear-border text-gear-text' : 'bg-gear-primary text-gear-on-primary hover:bg-gear-primary-hover'"
+              :aria-pressed="followedByMe"
+              :disabled="following"
+              @click="toggleFollow"
+            >
+              {{ followedByMe ? 'Seguindo' : 'Seguir' }}
+            </button>
+            <button type="button" class="w-10 h-10 grid place-items-center rounded-lg border border-gear-border text-gear-muted hover:text-gear-red hover:border-gear-red/50 transition-colors" aria-label="Denunciar perfil" title="Denunciar perfil" @click="reportingProfile = true">
+              <AppIcon name="flag" class="w-4 h-4" />
+            </button>
+            <ReportModal :open="reportingProfile" kind="user" :username="person.username" @close="reportingProfile = false" />
+          </div>
         </div>
       </div>
 
@@ -93,8 +98,11 @@
       <!-- Detalhe da insígnia: a única exibição animada, as outras do perfil ficam paradas -->
       <AppModal :open="!!selectedBadge" :title="selectedBadge?.name ?? ''" :subtitle="selectedBadge?.description" @close="selectedBadgeKey = null">
         <template v-if="selectedBadge">
-          <FounderEmblem v-if="selectedBadge.key === 'founder'" :number="selectedBadge.number" animated class="block w-40 h-40 mx-auto" />
-          <BadgeEmblem v-else :key="selectedBadge.key" :badge="selectedBadge.key" :title="selectedBadge.name" animated class="w-40 h-40 mx-auto" />
+          <!-- O emblema é inline-block por dentro: quem centraliza é o flex -->
+          <div class="flex justify-center">
+            <FounderEmblem v-if="selectedBadge.key === 'founder'" :number="selectedBadge.number" animated class="w-40 h-40" />
+            <BadgeEmblem v-else :key="selectedBadge.key" :badge="selectedBadge.key" :title="selectedBadge.name" animated class="w-40 h-40" />
+          </div>
           <p v-if="selectedBadge.number" class="font-display italic font-extrabold uppercase text-2xl text-center mt-2">Nº {{ selectedBadge.number }} de 100</p>
           <p class="text-sm text-gear-text-secondary text-center mt-4">{{ BADGE_DETAILS[selectedBadge.key] ?? selectedBadge.description }}</p>
           <p v-if="selectedBadge.grantedAt" class="text-xs text-gear-muted text-center mt-2">
@@ -242,7 +250,7 @@
           <div v-if="!games?.length" class="glass-card p-10 text-center">
             <p class="text-sm font-semibold">Nenhum jogo cadastrado</p>
           </div>
-          <NuxtLink v-if="isMine" to="/games" class="btn-outline">
+          <NuxtLink v-if="isMine" to="/games/config" class="btn-outline">
             <AppIcon name="pencil" class="w-4 h-4" />
             Editar jogos
           </NuxtLink>
@@ -272,6 +280,8 @@ import { toReview, toUser } from '~/composables/useFeed'
 import { ringAppearance, userRank } from '~/composables/useGearData'
 import { socialLinks } from '~/utils/socialLinks'
 import { toApiFailure } from '~/composables/useAuth'
+
+const reportingProfile = ref(false)
 
 interface Badge {
   key: string

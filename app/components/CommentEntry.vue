@@ -15,6 +15,8 @@
         </button>
         <button type="button" class="py-2.5 sm:py-0 hover:text-gear-text transition-colors" @click="$emit('reply')">Responder</button>
         <button v-if="comment.mine" type="button" class="py-2.5 sm:py-0 hover:text-gear-red transition-colors" @click="$emit('remove')">Apagar</button>
+        <button v-else type="button" class="py-2.5 sm:py-0 hover:text-gear-red transition-colors" @click="reporting = true">Denunciar</button>
+        <ReportModal :open="reporting" kind="comment" :id="comment.id" @close="reporting = false" />
       </div>
     </div>
   </div>
@@ -25,5 +27,7 @@ import { formatDate } from '~/composables/useGearData'
 import type { CommentItem } from '~/composables/useInteractions'
 
 defineProps<{ comment: CommentItem, reply?: boolean }>()
+
+const reporting = ref(false)
 defineEmits<{ like: [], reply: [], remove: [] }>()
 </script>

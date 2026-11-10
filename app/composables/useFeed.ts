@@ -31,6 +31,8 @@ export interface FeedItem {
   cons: string[]
   tags: string[]
   images: string[]
+  // Jogo de que o post fala; a capa leva à página do jogo
+  game: { slug: string, name: string, coverUrl: string | null } | null
   likedByMe: boolean
   savedByMe: boolean
   mine: boolean
@@ -76,6 +78,7 @@ export function toReview(item: FeedItem): Review {
     subScores: item.scores,
     specs: item.specs,
     images: item.images,
+    game: item.game,
     likedByMe: item.likedByMe,
     savedByMe: item.savedByMe,
     mine: item.mine,

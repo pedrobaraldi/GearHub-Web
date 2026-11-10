@@ -4,7 +4,7 @@
 
     <div class="reveal max-w-6xl mx-auto px-4 sm:px-6 lg:px-10 py-6 lg:py-8" v-reveal>
 
-    <SearchBar v-model="search" class="mb-4" placeholder="Buscar produto ou marca..." />
+    <SearchBar v-model="search" class="mb-4" placeholder="Buscar por nome, marca ou categoria..." />
 
     <!-- Category filter -->
     <div class="mb-6">
@@ -84,7 +84,7 @@ const filteredProducts = computed(() =>
     .filter(p => activeCategory.value === 'Todos' || p.category === activeCategory.value)
     .map((p, index) => ({ ...p, rank: index + 1 }))
     // A busca não muda a posição do produto no ranking
-    .filter(p => `${p.brand} ${p.name}`.toLowerCase().includes(search.value.trim().toLowerCase())),
+    .filter(p => matchesSearch(search.value, ...productSearchFields(p))),
 )
 
 // Pódio só aparece com a lista completa; numa busca, todos ficam na lista com a posição real
