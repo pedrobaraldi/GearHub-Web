@@ -283,7 +283,7 @@
   .founder-ring {
     background: transparent !important;
     isolation: isolate;
-    box-shadow: 0 0 18px rgb(255 255 255 / 0.18);
+    box-shadow: 0 0 6px rgb(255 255 255 / 0.08);
   }
   .founder-ring::before {
     content: '';
@@ -294,15 +294,16 @@
     background: conic-gradient(#ff4d4d, #ffb84d, #f5ff4d, #4dff88, #4dfff3, #4d7dff, #b44dff, #ff4dd2, #ff4d4d);
     animation: founder-spin 4s linear infinite;
   }
+  /* Brilho suave em volta: discreto, para não brigar com a foto */
   .founder-ring::after {
     content: '';
     position: absolute;
-    inset: -6px;
+    inset: -2px;
     z-index: -2;
     border-radius: inherit;
     background: conic-gradient(#ff4d4d, #ffb84d, #f5ff4d, #4dff88, #4dfff3, #4d7dff, #b44dff, #ff4dd2, #ff4d4d);
-    filter: blur(12px);
-    opacity: 0.45;
+    filter: blur(5px);
+    opacity: 0.25;
     animation: founder-spin 4s linear infinite;
   }
   /* Título em arco-íris para a patente especial */
