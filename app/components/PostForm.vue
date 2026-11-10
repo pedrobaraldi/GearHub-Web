@@ -19,7 +19,7 @@
                 class="inline-flex items-center gap-1.5 h-9 px-3 rounded-full border text-xs font-medium transition-colors"
                 :class="topic === option.slug ? 'border-gear-primary bg-gear-primary/10 text-gear-primary' : 'border-gear-border text-gear-muted hover:text-gear-text hover:border-gear-text/30'"
                 :aria-pressed="topic === option.slug"
-                @click="topic = option.slug"
+                @click="chooseTopic(option.slug)"
               >
                 <TopicIcon :slug="option.slug" class="w-4 h-4" />
                 {{ option.name }}
@@ -38,6 +38,31 @@
             </div>
             <p v-if="fields.topic" class="text-xs text-gear-red mt-1.5">{{ fields.topic }}</p>
           </fieldset>
+
+          <!-- Tópico Games: de qual jogo é o post. A capa no feed leva à página do jogo -->
+          <div v-if="topic === GAMES_TOPIC" class="mt-4">
+            <div v-if="game" class="flex items-center gap-3 rounded-2xl border border-gear-border bg-gear-surface p-3">
+              <img v-if="game.coverUrl" :src="game.coverUrl" alt="" class="w-12 aspect-[3/4] rounded-lg object-cover shrink-0" />
+              <div class="min-w-0 flex-1">
+                <p class="text-[11px] text-gear-muted">Sobre o jogo</p>
+                <p class="text-sm font-semibold truncate">{{ game.name }}</p>
+              </div>
+              <button type="button" class="btn-outline !px-3 !py-1.5 text-xs" @click="pickerOpen = true">Trocar</button>
+              <button type="button" class="w-9 h-9 grid place-items-center rounded-full text-gear-muted hover:text-gear-text" aria-label="Tirar o jogo do post" @click="game = null">
+                <AppIcon name="x" class="w-4 h-4" />
+              </button>
+            </div>
+            <button
+              v-else
+              type="button"
+              class="w-full flex items-center gap-3 rounded-2xl border border-dashed border-gear-border p-3 text-sm text-gear-muted hover:text-gear-text hover:border-gear-accent transition-colors"
+              @click="pickerOpen = true"
+            >
+              <span class="w-12 aspect-[3/4] rounded-lg bg-gear-surface grid place-items-center shrink-0"><AppIcon name="gamepad" class="w-5 h-5" /></span>
+              Escolher o jogo (opcional)
+            </button>
+            <p v-if="fields.game" class="text-xs text-gear-red mt-1.5">{{ fields.game }}</p>
+          </div>
         </FormSection>
       </div>
 
@@ -76,6 +101,8 @@
       </div>
     </form>
 
+    <GamePickerModal :open="pickerOpen" :selected="game?.slug" @close="pickerOpen = false" @select="pickGame" />
+
     <template #preview>
       <PostPreview
         :author="user ? { displayName: user.displayName, avatarUrl: user.avatarUrl } : null"
@@ -83,6 +110,7 @@
         :body="form.body"
         :tags="tags"
         :images="images"
+        :game="topic === GAMES_TOPIC ? game : null"
       />
     </template>
   </FormShell>
@@ -93,14 +121,22 @@
 import gsap from 'gsap'
 import { toApiFailure } from '~/composables/useAuth'
 
+export interface PostGame {
+  slug: string
+  name: string
+  coverUrl: string | null
+}
+
 export interface PostDraft {
   body: string
   topic: string | null
   tags: string[]
   images: string[]
+  game: PostGame | null
 }
 
 const MAX_LENGTH = 1000
+const GAMES_TOPIC = 'games'
 
 const props = defineProps<{ editing?: { id: string, draft: PostDraft } }>()
 const rankUp = useRankUp()
@@ -130,6 +166,25 @@ const topic = ref(draft?.topic ?? 'discussao')
 const images = ref<string[]>(draft?.images ?? [])
 const form = reactive({ body: draft?.body ?? '' })
 const tags = ref<string[]>(draft?.tags ?? [])
+const game = ref<PostGame | null>(draft?.game ?? null)
+const pickerOpen = ref(false)
+
+// Escolher Games abre a busca do jogo; sair de Games tira o jogo do post
+function chooseTopic(slug: string) {
+  topic.value = slug
+  if (slug === GAMES_TOPIC) {
+    if (!game.value) pickerOpen.value = true
+  }
+  else {
+    game.value = null
+  }
+}
+
+function pickGame(picked: PostGame) {
+  game.value = { slug: picked.slug, name: picked.name, coverUrl: picked.coverUrl }
+  pickerOpen.value = false
+  delete fields.value.game
+}
 const fields = ref<Record<string, string>>({})
 const sending = ref(false)
 
@@ -152,6 +207,7 @@ async function submit() {
     topic: topic.value,
     tags: tags.value,
     images: images.value,
+    game: topic.value === GAMES_TOPIC ? game.value?.slug ?? null : null,
   }
   try {
     if (props.editing) await $fetch(`/api/v1/posts/${props.editing.id}`, { method: 'PATCH', body })

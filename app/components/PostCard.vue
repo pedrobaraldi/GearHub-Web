@@ -6,6 +6,7 @@
       <MediaGallery v-if="item.images.length" :images="item.images" :alt="`Imagem de ${item.author.displayName}`" />
 
       <div class="p-6 lg:p-8">
+        <GameTag v-if="item.game" :game="item.game" class="mb-4" />
         <h2 v-if="item.title" class="text-xl sm:text-2xl font-semibold tracking-tight leading-snug mb-2">{{ item.title }}</h2>
         <p class="text-sm text-gear-text-secondary leading-relaxed whitespace-pre-line break-words">{{ item.body }}</p>
 

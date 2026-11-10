@@ -52,6 +52,8 @@ export interface CatalogGame {
 export interface CatalogGameResponse {
   game: CatalogGame
   steam: MarketGame | null
+  // Nota média das reviews de jogo da GearHub, de 0 a 10
+  community: { score: number | null, reviewCount: number }
 }
 
 // Cores oficiais da classificação indicativa

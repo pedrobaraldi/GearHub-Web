@@ -109,6 +109,38 @@
           </div>
         </section>
 
+        <!-- O que a comunidade da GearHub diz: nota média das reviews, reviews e posts sobre o jogo -->
+        <section id="comunidade" class="scroll-mt-24" aria-labelledby="community-title">
+          <div class="flex flex-wrap items-end justify-between gap-4 mb-4">
+            <div>
+              <h2 id="community-title" class="font-display italic font-extrabold uppercase text-2xl">Na GearHub</h2>
+              <p class="text-xs text-gear-muted mt-1">
+                <template v-if="community.reviewCount">{{ community.reviewCount }} {{ community.reviewCount === 1 ? 'review' : 'reviews' }} da comunidade</template>
+                <template v-else>Ninguém avaliou este jogo ainda.</template>
+              </p>
+            </div>
+            <div class="flex items-center gap-4">
+              <div v-if="community.score != null" class="text-right">
+                <p class="font-display italic font-extrabold text-4xl leading-none tabular-nums" :class="scoreColor(Number(community.score) * 10)">{{ Number(community.score).toFixed(1) }}</p>
+                <p class="text-[11px] text-gear-muted mt-1">nota GearHub</p>
+              </div>
+              <NuxtLink :to="{ path: '/new', query: { tipo: 'review', jogo: game.slug } }" class="btn-publish !py-0 min-h-[2.75rem]">
+                <AppIcon name="star" class="w-4 h-4" />
+                Escrever review
+              </NuxtLink>
+            </div>
+          </div>
+          <div v-if="communityItems.length" class="space-y-8">
+            <template v-for="item in communityItems" :key="item.id">
+              <ReviewCard v-if="item.kind === 'review'" :review="toReview(item)" />
+              <PostCard v-else :item="item" />
+            </template>
+          </div>
+          <p v-else class="glass-card p-6 text-sm text-gear-muted text-center">
+            Seja a primeira pessoa a falar de {{ game.name }}: escreva uma review ou um post no tópico Games.
+          </p>
+        </section>
+
         <!-- Preço e jogadores, quando a GearHub acompanha o jogo na Steam -->
         <SteamPanel v-if="steam" :appid="steam.appid" />
 
@@ -157,6 +189,8 @@
 </template>
 
 <script setup lang="ts">
+import type { FeedPage } from '~/composables/useFeed'
+import { toReview } from '~/composables/useFeed'
 import { ageRatingClass, portugueseLabel, releaseLabel, type CatalogGameResponse } from '~/utils/catalog'
 
 const TYPE_LABELS: Record<string, string> = {
@@ -184,6 +218,11 @@ if (error.value || !data.value) {
 
 const game = computed(() => data.value!.game)
 const steam = computed(() => data.value!.steam)
+const community = computed(() => data.value!.community)
+
+// Reviews e posts da comunidade sobre o jogo
+const { data: communityFeed } = await useFetch<FeedPage>('/api/v1/feed', { key: `game-feed-${slug}`, query: { game: slug, size: 10 } })
+const communityItems = computed(() => communityFeed.value?.items ?? [])
 
 useHead({ title: () => `${game.value.name} · Games · GearHub` })
 

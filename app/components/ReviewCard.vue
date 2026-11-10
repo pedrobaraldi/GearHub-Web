@@ -5,8 +5,8 @@
       :meta="`${formatDate(review.date)} · ${review.product.brand} · ${review.product.category}`"
     >
       <p class="text-[11px] text-gear-muted mt-1.5">
-        <span class="uppercase tracking-widest font-bold text-[11px] mr-1.5">Produto</span>
-        <NuxtLink :to="`/product/${review.product.id}`" class="text-gear-text font-medium hover:text-gear-primary transition-colors">{{ review.product.name }}</NuxtLink>
+        <span class="uppercase tracking-widest font-bold text-[11px] mr-1.5">{{ review.game ? 'Jogo' : 'Produto' }}</span>
+        <NuxtLink :to="review.game ? `/games/${review.game.slug}` : `/product/${review.product.id}`" class="text-gear-text font-medium hover:text-gear-primary transition-colors">{{ review.product.name }}</NuxtLink>
       </p>
     </UserAvatar>
 
@@ -14,6 +14,8 @@
       <MediaGallery v-if="gallery.length" :images="gallery" :alt="review.product.name" />
 
       <div class="p-6 lg:p-8">
+        <!-- Review de jogo: a capa leva à página do jogo, como no post -->
+        <GameTag v-if="review.game" :game="review.game" class="mb-4" />
         <div class="flex items-start justify-between gap-6">
           <div class="min-w-0">
             <h2 class="text-xl sm:text-2xl font-semibold tracking-tight leading-snug">
@@ -87,10 +89,15 @@ const props = defineProps<{ review: Review, full?: boolean }>()
 
 const removed = ref(false)
 
-const reviewLink = computed(() => ({ path: `/product/${props.review.product.id}`, query: { review: props.review.id } }))
+// Review de jogo abre na comunidade da página do jogo; a de hardware, na página do produto
+const reviewLink = computed(() => (props.review.game
+  ? { path: `/games/${props.review.game.slug}`, hash: '#comunidade' }
+  : { path: `/product/${props.review.product.id}`, query: { review: props.review.id } }))
 
 const gallery = computed(() => {
   if (props.review.images?.length) return props.review.images
+  // A capa vertical do jogo não cabe no carrossel largo: ela aparece na etiqueta do jogo
+  if (props.review.game) return []
   return props.review.product.image ? [props.review.product.image] : []
 })
 </script>

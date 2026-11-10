@@ -7,8 +7,15 @@
   >
     <form novalidate @submit.prevent="submit">
       <div data-step>
-        <FormSection title="Produto" icon="package" :subtitle="editing ? undefined : 'Diga qual produto você está avaliando. Se ele já existir na GearHub, sua review entra nele.'">
-          <p v-if="editing" class="text-sm font-medium">{{ editing.draft.productName }}</p>
+        <FormSection
+          :title="isGame ? 'Jogo' : 'Produto'"
+          :icon="isGame ? 'gamepad' : 'package'"
+          :subtitle="editing ? undefined : isGame ? 'Escolha o jogo que você está avaliando.' : 'Diga qual produto você está avaliando. Se ele já existir na GearHub, sua review entra nele.'"
+        >
+          <template v-if="editing">
+            <GameTag v-if="editing.draft.game" :game="editing.draft.game" static />
+            <p v-else class="text-sm font-medium">{{ editing.draft.productName }}</p>
+          </template>
           <div v-else class="space-y-4">
             <fieldset>
               <legend class="block text-sm font-medium mb-1.5">Categoria<span class="text-gear-accent" aria-hidden="true"> *</span></legend>
@@ -21,7 +28,7 @@
                   class="h-9 px-3 rounded-full border text-xs font-medium transition-colors"
                   :class="categorySlug === option.slug ? 'border-gear-primary bg-gear-primary/10 text-gear-primary' : 'border-gear-border text-gear-muted hover:text-gear-text hover:border-gear-text/30'"
                   :aria-pressed="categorySlug === option.slug"
-                  @click="categorySlug = option.slug"
+                  @click="chooseCategory(option.slug)"
                 >
                   {{ option.name }}
                 </button>
@@ -39,21 +46,46 @@
               </div>
               <p v-if="fields.category" class="text-xs text-gear-red mt-1.5">{{ fields.category }}</p>
             </fieldset>
-            <!-- Marca e modelo sugerem o que já existe, para o mesmo produto não aparecer duas vezes -->
-            <div class="grid sm:grid-cols-2 gap-4">
-              <FormField id="brand" v-model="brand" label="Marca" placeholder="Ex: Logitech" :options="brandSuggestions" :error="fields.brand" required />
-              <FormField id="model" v-model="model" label="Modelo" placeholder="Ex: G Pro X Superlight 2" :options="modelSuggestions" :error="fields.model" required />
+            <!-- Review de jogo: o jogo vem do catálogo, sem marca e modelo -->
+            <div v-if="isGame">
+              <div v-if="game" class="flex items-center gap-3 rounded-2xl border border-gear-border bg-gear-surface p-3">
+                <img v-if="game.coverUrl" :src="game.coverUrl" alt="" class="w-12 aspect-[3/4] rounded-lg object-cover shrink-0" />
+                <div class="min-w-0 flex-1">
+                  <p class="text-[11px] text-gear-muted">Avaliando</p>
+                  <p class="text-sm font-semibold truncate">{{ game.name }}</p>
+                </div>
+                <button type="button" class="btn-outline !px-3 !py-1.5 text-xs" @click="pickerOpen = true">Trocar</button>
+              </div>
+              <button
+                v-else
+                type="button"
+                class="w-full flex items-center gap-3 rounded-2xl border border-dashed p-3 text-sm text-gear-muted hover:text-gear-text hover:border-gear-accent transition-colors"
+                :class="fields.game ? 'border-gear-red' : 'border-gear-border'"
+                @click="pickerOpen = true"
+              >
+                <span class="w-12 aspect-[3/4] rounded-lg bg-gear-surface grid place-items-center shrink-0"><AppIcon name="gamepad" class="w-5 h-5" /></span>
+                Escolher o jogo
+              </button>
+              <p v-if="fields.game" class="text-xs text-gear-red mt-1.5">{{ fields.game }}</p>
             </div>
-            <p v-if="matchedProduct" class="text-xs text-gear-green flex items-center gap-1.5">
-              <AppIcon name="check" class="w-3.5 h-3.5" />
-              Esse produto já está na GearHub: sua review vai somar às outras.
-            </p>
+            <template v-else>
+              <!-- Marca e modelo sugerem o que já existe, para o mesmo produto não aparecer duas vezes -->
+              <div class="grid sm:grid-cols-2 gap-4">
+                <FormField id="brand" v-model="brand" label="Marca" placeholder="Ex: Logitech" :options="brandSuggestions" :error="fields.brand" required />
+                <FormField id="model" v-model="model" label="Modelo" placeholder="Ex: G Pro X Superlight 2" :options="modelSuggestions" :error="fields.model" required />
+              </div>
+              <p v-if="matchedProduct" class="text-xs text-gear-green flex items-center gap-1.5">
+                <AppIcon name="check" class="w-3.5 h-3.5" />
+                Esse produto já está na GearHub: sua review vai somar às outras.
+              </p>
+            </template>
           </div>
         </FormSection>
       </div>
 
       <template v-if="selectedCategory">
-        <div data-extra>
+        <!-- Jogos não têm ficha técnica -->
+        <div v-if="selectedCategory.specFields.length" data-extra>
           <FormSection title="Ficha técnica" icon="list-checks" :subtitle="`Campos de ${selectedCategory.name}. Se não souber, use &quot;Não informado&quot;.`">
             <template #aside>
               <span class="text-xs font-mono tabular-nums shrink-0" :class="requiredFilled === requiredFields.length ? 'text-gear-green' : 'text-gear-muted'">{{ requiredFilled }}/{{ requiredFields.length }}</span>
@@ -168,6 +200,8 @@
       </div>
     </form>
 
+    <GamePickerModal :open="pickerOpen" :selected="game?.slug" @close="pickerOpen = false" @select="pickGame" />
+
     <template #preview>
       <ReviewPreview
         :author="user ? { displayName: user.displayName, avatarUrl: user.avatarUrl } : null"
@@ -194,6 +228,7 @@ export interface ReviewDraft {
   productId: string
   productName: string
   category: string
+  game: { slug: string, name: string, coverUrl: string | null } | null
   title: string | null
   body: string | null
   scores: Record<string, number>
@@ -216,6 +251,9 @@ interface SpecFieldOption {
   required: boolean
   options: string[]
 }
+
+// Categoria das reviews de jogo: o produto é o jogo do catálogo
+const GAMES_CATEGORY = 'jogos'
 
 // Regra do catálogo: o que não se aplica ou não se sabe também é uma resposta
 const UNKNOWN_VALUES = ['Não se aplica', 'Não informado']
@@ -247,6 +285,8 @@ const scores = ref<Record<number, number>>(
 )
 const specs = ref<Record<string, string>>({ modelo: draft?.productName ?? '', ...draft?.specs })
 const showOptional = ref(false)
+const game = ref<{ slug: string, name: string, coverUrl: string | null } | null>(draft?.game ?? null)
+const pickerOpen = ref(false)
 const fields = ref<Record<string, string>>({})
 const sending = ref(false)
 
@@ -264,6 +304,33 @@ const visibleCategories = computed(() => {
   return chosen && !first.includes(chosen) ? [...first, chosen] : first
 })
 const hiddenCategoryCount = computed(() => Math.max(0, (categories.value?.length ?? 0) - COLLAPSED_CATEGORIES))
+const isGame = computed(() => selectedCategory.value?.slug === GAMES_CATEGORY)
+
+// Escolher Jogos abre a busca do jogo
+function chooseCategory(slug: string) {
+  categorySlug.value = slug
+  if (slug === GAMES_CATEGORY && !game.value) pickerOpen.value = true
+}
+
+function pickGame(picked: { slug: string, name: string, coverUrl: string | null }) {
+  game.value = { slug: picked.slug, name: picked.name, coverUrl: picked.coverUrl }
+  pickerOpen.value = false
+  delete fields.value.game
+}
+
+// Vindo da página do jogo (/new?tipo=review&jogo=slug): já abre com o jogo escolhido
+const route = useRoute()
+if (!draft && typeof route.query.jogo === 'string' && route.query.jogo) {
+  try {
+    // useRequestFetch: no servidor, repassa o cookie de login para a API
+    const { game: page } = await useRequestFetch()<{ game: { slug: string, name: string, coverUrl: string | null } }>(`/api/v1/catalog/games/${encodeURIComponent(route.query.jogo)}`)
+    categorySlug.value = GAMES_CATEGORY
+    game.value = { slug: page.slug, name: page.name, coverUrl: page.coverUrl }
+  }
+  catch {
+    // Jogo não encontrado: a pessoa escolhe normalmente
+  }
+}
 
 // Sugestões tiradas do catálogo da categoria escolhida
 const sameCategory = computed(() => (products.value ?? []).filter(product => product.category === selectedCategory.value?.name))
@@ -322,8 +389,11 @@ function fieldError(prefix: string) {
 
 const filled = (items: string[]) => items.map(item => item.trim()).filter(Boolean)
 
-const previewProductName = computed(() =>
-  draft ? draft.productName : [brand.value.trim(), model.value.trim()].filter(Boolean).join(' ') || undefined)
+const previewProductName = computed(() => {
+  if (draft) return draft.productName
+  if (isGame.value) return game.value?.name
+  return [brand.value.trim(), model.value.trim()].filter(Boolean).join(' ') || undefined
+})
 
 async function submit() {
   fields.value = {}
@@ -339,6 +409,7 @@ async function submit() {
   }
   try {
     if (props.editing) await $fetch(`/api/v1/reviews/${props.editing.id}`, { method: 'PATCH', body: review })
+    else if (isGame.value) await $fetch('/api/v1/reviews', { method: 'POST', body: { ...review, specs: {}, game: game.value?.slug ?? null } })
     else await $fetch('/api/v1/reviews', { method: 'POST', body: { ...review, category: categorySlug.value || null, brand: brand.value, model: model.value } })
     // Publicar dá XP: confere na hora se a pessoa subiu de patente
     rankUp.check(true)

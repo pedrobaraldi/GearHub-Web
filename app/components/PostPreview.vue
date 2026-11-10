@@ -12,6 +12,7 @@
     <div class="glass-card overflow-hidden">
       <MediaGallery v-if="images.length" :images="images" alt="Imagem do post" />
       <div class="p-5">
+        <GameTag v-if="game" :game="game" class="mb-3" static />
         <p v-if="body.trim()" class="text-sm text-gear-text-secondary leading-relaxed whitespace-pre-line break-words line-clamp-[10]">{{ body }}</p>
         <p v-else class="text-sm text-gear-muted italic">O texto do post aparece aqui.</p>
         <ul v-if="tags.length" class="flex flex-wrap gap-x-3 gap-y-1 mt-3" aria-label="Tags">
@@ -33,5 +34,6 @@ defineProps<{
   body: string
   tags: string[]
   images: string[]
+  game?: { slug: string, name: string, coverUrl: string | null } | null
 }>()
 </script>
