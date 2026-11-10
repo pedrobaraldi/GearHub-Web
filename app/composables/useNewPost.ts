@@ -21,7 +21,7 @@ function parentOf(path: string, username?: string): string {
   if (/^\/games\/config\/.+/.test(path)) return '/games/config'
   if (/^\/games\/.+/.test(path)) return '/games'
   if (/^\/product\/.+/.test(path)) return '/explore'
-  if ((/^\/(setup|account)$/.test(path) || path === '/games/config') && username) return `/profile/${username}`
+  if ((/^\/(setup|account|configuracoes)$/.test(path) || path === '/games/config') && username) return `/profile/${username}`
   return '/'
 }
 

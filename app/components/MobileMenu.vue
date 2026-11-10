@@ -62,8 +62,8 @@ const links = computed(() => [
         { label: 'Meu nível', to: `/niveis/${user.value.username}`, icon: 'trending-up' },
         { label: 'Meu setup', to: '/setup', icon: 'monitor' },
         { label: 'Config. de jogo', to: '/games/config', icon: 'settings' },
-        { label: 'Configurações', to: '/account', icon: 'settings' },
-        { label: 'Segurança', to: '/seguranca', icon: 'shield' },
+        { label: 'Editar perfil', to: '/account', icon: 'user' },
+        { label: 'Configurações', to: '/configuracoes', icon: 'settings' },
       ]
     : []),
 ])

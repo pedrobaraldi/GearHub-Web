@@ -1,7 +1,9 @@
 <template>
   <div v-if="user">
-    <FormShell title="Configurações" subtitle="Monte um perfil completo. Suas alterações são salvas a cada etapa." preview-label="Como seu perfil aparece">
+    <FormShell title="Editar perfil" subtitle="Monte um perfil completo. Suas alterações são salvas a cada etapa." preview-label="Como seu perfil aparece">
     <div>
+      <!-- Destaque do 2FA enquanto a conta não está protegida -->
+      <TwoFactorNudge class="mb-6" />
       <nav class="grid grid-cols-2 sm:grid-cols-4 gap-2" aria-label="Etapas">
         <button
           v-for="(item, index) in STEPS"
@@ -213,7 +215,7 @@ const FIELD_STEP: Record<string, number> = { username: 0, displayName: 0, bio: 0
 
 type ImageKind = 'avatar' | 'banner'
 
-useHead({ title: 'Configurações · GearHub' })
+useHead({ title: 'Editar perfil · GearHub' })
 
 const { user, updateProfile, uploadAvatar, uploadBanner, removeAvatar, removeBanner } = useAuth()
 const toast = useToast()

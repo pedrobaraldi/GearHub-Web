@@ -38,8 +38,13 @@
           ? 'bg-gear-surface text-gear-primary'
           : 'text-gear-muted hover:text-gear-text hover:bg-gear-surface/60'"
       >
-        <AppIcon :name="link.icon" class="w-[18px] h-[18px] shrink-0" />
+        <span class="relative shrink-0">
+          <AppIcon :name="link.icon" class="w-[18px] h-[18px]" />
+          <!-- Contador do sino -->
+          <span v-if="link.to === '/notifications' && unread" class="absolute -top-1.5 -right-2 min-w-4 h-4 px-1 grid place-items-center rounded-full bg-gear-accent text-[10px] font-bold text-black tabular-nums" aria-hidden="true">{{ unreadLabel }}</span>
+        </span>
         <span class="whitespace-nowrap transition-opacity duration-150" :class="{ 'opacity-0': collapsed }">{{ link.label }}</span>
+        <span v-if="link.to === '/notifications' && unread" class="sr-only">({{ unread }} novas)</span>
       </NuxtLink>
     </nav>
 
@@ -125,8 +130,9 @@
     <div class="flex items-center justify-between pl-4 pr-2 h-14">
       <AppLogo height-class="h-5" />
       <div class="flex items-center">
-        <NuxtLink to="/notifications" aria-label="Notificações" class="w-11 h-11 grid place-items-center text-gear-muted rounded-lg" :class="{ '!text-gear-primary': isActive('/notifications') }">
+        <NuxtLink to="/notifications" :aria-label="unread ? `Notificações (${unread} novas)` : 'Notificações'" class="relative w-11 h-11 grid place-items-center text-gear-muted rounded-lg" :class="{ '!text-gear-primary': isActive('/notifications') }">
           <AppIcon name="bell" class="w-5 h-5" />
+          <span v-if="unread" class="absolute top-1.5 right-1 min-w-4 h-4 px-1 grid place-items-center rounded-full bg-gear-accent text-[10px] font-bold text-black tabular-nums" aria-hidden="true">{{ unreadLabel }}</span>
         </NuxtLink>
         <NuxtLink v-if="user" :to="`/profile/${user.username}`" aria-label="Meu perfil" class="w-11 h-11 grid place-items-center rounded-lg">
           <UserPhoto :src="user.avatarUrl" :name="user.displayName" class="w-7 h-7 text-[11px]" />
@@ -223,6 +229,11 @@ const route = useRoute()
 const isActive = (to: string) => route.path === to || (to === '/games' && route.path.startsWith('/games/') && !route.path.startsWith('/games/config'))
 
 const { user, logout } = useAuth()
+
+// Notificações novas no sino: atualiza a cada minuto
+const { unread, startPolling } = useNotifications()
+const unreadLabel = computed(() => (unread.value > 99 ? '99+' : String(unread.value)))
+onMounted(startPolling)
 const { start } = useNewPost()
 const toast = useToast()
 
@@ -252,7 +263,7 @@ const shortcutLinks = computed(() => [
   ...(user.value ? [{ label: 'Meu nível', to: `/niveis/${user.value.username}`, icon: 'trending-up' }] : []),
   { label: 'Meu setup', to: '/setup', icon: 'monitor' },
   { label: 'Configurações de jogo', to: '/games/config', icon: 'settings' },
-  { label: 'Segurança', to: '/seguranca', icon: 'shield' },
+  { label: 'Configurações', to: '/configuracoes', icon: 'settings' },
 ])
 
 const mobileLinks = [
@@ -263,7 +274,7 @@ const mobileLinks = [
 
 // O restante fica no menu "Mais"
 const menuOpen = ref(false)
-const MENU_ROUTES = ['/compare', '/hall', '/saved', '/setup', '/games', '/games/config', '/account', '/seguranca']
+const MENU_ROUTES = ['/compare', '/hall', '/saved', '/setup', '/games', '/games/config', '/account', '/configuracoes']
 const inMenu = computed(() => MENU_ROUTES.includes(route.path) || route.path.startsWith('/games/') || route.path === `/niveis/${user.value?.username}`)
 
 watch(() => route.path, () => {
