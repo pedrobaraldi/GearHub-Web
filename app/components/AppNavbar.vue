@@ -263,7 +263,7 @@ const shortcutLinks = computed(() => [
   ...(user.value ? [{ label: 'Meu nível', to: `/niveis/${user.value.username}`, icon: 'trending-up' }] : []),
   { label: 'Meu setup', to: '/setup', icon: 'monitor' },
   { label: 'Configurações de jogo', to: '/games/config', icon: 'settings' },
-  { label: 'Configurações', to: '/configuracoes', icon: 'settings' },
+  { label: 'Configurações', to: '/configuracoes', icon: 'gear' },
 ])
 
 const mobileLinks = [

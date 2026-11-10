@@ -17,7 +17,7 @@
         <div class="max-w-md">
           <h3 class="text-sm font-semibold text-gear-red">Apagar conta</h3>
           <p class="text-xs text-gear-muted mt-1 leading-relaxed">
-            Sua conta e o que você publicou somem do site na hora. Depois de 30 dias tudo é apagado de vez.
+            Sua conta e o que você publicou somem do site na hora. Depois de 30 dias a conta fica encerrada em definitivo.
             Mudou de ideia? É só entrar de novo dentro desse prazo.
           </p>
         </div>

@@ -53,16 +53,21 @@
             <AppIcon name="pencil" class="w-4 h-4" />
             Editar perfil
           </NuxtLink>
-          <button
-            v-else
-            class="px-5 py-2 rounded-lg text-sm font-semibold transition-colors"
-            :class="followedByMe ? 'border border-gear-border text-gear-text' : 'bg-gear-primary text-gear-on-primary hover:bg-gear-primary-hover'"
-            :aria-pressed="followedByMe"
-            :disabled="following"
-            @click="toggleFollow"
-          >
-            {{ followedByMe ? 'Seguindo' : 'Seguir' }}
-          </button>
+          <div v-else class="flex items-center gap-2">
+            <button
+              class="px-5 py-2 rounded-lg text-sm font-semibold transition-colors"
+              :class="followedByMe ? 'border border-gear-border text-gear-text' : 'bg-gear-primary text-gear-on-primary hover:bg-gear-primary-hover'"
+              :aria-pressed="followedByMe"
+              :disabled="following"
+              @click="toggleFollow"
+            >
+              {{ followedByMe ? 'Seguindo' : 'Seguir' }}
+            </button>
+            <button type="button" class="w-10 h-10 grid place-items-center rounded-lg border border-gear-border text-gear-muted hover:text-gear-red hover:border-gear-red/50 transition-colors" aria-label="Denunciar perfil" title="Denunciar perfil" @click="reportingProfile = true">
+              <AppIcon name="flag" class="w-4 h-4" />
+            </button>
+            <ReportModal :open="reportingProfile" kind="user" :username="person.username" @close="reportingProfile = false" />
+          </div>
         </div>
       </div>
 
@@ -275,6 +280,8 @@ import { toReview, toUser } from '~/composables/useFeed'
 import { ringAppearance, userRank } from '~/composables/useGearData'
 import { socialLinks } from '~/utils/socialLinks'
 import { toApiFailure } from '~/composables/useAuth'
+
+const reportingProfile = ref(false)
 
 interface Badge {
   key: string

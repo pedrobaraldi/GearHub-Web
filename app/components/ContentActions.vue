@@ -55,7 +55,14 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
         </svg>
       </button>
+
+      <!-- Denunciar: só no que é dos outros -->
+      <button v-if="!mine" class="hit hover:text-gear-red transition-colors duration-200" aria-label="Denunciar" title="Denunciar" @click="reporting = true">
+        <AppIcon name="flag" class="w-[18px] h-[18px]" />
+      </button>
     </div>
+
+    <ReportModal :open="reporting" :kind="kind" :id="id" @close="reporting = false" />
 
     <CommentsPanel v-if="open" :kind="kind" :id="id" @changed="comments += $event" />
 
@@ -98,6 +105,7 @@ const liked = ref(props.likedByMe ?? false)
 const likes = ref(props.likeCount)
 const saved = ref(props.savedByMe ?? false)
 const comments = ref(props.commentCount)
+const reporting = ref(false)
 const open = ref(false)
 const confirming = ref(false)
 const removing = ref(false)

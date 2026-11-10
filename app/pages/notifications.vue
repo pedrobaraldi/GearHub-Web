@@ -6,7 +6,7 @@
       <div class="max-w-2xl mx-auto">
         <div class="flex items-center justify-end mb-3">
           <NuxtLink :to="{ path: '/configuracoes', hash: '#notificacoes' }" class="text-xs font-medium text-gear-muted hover:text-gear-text inline-flex items-center gap-1.5">
-            <AppIcon name="settings" class="w-3.5 h-3.5" />
+            <AppIcon name="gear" class="w-3.5 h-3.5" />
             Escolher o que receber
           </NuxtLink>
         </div>
