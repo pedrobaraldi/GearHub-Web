@@ -42,32 +42,32 @@
 
     <ul v-if="games?.length" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
       <li v-for="game in games" :key="game.appid">
-        <!-- Card: nome sobre a capa, e embaixo jogadores, avaliações e preço numa linha -->
-        <NuxtLink :to="game.slug ? `/games/${game.slug}` : `/games/steam/${game.appid}`" class="glass-card neon-hover group block overflow-hidden h-full">
-          <div class="relative aspect-[460/215] bg-gradient-to-br from-gear-card via-gear-sidebar to-gear-bg">
+        <!-- Card: arte da loja limpa (ela já traz o logo), nome embaixo e os números numa linha -->
+        <NuxtLink :to="game.slug ? `/games/${game.slug}` : `/games/steam/${game.appid}`" class="glass-card neon-hover group/card flex flex-col overflow-hidden h-full">
+          <div class="relative aspect-[460/215] overflow-hidden bg-gradient-to-br from-gear-card via-gear-sidebar to-gear-bg">
             <img
               v-if="game.headerImage && !brokenImages.has(game.appid)"
               :src="game.headerImage"
               :alt="''"
               loading="lazy"
-              class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+              class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover/card:scale-[1.03]"
               @error="brokenImages.add(game.appid)"
             />
-            <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" aria-hidden="true" />
+            <span v-else class="absolute inset-0 grid place-items-center p-4 text-center font-display italic font-extrabold uppercase text-xl text-gear-muted">{{ game.name }}</span>
             <span v-if="game.discountPercent > 0" class="absolute top-2 right-2 rounded-md bg-gear-green px-2 py-0.5 text-xs font-bold text-black">-{{ game.discountPercent }}%</span>
-            <div class="absolute inset-x-0 bottom-0 p-3">
-              <h2 class="font-display italic font-extrabold uppercase text-xl leading-none text-white truncate">{{ game.name }}</h2>
-              <p class="text-[11px] text-white/70 truncate mt-1">{{ game.genres.slice(0, 3).join(', ') || 'Steam' }}</p>
-            </div>
           </div>
-          <dl class="grid grid-cols-3 divide-x divide-gear-border text-center py-3">
+          <div class="px-4 pt-3 pb-2 min-w-0">
+            <h2 class="font-semibold truncate group-hover/card:text-gear-primary transition-colors">{{ game.name }}</h2>
+            <p class="text-[11px] text-gear-muted truncate mt-0.5">{{ game.genres.slice(0, 3).join(' · ') || 'Steam' }}</p>
+          </div>
+          <dl class="mt-auto grid grid-cols-3 divide-x divide-gear-border border-t border-gear-border text-center py-2.5">
             <div class="px-2 min-w-0">
               <dt class="text-[11px] text-gear-muted inline-flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-gear-green" aria-hidden="true" />Online</dt>
               <dd class="text-sm font-semibold tabular-nums truncate">{{ formatPlayers(game.currentPlayers) }}</dd>
             </div>
             <div class="px-2 min-w-0">
-              <dt class="text-[11px] text-gear-muted">Avaliações</dt>
-              <dd class="text-sm font-semibold tabular-nums">{{ game.reviewPercent != null ? `${game.reviewPercent}%` : '—' }}</dd>
+              <dt class="text-[11px] text-gear-muted">Pico 24h</dt>
+              <dd class="text-sm font-semibold tabular-nums truncate">{{ formatPlayers(game.peakPlayers24h) }}</dd>
             </div>
             <div class="px-2 min-w-0">
               <dt class="text-[11px] text-gear-muted">Preço</dt>

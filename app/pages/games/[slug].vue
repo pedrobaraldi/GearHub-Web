@@ -1,33 +1,18 @@
 <template>
   <div v-if="game">
-    <!-- Topo: arte do jogo ao fundo, capa e o essencial -->
-    <header class="relative overflow-hidden border-b border-gear-border">
-      <img v-if="game.artworkUrl" :src="game.artworkUrl" alt="" class="absolute inset-0 w-full h-full object-cover opacity-40" />
-      <div class="absolute inset-0 bg-gradient-to-t from-gear-bg via-gear-bg/80 to-gear-bg/30" aria-hidden="true" />
-      <div class="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-10 pt-6 pb-8">
-        <BackButton class="mb-6" />
-        <div class="flex flex-col sm:flex-row gap-6 sm:items-end">
-          <div class="w-36 sm:w-44 shrink-0 aspect-[3/4] rounded-2xl overflow-hidden border border-gear-border bg-gear-card shadow-2xl">
-            <img v-if="game.coverUrl" :src="game.coverUrl" :alt="`Capa de ${game.name}`" class="w-full h-full object-cover" />
-          </div>
-          <div class="min-w-0">
-            <p v-if="game.type && game.type !== 'Main Game'" class="editorial-eyebrow mb-2">{{ TYPE_LABELS[game.type] ?? game.type }}</p>
-            <h1 class="font-display italic font-extrabold uppercase text-4xl sm:text-5xl leading-[0.95] tracking-tight break-words">{{ game.name }}</h1>
-            <p class="text-sm text-gear-text-secondary mt-3">
-              {{ [releaseLabel(game.releaseDate), game.developers.join(', ')].filter(Boolean).join(' · ') || 'Sem data de lançamento' }}
-            </p>
-            <div class="flex flex-wrap items-center gap-2 mt-4">
-              <span v-if="game.ageRating" class="rounded-md px-2 py-0.5 text-xs font-extrabold" :class="ageRatingClass(game.ageRating)" :title="`Classificação indicativa: ${game.ageRating === 'L' ? 'livre' : `${game.ageRating} anos`}`">
-                {{ game.ageRating }}
-              </span>
-              <span v-if="ptLabel" class="rounded-full bg-gear-accent/15 px-2.5 py-1 text-xs font-semibold text-gear-accent">{{ ptLabel }}</span>
-              <span v-for="genre in game.genres" :key="genre" class="rounded-full border border-gear-border px-2.5 py-1 text-xs text-gear-text-secondary">{{ genre }}</span>
-            </div>
-            <p v-if="game.platforms.length" class="text-xs text-gear-muted mt-3">{{ game.platforms.map(platform => platform.abbreviation || platform.name).join(' · ') }}</p>
-          </div>
-        </div>
-      </div>
-    </header>
+    <GameHero
+      :name="game.name"
+      :cover="game.coverUrl"
+      :eyebrow="game.type && game.type !== 'Main Game' ? TYPE_LABELS[game.type] ?? game.type : null"
+      :subtitle="[releaseLabel(game.releaseDate), game.developers.join(', ')].filter(Boolean).join(' · ') || 'Sem data de lançamento'"
+      :platforms="game.platforms.map(platform => platform.abbreviation || platform.name).join(' · ') || null"
+    >
+      <span v-if="game.ageRating" class="rounded-md px-2 py-0.5 text-xs font-extrabold" :class="ageRatingClass(game.ageRating)" :title="`Classificação indicativa: ${game.ageRating === 'L' ? 'livre' : `${game.ageRating} anos`}`">
+        {{ game.ageRating }}
+      </span>
+      <span v-if="ptLabel" class="rounded-full bg-gear-accent/15 px-2.5 py-1 text-xs font-semibold text-gear-accent">{{ ptLabel }}</span>
+      <span v-for="genre in game.genres" :key="genre" class="rounded-full border border-gear-border px-2.5 py-1 text-xs text-gear-text-secondary">{{ genre }}</span>
+    </GameHero>
 
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-10 py-8 grid lg:grid-cols-[minmax(0,1fr)_300px] gap-8">
       <div class="min-w-0 space-y-8">

@@ -1,25 +1,44 @@
 <template>
-  <!-- Jogo da Steam sem página no catálogo: mostra só o que a coleta da Steam tem -->
-  <div v-if="detail" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-10 py-6">
-    <BackButton class="mb-5" />
+  <!-- Jogo da Steam sem ficha no catálogo: mesmo layout da página do jogo, com o que a coleta da Steam tem -->
+  <div v-if="detail">
+    <GameHero
+      :name="game.name"
+      :cover="coverUrl"
+      :subtitle="[detail.releaseDate, detail.developers].filter(Boolean).join(' · ') || 'Steam'"
+      platforms="PC"
+      @cover-error="coverFailed = true"
+    >
+      <span v-for="genre in game.genres" :key="genre" class="rounded-full border border-gear-border px-2.5 py-1 text-xs text-gear-text-secondary">{{ genre }}</span>
+    </GameHero>
 
-    <section class="glass-card overflow-hidden mb-6">
-      <img v-if="detail.summary.headerImage" :src="detail.summary.headerImage" :alt="detail.summary.name" class="w-full max-h-72 object-cover" />
-      <div class="p-5 sm:p-6">
-        <h1 class="font-display italic font-extrabold uppercase text-3xl sm:text-4xl leading-[0.95] tracking-tight">{{ detail.summary.name }}</h1>
-        <p class="text-sm text-gear-muted mt-2">
-          <template v-if="detail.developers">{{ detail.developers }}</template>
-          <template v-if="detail.developers && detail.releaseDate">, </template>
-          <template v-if="detail.releaseDate">lançado em {{ detail.releaseDate }}</template>
-        </p>
-        <ul v-if="detail.summary.genres.length" class="flex flex-wrap gap-2 mt-3" aria-label="Gêneros">
-          <li v-for="genre in detail.summary.genres" :key="genre" class="text-xs rounded-full border border-gear-border px-2.5 py-1 text-gear-text-secondary">{{ genre }}</li>
-        </ul>
-        <p v-if="detail.shortDescription" class="text-sm text-gear-text-secondary leading-relaxed mt-4 max-w-2xl">{{ detail.shortDescription }}</p>
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-10 py-8 grid lg:grid-cols-[minmax(0,1fr)_300px] gap-8">
+      <div class="min-w-0 space-y-8">
+        <section v-if="detail.shortDescription" aria-labelledby="about-title">
+          <h2 id="about-title" class="font-display italic font-extrabold uppercase text-2xl mb-3">Sobre</h2>
+          <p class="text-sm text-gear-text-secondary leading-relaxed">{{ detail.shortDescription }}</p>
+        </section>
+
+        <SteamPanel :appid="appid" />
       </div>
-    </section>
 
-    <SteamPanel :appid="appid" />
+      <aside class="space-y-4 lg:sticky lg:top-6 self-start">
+        <dl v-if="factRows.length" class="glass-card p-5 space-y-4 text-sm">
+          <div v-for="row in factRows" :key="row.label">
+            <dt class="text-[11px] uppercase tracking-widest font-bold text-gear-muted">{{ row.label }}</dt>
+            <dd class="mt-1 text-gear-text-secondary">{{ row.value }}</dd>
+          </div>
+        </dl>
+
+        <div class="glass-card p-5">
+          <h2 class="text-[11px] uppercase tracking-widest font-bold text-gear-muted mb-3">Onde encontrar</h2>
+          <a :href="`https://store.steampowered.com/app/${appid}`" target="_blank" rel="noopener noreferrer" class="btn-outline !px-3 !py-1.5 text-xs">
+            Steam<span class="sr-only"> (abre em nova aba)</span>
+          </a>
+        </div>
+
+        <p class="text-[11px] text-gear-muted px-1">Este jogo ainda não tem ficha no IGDB. Dados: Steam.</p>
+      </aside>
+    </div>
   </div>
 </template>
 
@@ -39,5 +58,19 @@ if (!link.value?.slug && (error.value || !detail.value)) {
   throw createError({ statusCode: 404, statusMessage: 'Jogo não encontrado', fatal: true })
 }
 
-useHead({ title: () => `${detail.value?.summary.name ?? 'Jogo'} · Games · GearHub` })
+const game = computed(() => detail.value!.summary)
+
+// Capa vertical da biblioteca da Steam; se o jogo não tiver, usa a imagem larga da loja
+const coverFailed = ref(false)
+const coverUrl = computed(() => coverFailed.value || !Number.isInteger(appid)
+  ? game.value.headerImage ?? ''
+  : `https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${appid}/library_600x900.jpg`)
+
+const factRows = computed(() => [
+  { label: 'Lançamento', value: detail.value?.releaseDate },
+  { label: 'Desenvolvedora', value: detail.value?.developers },
+  { label: 'Gêneros', value: game.value.genres.join(', ') },
+].filter(row => row.value))
+
+useHead({ title: () => `${game.value.name} · Games · GearHub` })
 </script>

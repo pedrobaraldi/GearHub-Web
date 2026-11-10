@@ -12,27 +12,28 @@
       </a>
     </div>
 
-    <div class="grid lg:grid-cols-[300px_minmax(0,1fr)] gap-3">
-      <div class="glass-card p-5">
+    <!-- Preço numa linha inteira; os números embaixo, em colunas iguais -->
+    <div class="glass-card p-5 flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
+      <div>
         <p class="text-xs text-gear-muted">Preço</p>
         <div class="flex items-baseline gap-3 mt-1">
           <span class="font-display italic font-extrabold text-4xl leading-none tabular-nums" :class="game.discountPercent > 0 ? 'text-gear-green' : ''">{{ priceLabel(game) }}</span>
           <span v-if="game.discountPercent > 0" class="rounded-md bg-gear-green px-2 py-0.5 text-xs font-bold text-black">-{{ game.discountPercent }}%</span>
         </div>
         <p v-if="game.discountPercent > 0 && game.initialCents" class="text-xs text-gear-muted mt-1">De <span class="line-through">{{ formatPrice(game.initialCents, currency) }}</span></p>
-        <p v-if="game.lowestCents != null && !game.free" class="text-xs text-gear-muted mt-3">
-          Menor preço registrado: <span class="font-semibold text-gear-text tabular-nums">{{ formatPrice(game.lowestCents, currency) }}</span><template v-if="detail.lowestAt"> em {{ shortDate(detail.lowestAt) }}</template>
-        </p>
       </div>
-
-      <dl class="grid grid-cols-2 xl:grid-cols-4 gap-3">
-        <div v-for="stat in stats" :key="stat.label" class="glass-card p-4">
-          <dt class="text-xs text-gear-muted">{{ stat.label }}</dt>
-          <dd class="font-display italic font-extrabold text-2xl leading-none mt-1.5 tabular-nums">{{ stat.value }}</dd>
-          <dd v-if="stat.hint" class="text-[11px] text-gear-muted mt-1">{{ stat.hint }}</dd>
-        </div>
-      </dl>
+      <p v-if="game.lowestCents != null && !game.free" class="text-xs text-gear-muted">
+        Menor preço registrado: <span class="font-semibold text-gear-text tabular-nums">{{ formatPrice(game.lowestCents, currency) }}</span><template v-if="detail.lowestAt"> em {{ shortDate(detail.lowestAt) }}</template>
+      </p>
     </div>
+
+    <dl class="grid gap-3 mt-3" :class="stats.length === 4 ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-3'">
+      <div v-for="stat in stats" :key="stat.label" class="glass-card p-4 min-w-0 flex flex-col">
+        <dt class="text-xs text-gear-muted leading-snug min-h-[2rem]">{{ stat.label }}</dt>
+        <dd class="font-display italic font-extrabold text-xl lg:text-2xl leading-none mt-1.5 tabular-nums truncate" :title="stat.value">{{ stat.value }}</dd>
+        <dd v-if="stat.hint" class="text-[11px] text-gear-muted mt-1.5 leading-snug">{{ stat.hint }}</dd>
+      </div>
+    </dl>
 
     <div class="flex flex-wrap items-center justify-between gap-3 mt-6 mb-4">
       <h3 class="text-sm font-semibold">Histórico</h3>
@@ -117,11 +118,14 @@ const stats = computed(() => [
   { label: 'Jogando agora', value: formatPlayers(game.value.currentPlayers), hint: null },
   { label: 'Pico nas últimas 24h', value: formatPlayers(game.value.peakPlayers24h), hint: null },
   { label: 'Pico registrado', value: formatPlayers(detail.value?.peakPlayersAll), hint: 'Desde o início da coleta' },
-  {
-    label: 'Avaliações positivas',
-    value: game.value.reviewPercent != null ? `${game.value.reviewPercent}%` : '—',
-    hint: reviewTotal.value ? `${detail.value?.reviewSummary ?? ''} · ${reviewTotal.value.toLocaleString('pt-BR')} avaliações` : null,
-  },
+  // A Steam nem sempre entrega as avaliações: sem dado, o card não aparece
+  ...(game.value.reviewPercent != null
+    ? [{
+        label: 'Avaliações positivas',
+        value: `${game.value.reviewPercent}%`,
+        hint: reviewTotal.value ? `${detail.value?.reviewSummary ?? ''} · ${reviewTotal.value.toLocaleString('pt-BR')} avaliações` : null,
+      }]
+    : []),
 ])
 
 const shortDate = (value: string) => new Date(value).toLocaleDateString('pt-BR', { day: 'numeric', month: 'short', year: 'numeric' })

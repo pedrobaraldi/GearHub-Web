@@ -50,6 +50,7 @@ export function formatPlayers(value: number | null | undefined) {
 // Preço do card: gratuito, sem preço na loja, ou o valor final
 export function priceLabel(game: Pick<MarketGame, 'free' | 'finalCents' | 'currency'>) {
   if (game.free) return 'Gratuito'
-  if (game.finalCents == null) return 'Sem preço'
+  // Jogo que a Steam não vende avulso (lançadores, versões antigas): o preço está na página da loja
+  if (game.finalCents == null) return 'Ver na loja'
   return formatPrice(game.finalCents, game.currency ?? 'BRL')
 }
