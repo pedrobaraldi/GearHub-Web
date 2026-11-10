@@ -17,6 +17,9 @@ export interface AuthUser {
   createdAt: string
   // Contorno escolhido para a foto; nulo é automático
   ringStyle: string | null
+  twoFactorEnabled: boolean
+  // Falso para quem só entra com Google ou Discord
+  hasPassword: boolean
 }
 
 export interface RegisterInput {
@@ -56,8 +59,16 @@ export function useAuth() {
     }
   }
 
+  // Com verificação em duas etapas, a senha certa não abre a sessão: devolve true e a tela pede o código
   async function login(email: string, password: string, turnstileToken: string) {
-    user.value = await $fetch<AuthUser>('/api/v1/auth/login', { method: 'POST', body: { email, password, turnstileToken } })
+    const result = await $fetch<AuthUser | { twoFactorRequired: true }>('/api/v1/auth/login', { method: 'POST', body: { email, password, turnstileToken } })
+    if ('twoFactorRequired' in result) return true
+    user.value = result
+    return false
+  }
+
+  async function verifyTwoFactor(code: string) {
+    user.value = await $fetch<AuthUser>('/api/v1/auth/2fa/verify', { method: 'POST', body: { code } })
   }
 
   async function register(input: RegisterInput) {
@@ -103,5 +114,5 @@ export function useAuth() {
     user.value = null
   }
 
-  return { user, refresh, login, register, logout, updateProfile, uploadAvatar, uploadBanner, removeAvatar, removeBanner, loginWithGoogle, loginWithDiscord }
+  return { user, refresh, login, verifyTwoFactor, register, logout, updateProfile, uploadAvatar, uploadBanner, removeAvatar, removeBanner, loginWithGoogle, loginWithDiscord }
 }

@@ -9,7 +9,6 @@
 import type { PostDraft } from '~/components/PostForm.vue'
 import type { ReviewDraft } from '~/components/ReviewForm.vue'
 
-definePageMeta({ middleware: 'auth' })
 useHead({ title: 'Editar publicação · GearHub' })
 
 const route = useRoute()

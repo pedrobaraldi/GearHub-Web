@@ -26,6 +26,40 @@
 
       <div class="flex-1 flex items-center justify-center py-6 lg:py-2">
         <div class="reveal w-full" :class="isRegister ? 'max-w-lg' : 'max-w-sm'" v-reveal>
+          <!-- Segunda etapa: senha (ou Google/Discord) já conferida, falta o código do app -->
+          <template v-if="codeStep">
+            <span class="w-12 h-12 rounded-2xl grid place-items-center bg-gear-accent/10 text-gear-accent mb-4">
+              <AppIcon name="shield" class="w-6 h-6" />
+            </span>
+            <h2 class="text-3xl font-semibold tracking-tight mb-2">Verificação em duas etapas</h2>
+            <p class="text-sm text-gear-muted mb-5">
+              {{ useRecovery ? 'Digite um dos códigos de recuperação que você guardou. Cada um vale uma vez.' : 'Abra seu app autenticador e digite o código de 6 dígitos do GearHub.' }}
+            </p>
+
+            <form class="space-y-3" novalidate @submit.prevent="submitCode">
+              <FormField
+                id="code"
+                v-model="code"
+                :label="useRecovery ? 'Código de recuperação' : 'Código'"
+                autocomplete="one-time-code"
+                :inputmode="useRecovery ? 'text' : 'numeric'"
+                :placeholder="useRecovery ? 'xxxxx-xxxxx' : '000000'"
+                :error="codeError"
+              />
+              <button type="submit" class="btn-primary w-full !py-2.5" :disabled="sending || !code.trim()" :class="{ 'opacity-60': sending || !code.trim() }">
+                {{ sending ? 'Aguarde...' : 'Confirmar' }}
+              </button>
+            </form>
+
+            <div class="flex items-center justify-between gap-3 mt-4 text-sm">
+              <button type="button" class="py-2 sm:py-0 font-medium text-gear-primary hover:underline underline-offset-2" @click="toggleRecovery">
+                {{ useRecovery ? 'Usar o app autenticador' : 'Perdeu o celular?' }}
+              </button>
+              <button type="button" class="py-2 sm:py-0 text-gear-muted hover:text-gear-text" @click="backToLogin">Voltar ao login</button>
+            </div>
+          </template>
+
+          <template v-else>
           <h2 class="text-3xl font-semibold tracking-tight mb-4">{{ isRegister ? 'Crie sua conta' : 'Bem-vindo de volta' }}</h2>
 
           <div class="grid gap-3" :class="{ 'sm:grid-cols-2': isRegister }">
@@ -106,6 +140,7 @@
               {{ isRegister ? 'Entrar' : 'Criar conta' }}
             </button>
           </p>
+          </template>
         </div>
       </div>
     </main>
@@ -115,16 +150,22 @@
 <script setup lang="ts">
 import { toApiFailure } from '~/composables/useAuth'
 
-definePageMeta({ layout: false })
+definePageMeta({ layout: false, public: true })
 
 const route = useRoute()
-const { user, login, register, loginWithGoogle, loginWithDiscord } = useAuth()
+const { user, login, verifyTwoFactor, register, loginWithGoogle, loginWithDiscord } = useAuth()
 const toast = useToast()
 
 const mode = ref<'login' | 'register'>(route.query.modo === 'cadastro' ? 'register' : 'login')
 const isRegister = computed(() => mode.value === 'register')
 
-useHead({ title: () => `${isRegister.value ? 'Criar conta' : 'Entrar'} · GearHub` })
+// Volta do Google ou do Discord numa conta com 2FA: já abre na etapa do código
+const codeStep = ref(route.query.etapa === 'codigo')
+const code = ref('')
+const codeError = ref('')
+const useRecovery = ref(false)
+
+useHead({ title: () => `${codeStep.value ? 'Verificação' : isRegister.value ? 'Criar conta' : 'Entrar'} · GearHub` })
 
 // Só caminhos internos: evita redirecionar para sites externos depois do login
 const redirectTarget = computed(() => {
@@ -184,8 +225,9 @@ async function submit() {
     if (isRegister.value) {
       await register({ ...form, turnstileToken: turnstileToken.value })
     }
-    else {
-      await login(form.email, form.password, turnstileToken.value)
+    else if (await login(form.email, form.password, turnstileToken.value)) {
+      showCodeStep()
+      return
     }
     await navigateTo(redirectTarget.value)
   }
@@ -194,6 +236,54 @@ async function submit() {
     fields.value = failure.fields
     toast.failure(failure)
     turnstile.value?.reset()
+  }
+  finally {
+    sending.value = false
+  }
+}
+
+function showCodeStep() {
+  form.password = ''
+  code.value = ''
+  codeError.value = ''
+  codeStep.value = true
+  nextTick(() => document.getElementById('code')?.focus())
+}
+
+function toggleRecovery() {
+  useRecovery.value = !useRecovery.value
+  code.value = ''
+  codeError.value = ''
+  nextTick(() => document.getElementById('code')?.focus())
+}
+
+// O login em espera dura poucos minutos: expirado, volta para a senha
+async function backToLogin() {
+  codeStep.value = false
+  useRecovery.value = false
+  code.value = ''
+  codeError.value = ''
+  turnstile.value?.reset()
+  if (route.query.etapa) {
+    await navigateTo({ query: { ...route.query, etapa: undefined } }, { replace: true })
+  }
+}
+
+async function submitCode() {
+  codeError.value = ''
+  sending.value = true
+  try {
+    await verifyTwoFactor(code.value)
+    await navigateTo(redirectTarget.value)
+  }
+  catch (error) {
+    const failure = toApiFailure(error)
+    if ((error as { statusCode?: number }).statusCode === 401) {
+      toast.error(failure.message)
+      await backToLogin()
+      return
+    }
+    codeError.value = failure.fields.code ?? failure.message
   }
   finally {
     sending.value = false

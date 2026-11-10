@@ -87,7 +87,6 @@ const SECTIONS = [
   { key: 'hardware', label: 'Hardware', icon: 'monitor', subtitle: 'As peças do seu computador.' },
 ]
 
-definePageMeta({ middleware: 'auth' })
 useHead({ title: 'Meu setup · GearHub' })
 
 const { user } = useAuth()

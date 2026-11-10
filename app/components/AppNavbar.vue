@@ -252,6 +252,7 @@ const shortcutLinks = computed(() => [
   ...(user.value ? [{ label: 'Meu nível', to: `/niveis/${user.value.username}`, icon: 'trending-up' }] : []),
   { label: 'Meu setup', to: '/setup', icon: 'monitor' },
   { label: 'Configurações de jogo', to: '/games', icon: 'settings' },
+  { label: 'Segurança', to: '/seguranca', icon: 'shield' },
 ])
 
 const mobileLinks = [
@@ -262,7 +263,7 @@ const mobileLinks = [
 
 // O restante fica no menu "Mais"
 const menuOpen = ref(false)
-const MENU_ROUTES = ['/compare', '/hall', '/saved', '/setup', '/games', '/account']
+const MENU_ROUTES = ['/compare', '/hall', '/saved', '/setup', '/games', '/account', '/seguranca']
 const inMenu = computed(() => MENU_ROUTES.includes(route.path) || route.path.startsWith('/mercado') || route.path === `/niveis/${user.value?.username}`)
 
 watch(() => route.path, () => {

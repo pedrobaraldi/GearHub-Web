@@ -18,7 +18,7 @@
 <script setup lang="ts">
 import { toApiFailure } from '~/composables/useAuth'
 
-definePageMeta({ layout: false })
+definePageMeta({ layout: false, public: true })
 useHead({ title: 'Recuperar senha · GearHub' })
 
 const toast = useToast()

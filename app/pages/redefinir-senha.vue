@@ -21,7 +21,7 @@
 <script setup lang="ts">
 import { toApiFailure } from '~/composables/useAuth'
 
-definePageMeta({ layout: false })
+definePageMeta({ layout: false, public: true })
 // O token está na URL: não pode vazar para sites externos pelo Referer
 useHead({ title: 'Redefinir senha · GearHub', meta: [{ name: 'referrer', content: 'no-referrer' }] })
 

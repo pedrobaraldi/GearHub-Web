@@ -24,7 +24,6 @@
 import type { FeedPage } from '~/composables/useFeed'
 import { toReview } from '~/composables/useFeed'
 
-definePageMeta({ middleware: 'auth' })
 useHead({ title: 'Salvos · GearHub' })
 
 const { data } = await useFetch<FeedPage>('/api/v1/me/saved', {
