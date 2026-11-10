@@ -93,8 +93,11 @@
       <!-- Detalhe da insígnia: a única exibição animada, as outras do perfil ficam paradas -->
       <AppModal :open="!!selectedBadge" :title="selectedBadge?.name ?? ''" :subtitle="selectedBadge?.description" @close="selectedBadgeKey = null">
         <template v-if="selectedBadge">
-          <FounderEmblem v-if="selectedBadge.key === 'founder'" :number="selectedBadge.number" animated class="block w-40 h-40 mx-auto" />
-          <BadgeEmblem v-else :key="selectedBadge.key" :badge="selectedBadge.key" :title="selectedBadge.name" animated class="w-40 h-40 mx-auto" />
+          <!-- O emblema é inline-block por dentro: quem centraliza é o flex -->
+          <div class="flex justify-center">
+            <FounderEmblem v-if="selectedBadge.key === 'founder'" :number="selectedBadge.number" animated class="w-40 h-40" />
+            <BadgeEmblem v-else :key="selectedBadge.key" :badge="selectedBadge.key" :title="selectedBadge.name" animated class="w-40 h-40" />
+          </div>
           <p v-if="selectedBadge.number" class="font-display italic font-extrabold uppercase text-2xl text-center mt-2">Nº {{ selectedBadge.number }} de 100</p>
           <p class="text-sm text-gear-text-secondary text-center mt-4">{{ BADGE_DETAILS[selectedBadge.key] ?? selectedBadge.description }}</p>
           <p v-if="selectedBadge.grantedAt" class="text-xs text-gear-muted text-center mt-2">
