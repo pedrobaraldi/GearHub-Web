@@ -55,12 +55,13 @@ const { user } = useAuth()
 const links = computed(() => [
   { label: 'Comparar', to: '/compare', icon: 'git-compare' },
   { label: 'Hall', to: '/hall', icon: 'medal' },
+  { label: 'Games', to: '/mercado', icon: 'gamepad' },
   { label: 'Salvos', to: '/saved', icon: 'bookmark' },
   ...(user.value
     ? [
         { label: 'Meu nível', to: `/niveis/${user.value.username}`, icon: 'trending-up' },
         { label: 'Meu setup', to: '/setup', icon: 'monitor' },
-        { label: 'Jogos', to: '/games', icon: 'gamepad' },
+        { label: 'Config. de jogo', to: '/games', icon: 'settings' },
         { label: 'Configurações', to: '/account', icon: 'settings' },
       ]
     : []),

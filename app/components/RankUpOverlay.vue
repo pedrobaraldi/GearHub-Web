@@ -6,40 +6,21 @@
       class="fixed inset-0 z-[80] grid place-items-center overflow-hidden px-4"
       role="dialog"
       aria-modal="true"
-      aria-labelledby="rank-up-title"
+      :aria-label="label"
       @keydown.esc="close"
     >
-      <!-- Fundo escuro com brilho na cor do rank novo -->
-      <div data-backdrop class="absolute inset-0 bg-black/85" />
-      <div data-glow class="absolute left-1/2 top-1/2 w-[680px] h-[680px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl opacity-0" :style="{ background: `radial-gradient(circle, ${toColor} 0%, transparent 65%)` }" aria-hidden="true" />
+      <div data-backdrop class="absolute inset-0 bg-black/90" />
 
       <div class="relative flex flex-col items-center text-center">
-        <p data-eyebrow class="editorial-eyebrow text-white/70">Você subiu de patente</p>
+        <!-- Palco da coreografia (app/utils/rankUpChoreography.ts): emblemas, efeitos e título entram aqui -->
+        <div ref="stage" class="rank-up-stage [--ru-size:220px] sm:[--ru-size:280px]" />
 
-        <!-- Palco dos emblemas: o antigo racha e some, o novo se monta no lugar -->
-        <div class="relative w-56 h-56 sm:w-64 sm:h-64 mt-4">
-          <span data-shock class="absolute inset-0 m-auto w-40 h-40 rounded-full border-2 opacity-0" :style="{ borderColor: toColor }" aria-hidden="true" />
-          <span data-flash class="absolute inset-0 m-auto w-40 h-40 rounded-full bg-white opacity-0 blur-xl" aria-hidden="true" />
-          <span
-            v-for="particle in particles"
-            :key="particle.id"
-            data-particle
-            class="absolute left-1/2 top-1/2 w-1.5 h-1.5 -ml-[3px] -mt-[3px] rounded-full opacity-0"
-            :style="{ background: particle.light ? '#fff' : toColor }"
-            aria-hidden="true"
-          />
-          <RankEmblem v-if="!showNew" data-old :rank="rankUp.fromRank" :title="rankUp.fromRank" no-hover class="absolute inset-0 w-full h-full" />
-          <RankEmblem v-else data-new :rank="rankUp.toRank" :title="rankUp.toRank" animated no-hover class="absolute inset-0 w-full h-full" />
-        </div>
+        <!-- Espaço do título, que o script posiciona logo abaixo do palco -->
+        <div class="h-28" aria-hidden="true" />
 
-        <h2 id="rank-up-title" data-name class="font-display italic font-extrabold uppercase text-5xl sm:text-6xl leading-none tracking-tight mt-2 opacity-0" :style="{ color: toColor }">
-          {{ rankUp.toRank }}
-        </h2>
-        <p data-detail class="text-sm text-white/70 mt-3 opacity-0">
-          Nível {{ rankUp.level }} · antes {{ rankUp.fromRank }}
-        </p>
+        <p class="sr-only" aria-live="polite">{{ label }}</p>
 
-        <div data-actions class="flex flex-wrap justify-center gap-3 mt-8 opacity-0">
+        <div data-actions class="flex flex-wrap justify-center gap-3 opacity-0">
           <NuxtLink :to="`/niveis/${user?.username}`" class="btn-outline !text-white !border-white/30" @click="close">Ver meus níveis</NuxtLink>
           <button ref="continueButton" type="button" class="btn-primary" @click="close">Continuar</button>
         </div>
@@ -50,21 +31,34 @@
 
 <script setup lang="ts">
 import gsap from 'gsap'
-import { userRank, type User } from '~/composables/useGearData'
+import { playFounderUnlock, playRankUp } from '~/utils/rankUpChoreography'
+
+// Arquivo, cor de destaque e intensidade da coreografia de cada patente
+const RANKS: Record<string, { slug: string, color: string, level: number, tier: number }> = {
+  Cobre: { slug: 'cobre', color: '#e8a06a', level: 0, tier: 1 },
+  Prata: { slug: 'prata', color: '#cfd9e8', level: 0, tier: 2 },
+  Cobalto: { slug: 'cobalto', color: '#5cb8ff', level: 0, tier: 3 },
+  Esmeralda: { slug: 'esmeralda', color: '#5be38a', level: 1, tier: 4 },
+  Platina: { slug: 'platina', color: '#9c8cff', level: 2, tier: 5 },
+  Diamante: { slug: 'diamante', color: '#ffc443', level: 3, tier: 6 },
+}
 
 const { user } = useAuth()
 const { pending: rankUp, check, dismiss } = useRankUp()
 const route = useRoute()
 
 const root = ref<HTMLElement | null>(null)
+const stage = ref<HTMLElement | null>(null)
 const continueButton = ref<HTMLButtonElement | null>(null)
-const showNew = ref(false)
 let timeline: gsap.core.Timeline | null = null
 
-const toColor = computed(() => (rankUp.value ? userRank({ badge: rankUp.value.toRank as User['badge'] }).color : '#fff'))
-
-// Faíscas que saem do centro quando o emblema novo aparece
-const particles = Array.from({ length: 18 }, (_, id) => ({ id, light: id % 3 === 0 }))
+const label = computed(() => {
+  const event = rankUp.value
+  if (!event) return ''
+  return event.kind === 'founder'
+    ? `Rank exclusivo desbloqueado: Fundador nº ${event.founderNumber} de 100`
+    : `Você subiu de patente: ${event.toRank}, nível ${event.level}`
+})
 
 // Consulta ao entrar, ao trocar de página e ao voltar para a aba
 watch(user, value => value && check(true), { immediate: true })
@@ -79,69 +73,51 @@ function onVisible() {
   if (document.visibilityState === 'visible') check()
 }
 
-watch(rankUp, async (value) => {
-  if (!value) return
-  showNew.value = false
+watch(rankUp, async (event) => {
+  if (!event) return
   await nextTick()
-  play()
+  try {
+    await play()
+  }
+  catch {
+    // Sem os SVGs não há animação: mostra só os botões, e a subida ainda é marcada como vista ao fechar
+    showActions()
+  }
 })
 
-function play() {
-  const el = root.value
-  if (!el) return
+// Os emblemas entram como SVG na página para o GSAP animar cada peça
+const svgOf = (path: string) => $fetch<string>(path, { responseType: 'text' })
+
+async function play() {
+  const event = rankUp.value
+  const el = stage.value
+  if (!event || !el) return
   timeline?.kill()
+  gsap.from(root.value!.querySelector('[data-backdrop]'), { opacity: 0, duration: 0.3 })
 
-  // Sem animação: mostra o resultado direto
-  if (prefersReducedMotion()) {
-    showNew.value = true
-    gsap.set(el.querySelectorAll('[data-glow]'), { opacity: 0.35 })
-    gsap.set(el.querySelectorAll('[data-name], [data-detail], [data-actions]'), { opacity: 1 })
-    nextTick(() => continueButton.value?.focus())
-    return
+  if (event.kind === 'founder') {
+    const founderSvg = await svgOf('/badges/founder.svg')
+    timeline = playFounderUnlock(el, founderSvg, { number: event.founderNumber })
   }
-
-  const q = (selector: string) => el.querySelectorAll(selector)
-  timeline = gsap.timeline({ defaults: { ease: 'power3.out' } })
-    .from(q('[data-backdrop]'), { opacity: 0, duration: 0.35 })
-    .from(q('[data-eyebrow]'), { opacity: 0, y: 10, duration: 0.4 }, 0.15)
-    // 1. o emblema antigo entra e treme, juntando energia
-    .from(q('[data-old]'), { opacity: 0, scale: 0.6, duration: 0.5, ease: 'back.out(1.7)' }, 0.2)
-    .to(q('[data-old]'), { x: 4, duration: 0.05, repeat: 11, yoyo: true, ease: 'none' }, 0.8)
-    .to(q('[data-glow]'), { opacity: 0.25, duration: 0.6 }, 0.8)
-    // 2. racha: cresce, borra e some num clarão
-    .to(q('[data-old]'), { scale: 1.25, opacity: 0, filter: 'blur(6px) brightness(2)', duration: 0.3, ease: 'power2.in' }, 1.4)
-    .fromTo(q('[data-flash]'), { opacity: 0, scale: 0.3 }, { opacity: 0.9, scale: 1.4, duration: 0.18, ease: 'power2.out' }, 1.6)
-    .to(q('[data-flash]'), { opacity: 0, scale: 2, duration: 0.6 }, 1.78)
-    // 3. o emblema novo: o SVG faz a própria montagem, aqui só a entrada e o impacto
-    .call(() => { showNew.value = true }, undefined, 1.65)
-    .fromTo(q('[data-shock]'), { opacity: 0.9, scale: 0.5 }, { opacity: 0, scale: 2.2, duration: 1, ease: 'power2.out' }, 1.7)
-    .to(q('[data-glow]'), { opacity: 0.5, duration: 0.8 }, 1.7)
-    .add(burst(el), 1.7)
-    // 4. nome do rank, detalhe e botões
-    .fromTo(q('[data-name]'), { opacity: 0, y: 24, skewX: -12 }, { opacity: 1, y: 0, skewX: 0, duration: 0.6 }, 2.2)
-    .to(q('[data-detail]'), { opacity: 1, duration: 0.4 }, 2.55)
-    .fromTo(q('[data-actions]'), { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4, onComplete: () => continueButton.value?.focus() }, 2.8)
-
-  // O emblema novo só existe depois do .call: anima a entrada quando ele montar
-  watch(showNew, async (visible) => {
-    if (!visible) return
-    await nextTick()
-    gsap.from(el.querySelectorAll('[data-new]'), { scale: 0.5, opacity: 0, duration: 0.6, ease: 'back.out(1.8)' })
-  }, { once: true })
+  else {
+    const to = RANKS[event.toRank] ?? RANKS.Cobre!
+    const from = RANKS[event.fromRank ?? ''] ?? RANKS.Cobre!
+    const [oldSvg, newSvg] = await Promise.all([svgOf(`/ranks/${from.slug}.svg`), svgOf(`/ranks/${to.slug}.svg`)])
+    timeline = playRankUp(el, oldSvg, newSvg, {
+      title: event.toRank,
+      subtitle: `Tier ${to.tier} · Nível ${event.level}`,
+      color: to.color,
+      level: to.level,
+    })
+  }
+  // Os raios seguem girando por vários segundos: os botões entram logo depois do título
+  timeline.call(showActions, undefined, 'title+=1.4')
 }
 
-// Faíscas em direções espalhadas, com distâncias diferentes
-function burst(el: HTMLElement) {
-  const group = gsap.timeline()
-  el.querySelectorAll<HTMLElement>('[data-particle]').forEach((particle, index) => {
-    const angle = (index / particles.length) * Math.PI * 2 + Math.random() * 0.3
-    const distance = 110 + Math.random() * 80
-    group.fromTo(particle,
-      { opacity: 1, x: 0, y: 0, scale: 1 },
-      { opacity: 0, x: Math.cos(angle) * distance, y: Math.sin(angle) * distance, scale: 0.3, duration: 0.9 + Math.random() * 0.4, ease: 'power3.out' },
-      0)
-  })
-  return group
+function showActions() {
+  const actions = root.value?.querySelector('[data-actions]')
+  if (!actions) return
+  gsap.fromTo(actions, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power3.out', onComplete: () => continueButton.value?.focus() })
 }
 
 function close() {
@@ -150,10 +126,7 @@ function close() {
   gsap.to(root.value, {
     opacity: 0,
     duration: prefersReducedMotion() ? 0 : 0.25,
-    onComplete: () => {
-      showNew.value = false
-      dismiss()
-    },
+    onComplete: () => dismiss(),
   })
 }
 </script>

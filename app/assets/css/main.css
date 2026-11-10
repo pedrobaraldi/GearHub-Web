@@ -42,7 +42,8 @@
   .dark {
     --gear-bg: #000000;
     --gear-sidebar: #0a0a0a;
-    --gear-card: #0f1829;
+    /* Cinza neutro: separa do fundo preto sem puxar para o azul */
+    --gear-card: #141414;
     --gear-surface: #ffffff0f;
     --gear-border: #ffffff14;
     --gear-primary: #fe8e04;
@@ -62,7 +63,7 @@
     --gear-muted: #e5e5e58c;
     --gear-text: #ffffff;
     --gear-text-secondary: #ffffffb3;
-    --gear-glow-a: #20375473;
+    --gear-glow-a: #ffffff08;
     --gear-glow-b: #fe8e040d;
     --neon-color: #fe8e04;
     --neon: #fe8e04cc;
@@ -155,6 +156,38 @@
 
   .field-input::-webkit-calendar-picker-indicator {
     display: none !important;
+  }
+
+  /* Seções do formulário: separadas por linha fina, sem cartão próprio */
+  .form-section {
+    @apply py-6 border-t border-gear-border;
+  }
+  .form-section:first-child {
+    @apply pt-0 border-t-0;
+  }
+
+  /* Bancada da prévia: superfície pontilhada, como um tapete de bancada, onde o card aparece ao vivo */
+  .preview-mat {
+    @apply rounded-3xl border border-gear-border p-4 sm:p-5;
+    background-color: var(--gear-sidebar);
+    background-image: radial-gradient(circle, color-mix(in oklab, var(--gear-text) 14%, transparent) 1px, transparent 1.4px);
+    background-size: 16px 16px;
+    box-shadow: inset 0 1px 0 color-mix(in oklab, var(--gear-text) 6%, transparent);
+  }
+  .preview-live {
+    @apply relative w-2 h-2 rounded-full bg-gear-accent;
+  }
+  .preview-live::after {
+    content: '';
+    @apply absolute inset-0 rounded-full bg-gear-accent;
+    animation: preview-live 1.8s ease-out infinite;
+  }
+  @keyframes preview-live {
+    from { transform: scale(1); opacity: 0.7; }
+    to { transform: scale(2.8); opacity: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .preview-live::after { animation: none; }
   }
 
   .form-label {

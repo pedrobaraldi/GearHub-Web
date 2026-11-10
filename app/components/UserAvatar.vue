@@ -2,8 +2,9 @@
   <div class="flex items-start gap-3">
     <NuxtLink
       :to="profilePath(user)"
-      class="rounded-full p-0.5 w-11 h-11 shrink-0"
-      :style="{ background: rank.color }"
+      class="relative rounded-full p-0.5 w-11 h-11 shrink-0"
+      :class="{ 'founder-ring': ring.founder }"
+      :style="ring.founder ? undefined : { background: ring.color }"
       :title="rank.label"
       :aria-label="`Perfil de ${user.name}`"
     >
@@ -23,8 +24,10 @@
 
 <script setup lang="ts">
 import type { User } from '~/composables/useGearData'
-import { profilePath, userRank } from '~/composables/useGearData'
+import { profilePath, ringAppearance, userRank } from '~/composables/useGearData'
 
 const props = defineProps<{ user: User, meta: string }>()
 const rank = computed(() => userRank(props.user))
+// Mesmo contorno do perfil: a escolha da pessoa ou o automático (RGB para fundador)
+const ring = computed(() => ringAppearance(props.user.ringStyle, rank.value.label, !!props.user.founder))
 </script>

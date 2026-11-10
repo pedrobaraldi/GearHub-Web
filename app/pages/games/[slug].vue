@@ -1,8 +1,7 @@
 <template>
   <div v-if="game">
-    <FormHeader wide eyebrow="Configurações de jogo" :title="game.name" :subtitle="game.genre ?? ''" />
-
-    <form class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-10 py-6 space-y-4" novalidate @submit.prevent="save">
+  <FormShell :title="game.name" :subtitle="game.genre ? `Configurações de ${game.genre.toLowerCase()}` : 'Configurações de jogo'" preview-label="Como aparece no seu perfil">
+    <form class="space-y-3" novalidate @submit.prevent="save">
       <section v-for="section in game.sections" :key="section.key" class="glass-card overflow-hidden">
         <button
           type="button"
@@ -77,6 +76,29 @@
         </button>
       </div>
     </form>
+
+    <template #preview>
+      <div class="space-y-3">
+        <div class="flex items-center gap-3">
+          <GameIcon :slug="game.slug" :name="game.name" class="w-10 h-10" />
+          <div class="min-w-0">
+            <p class="font-semibold truncate">{{ game.name }}</p>
+            <p v-if="edpi" class="text-xs text-gear-muted">eDPI <span class="font-mono font-semibold text-gear-text tabular-nums">{{ edpi }}</span></p>
+          </div>
+        </div>
+        <section v-for="section in previewSections" :key="section.key" class="glass-card p-4">
+          <h3 class="text-xs font-semibold text-gear-text-secondary mb-2">{{ section.label }}</h3>
+          <dl class="grid grid-cols-2 gap-x-3 gap-y-2">
+            <div v-for="item in section.items" :key="item.key" class="min-w-0">
+              <dt class="text-[11px] text-gear-muted truncate">{{ item.label }}</dt>
+              <dd class="text-sm font-semibold break-words">{{ item.value }}<span v-if="item.unit" class="font-normal text-gear-muted ml-1">{{ item.unit }}</span></dd>
+            </div>
+          </dl>
+        </section>
+        <p v-if="!previewSections.length" class="text-sm text-gear-muted italic">Preencha os campos ao lado para ver suas configurações aqui.</p>
+      </div>
+    </template>
+  </FormShell>
   </div>
 </template>
 
@@ -151,6 +173,19 @@ const edpi = computed(() => {
   return dpi && sensitivity && Number.isFinite(value) ? Number(value.toFixed(2)).toString() : null
 })
 
+// Prévia: só os campos preenchidos de cada seção
+const previewSections = computed(() =>
+  (game.value?.sections ?? [])
+    .map(section => ({
+      key: section.key,
+      label: section.label,
+      items: section.fields
+        .map(field => ({ key: field.key, label: field.label, unit: field.unit, value: field.kind === 'computed' ? edpi.value : settings.value[field.key]?.trim() }))
+        .filter(item => item.value),
+    }))
+    .filter(section => section.items.length),
+)
+
 async function save() {
   fields.value = {}
   saving.value = true
@@ -165,7 +200,7 @@ async function save() {
       },
     })
     toast.success('Configurações salvas.')
-    await navigateTo('/games')
+    await navigateTo('/games', { replace: true })
   }
   catch (error) {
     const failure = toApiFailure(error)

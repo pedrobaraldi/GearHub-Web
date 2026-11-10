@@ -1,8 +1,11 @@
 export interface RankUp {
   id: number
-  fromRank: string
+  // rank: subiu de patente; founder: desbloqueou o Fundador (100 primeiros)
+  kind: 'rank' | 'founder'
+  fromRank: string | null
   toRank: string
   level: number
+  founderNumber: number | null
 }
 
 // Intervalo mínimo entre consultas automáticas (troca de página, voltar para a aba)

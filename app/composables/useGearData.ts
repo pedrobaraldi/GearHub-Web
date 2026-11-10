@@ -7,6 +7,8 @@ export interface User {
   level: number
   pro?: boolean
   bio?: string
+  ringStyle?: string | null
+  founder?: boolean
 }
 
 export interface SubScore {
@@ -83,6 +85,15 @@ export function userRank(user: Pick<User, 'badge'>) {
 
 // Os três primeiros ranks não têm aura (brilho pulsante) em volta do emblema, igual aos SVGs
 const RANKS_WITHOUT_AURA = new Set(['Cobre', 'Prata', 'Cobalto'])
+
+/**
+ * Contorno da foto: a escolha da pessoa (um rank já liberado ou 'founder') ou, sem escolha,
+ * o automático: RGB para fundador, cor do rank atual para os outros.
+ */
+export function ringAppearance(ringStyle: string | null | undefined, rankName: string, isFounder: boolean) {
+  if (ringStyle === 'founder' || (!ringStyle && isFounder)) return { founder: true, color: null }
+  return { founder: false, color: userRank({ badge: (ringStyle || rankName) as User['badge'] }).color }
+}
 
 export function rankHasAura(rank: string) {
   return !RANKS_WITHOUT_AURA.has(rank)

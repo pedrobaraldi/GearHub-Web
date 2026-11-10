@@ -1,0 +1,70 @@
+/* Palco e efeitos da animação de subida de rank (app/utils/rankUpChoreography.ts).
+   Adaptado do pacote "Hardware Tier Ranks" (rank-up.css). As classes são criadas pelo script. */
+.rank-up-stage {
+  position: relative;
+  width: var(--ru-size, 260px);
+  aspect-ratio: 1;
+  max-width: 100%;
+  --ru-accent: #ffffff;
+  isolation: isolate;
+}
+.rank-up-emblem { position: absolute; inset: 0; will-change: transform, filter; }
+.rank-up-fx { position: absolute; inset: 0; pointer-events: none; }
+.ru-flash {
+  position: absolute; inset: 0; border-radius: 50%; opacity: 0;
+  background: radial-gradient(circle, #fff 0%, color-mix(in srgb, var(--ru-accent) 70%, transparent) 30%, transparent 65%);
+  mix-blend-mode: screen;
+}
+.ru-ring {
+  position: absolute; inset: 6%; border-radius: 50%; opacity: 0;
+  border: 2px solid var(--ru-accent);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--ru-accent) 60%, transparent);
+}
+.ru-ring--b { border-width: 1px; }
+.ru-sparks i {
+  position: absolute; left: 50%; top: 50%; width: 6px; height: 6px; opacity: 0;
+  background: #fff; transform: translate(-50%, -50%) rotate(45deg);
+  box-shadow: 0 0 8px var(--ru-accent), 0 0 2px #fff;
+}
+.rank-up-title {
+  position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+  width: max-content; max-width: 90vw; margin-top: 8px;
+  display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center;
+  pointer-events: none;
+}
+.ru-eyebrow { font-size: 12px; letter-spacing: .35em; text-transform: uppercase; color: var(--ru-accent); }
+.ru-name { font-size: 28px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #fff;
+  text-shadow: 0 0 18px color-mix(in srgb, var(--ru-accent) 55%, transparent); }
+.ru-sub { font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: #8b93a8; }
+
+/* raios de luz atrás do emblema (tier 6 e Fundador) */
+.ru-back { position: absolute; pointer-events: none; }
+.ru-rays {
+  inset: -45%; border-radius: 50%; opacity: 0; z-index: -1;
+  background: repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--ru-accent) 55%, transparent) 0deg 5deg, transparent 5deg 22.5deg);
+  -webkit-mask: radial-gradient(circle, #000 18%, transparent 68%);
+          mask: radial-gradient(circle, #000 18%, transparent 68%);
+}
+.ru-rays--rainbow {
+  background: conic-gradient(from 0deg, #ff5f6d, #ffc371, #f9f871, #6bff95, #5ee7ff, #8c7bff, #ff6ec7, #ff5f6d);
+  -webkit-mask: repeating-conic-gradient(#000 0deg 5deg, transparent 5deg 22.5deg), radial-gradient(circle, #000 18%, transparent 68%);
+  -webkit-mask-composite: source-in;
+          mask: repeating-conic-gradient(#000 0deg 5deg, transparent 5deg 22.5deg), radial-gradient(circle, #000 18%, transparent 68%);
+          mask-composite: intersect;
+}
+/* confete do desbloqueio */
+.ru-confetti { inset: 0; }
+.ru-confetti i { position: absolute; left: 50%; top: 50%; border-radius: 2px; }
+/* título arco-íris do Fundador */
+.ru-title--rainbow .ru-name {
+  background: linear-gradient(90deg, #ff5f6d, #ffc371, #6bff95, #5ee7ff, #8c7bff, #ff6ec7);
+  -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none;
+}
+.ru-title--rainbow .ru-eyebrow { color: #fff; }
+/* feixes do desbloqueio do Fundador */
+.ru-beams { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.ru-core { position: absolute; left: 50%; top: 50%; width: 26%; aspect-ratio: 1; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle, #fff 0 35%, rgba(255,255,255,.85) 45%, rgba(201,168,255,.55) 62%, transparent 72%); }
+
+/* Ajustes do GearHub: nome do rank na fonte de títulos do site */
+.ru-name { font-family: 'Barlow Condensed', 'Geist', sans-serif; font-style: italic; font-weight: 800; font-size: 40px; line-height: 1; }

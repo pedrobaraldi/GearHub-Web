@@ -10,7 +10,7 @@
         <div class="relative grid grid-cols-2 lg:grid-cols-[1fr_1.3fr_1fr] gap-x-4 gap-y-6 items-end p-5 sm:p-8">
           <NuxtLink :to="`/niveis/${first.username}`" data-first class="col-span-2 lg:col-span-1 lg:order-2 text-center group">
             <p class="text-xs text-gear-muted">1º lugar</p>
-            <RankEmblem data-emblem animated class="w-36 h-36 mx-auto mt-2" :style="rankHasAura(first.rankName) ? { filter: `drop-shadow(0 0 calc(var(--glow, 6) * 1px) ${first.color})` } : undefined" :rank="first.rankName" :title="`Nível ${first.level}, ${first.rankName}`" />
+            <RankEmblem no-hover data-emblem animated class="w-36 h-36 mx-auto mt-2" :style="rankHasAura(first.rankName) ? { filter: `drop-shadow(0 0 calc(var(--glow, 6) * 1px) ${first.color})` } : undefined" :rank="first.rankName" :title="`Nível ${first.level}, ${first.rankName}`" />
             <div class="flex items-center justify-center gap-3 mt-3 min-w-0">
               <UserPhoto :src="first.avatarUrl" :name="first.displayName" class="w-12 h-12 text-base shrink-0 ring-2" :style="{ '--tw-ring-color': first.color }" />
               <p class="font-display italic font-extrabold uppercase text-3xl leading-none truncate group-hover:opacity-80 transition-opacity" :style="{ color: first.color }">{{ first.displayName }}</p>
@@ -23,7 +23,7 @@
             <p class="text-xs text-gear-muted">{{ person.place }}º lugar</p>
             <div class="relative w-16 h-16 mx-auto mt-2">
               <UserPhoto :src="person.avatarUrl" :name="person.displayName" class="w-16 h-16 text-xl ring-2" :style="{ '--tw-ring-color': person.color }" />
-              <RankEmblem class="absolute -bottom-3 -right-4 w-10 h-10 drop-shadow-lg" :rank="person.rankName" :title="`Nível ${person.level}, ${person.rankName}`" />
+              <RankEmblem no-hover class="absolute -bottom-3 -right-4 w-10 h-10 drop-shadow-lg" :rank="person.rankName" :title="`Nível ${person.level}, ${person.rankName}`" />
             </div>
             <p class="font-semibold truncate mt-3 group-hover:opacity-80 transition-opacity">{{ person.displayName }}</p>
             <p class="text-xs font-medium mt-0.5 truncate">Nível {{ person.level }} · <span :style="{ color: person.color }">{{ person.rankName }}</span></p>
@@ -46,7 +46,7 @@
                 <span class="block text-sm font-semibold truncate">{{ person.displayName }}</span>
                 <span class="block text-xs text-gear-muted truncate">Nível {{ person.level }} · {{ person.rankName }}</span>
               </span>
-              <RankEmblem class="w-9 h-9 shrink-0" :rank="person.rankName" :title="`Nível ${person.level}, ${person.rankName}`" />
+              <RankEmblem no-hover class="w-9 h-9 shrink-0" :rank="person.rankName" :title="`Nível ${person.level}, ${person.rankName}`" />
               <span class="font-mono text-sm font-semibold tabular-nums shrink-0">{{ format(person.xp) }} XP</span>
             </NuxtLink>
           </li>

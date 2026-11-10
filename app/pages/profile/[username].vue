@@ -1,34 +1,39 @@
 <template>
   <div ref="page">
-    <!-- Capa com luzes em movimento -->
-    <div class="relative h-40 sm:h-52 lg:h-72 overflow-hidden border-b border-gear-border bg-gradient-to-br from-gear-card via-gear-sidebar to-gear-bg">
-      <img v-if="profileData?.bannerUrl" :src="profileData.bannerUrl" alt="" class="absolute inset-0 w-full h-full object-cover" />
-      <template v-else>
-        <span data-orb class="absolute -top-24 right-[12%] w-80 h-80 rounded-full bg-gear-accent/25 blur-3xl" aria-hidden="true" />
-        <span data-orb class="absolute -bottom-32 left-[8%] w-96 h-96 rounded-full bg-gear-primary/15 blur-3xl" aria-hidden="true" />
-      </template>
-      <div class="relative px-4 sm:px-6 lg:px-10 pt-4">
-        <!-- Fundo próprio: precisa ser legível sobre qualquer banner, em qualquer tema -->
-        <BackButton class="!bg-black/60 !text-white !border-white/25 backdrop-blur-md hover:!bg-black/75" />
+    <!-- Como no X: barra com Voltar e nome, banner 3:1 na largura da coluna e a foto metade sobre ele -->
+    <div class="max-w-3xl mx-auto sm:px-6 lg:px-10">
+      <div class="flex items-center gap-4 px-4 sm:px-0 py-3">
+        <BackButton />
+        <div class="min-w-0">
+          <p class="font-bold leading-tight truncate">{{ person.name }}</p>
+          <p class="text-xs text-gear-muted">{{ items.length }} {{ items.length === 1 ? 'publicação' : 'publicações' }}</p>
+        </div>
+      </div>
+      <div class="relative aspect-[3/1] overflow-hidden bg-gradient-to-br from-gear-card via-gear-sidebar to-gear-bg">
+        <img v-if="profileData?.bannerUrl" :src="profileData.bannerUrl" alt="" class="absolute inset-0 w-full h-full object-cover" />
+        <template v-else>
+          <span data-orb class="absolute -top-24 right-[12%] w-80 h-80 rounded-full bg-gear-accent/25 blur-3xl" aria-hidden="true" />
+          <span data-orb class="absolute -bottom-32 left-[8%] w-96 h-96 rounded-full bg-gear-primary/15 blur-3xl" aria-hidden="true" />
+        </template>
       </div>
     </div>
 
-    <div class="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-10 -mt-14 sm:-mt-20">
-      <div class="flex items-end justify-between gap-4 mb-5">
+    <div class="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-10">
+      <div class="relative flex items-end justify-between gap-4 -mt-[50px] sm:-mt-[68px] mb-5">
         <div class="flex items-end gap-3 sm:gap-4 min-w-0">
           <div
             data-ring
-            class="relative neon-ring rounded-full w-[108px] h-[108px] sm:w-[150px] sm:h-[150px] p-1 sm:p-[6px] shrink-0"
-            :class="{ 'founder-ring': founder }"
-            :style="founder ? undefined : { background: rank.color }"
+            class="relative neon-ring rounded-full w-[100px] h-[100px] sm:w-[136px] sm:h-[136px] p-1 sm:p-[5px] shrink-0"
+            :class="{ 'founder-ring': ring.founder }"
+            :style="ring.founder ? undefined : { background: ring.color }"
             :title="rank.label"
           >
-            <UserPhoto :src="person.avatar" :name="person.name" class="w-[100px] h-[100px] sm:w-[138px] sm:h-[138px] text-4xl sm:text-5xl" />
+            <UserPhoto :src="person.avatar" :name="person.name" class="w-[92px] h-[92px] sm:w-[126px] sm:h-[126px] text-4xl sm:text-5xl border-4 border-gear-bg" />
           </div>
-          <!-- Insígnias ao lado da foto, sobre o banner: fundo escuro próprio para ler em qualquer imagem -->
-          <ul v-if="shownBadges.length || isAdmin" data-enter class="flex items-center gap-1 rounded-lg border border-white/20 bg-black/60 backdrop-blur-md px-1.5 py-1 mb-[60px] sm:mb-[82px] min-w-0 flex-wrap" aria-label="Insígnias">
+          <!-- Insígnias ao lado da foto, já abaixo do banner -->
+          <ul v-if="shownBadges.length || isAdmin" data-enter class="flex items-center gap-1 rounded-lg border border-gear-border bg-gear-card px-1.5 py-1 mb-1 min-w-0 flex-wrap" aria-label="Insígnias">
             <li v-for="badge in shownBadges" :key="badge.key" class="group relative">
-              <button type="button" class="block rounded-md hover:bg-white/15 focus-visible:bg-white/15 transition-colors" :aria-label="`Ver insígnia ${badge.name}`" @click="openBadge(badge.key)">
+              <button type="button" class="block rounded-md hover:bg-gear-text/10 focus-visible:bg-gear-text/10 transition-colors" :aria-label="`Ver insígnia ${badge.name}`" @click="openBadge(badge.key)">
                 <BadgeEmblem :badge="badge.key" :title="badge.name" class="block w-9 h-9" />
               </button>
               <span role="tooltip" class="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 whitespace-nowrap rounded-md bg-gear-sidebar border border-gear-border px-2 py-1 text-xs font-semibold opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity z-10">
@@ -36,14 +41,14 @@
               </span>
             </li>
             <li v-if="isAdmin">
-              <button type="button" class="w-9 h-9 grid place-items-center rounded-md text-white/70 hover:text-white hover:bg-white/15 transition-colors" aria-label="Gerenciar insígnias" title="Gerenciar insígnias" @click="badgesOpen = true">
+              <button type="button" class="w-9 h-9 grid place-items-center rounded-md text-gear-muted hover:text-gear-text hover:bg-gear-text/10 transition-colors" aria-label="Gerenciar insígnias" title="Gerenciar insígnias" @click="badgesOpen = true">
                 <AppIcon name="pencil" class="w-4 h-4" />
               </button>
             </li>
           </ul>
         </div>
 
-        <div data-enter class="pb-2 shrink-0">
+        <div data-enter class="pb-1 shrink-0">
           <NuxtLink v-if="isMine" to="/account" class="btn-outline">
             <AppIcon name="pencil" class="w-4 h-4" />
             Editar perfil
@@ -82,14 +87,7 @@
       </div>
       <p v-if="profileData?.bio" data-enter class="text-gear-text-secondary leading-relaxed mt-4 max-w-2xl whitespace-pre-line">{{ profileData.bio }}</p>
 
-      <ul v-if="links.length" data-enter class="flex flex-wrap gap-x-5 gap-y-2 mt-4" aria-label="Redes">
-        <li v-for="link in links" :key="link.label">
-          <a :href="link.href" target="_blank" rel="noopener noreferrer nofollow" class="inline-flex items-center gap-1.5 text-sm text-gear-text-secondary hover:text-gear-accent transition-colors">
-            <AppIcon name="link" class="w-3.5 h-3.5" />
-            {{ link.label }}
-          </a>
-        </li>
-      </ul>
+      <SocialLinks v-if="links.length" data-enter class="mt-5" :links="links" />
 
 
       <!-- Detalhe da insígnia: a única exibição animada, as outras do perfil ficam paradas -->
@@ -170,22 +168,37 @@
 
       <div class="space-y-8 pb-12">
         <template v-if="activeTab === 'setup'">
-          <section v-for="section in setupSections" :key="section.label" class="glass-card p-5">
-            <h2 class="editorial-eyebrow mb-3">{{ section.label }}</h2>
-            <dl class="divide-y divide-gear-border">
-              <div v-for="item in section.items" :key="item.key" class="grid grid-cols-[110px_1fr] gap-3 py-2.5">
-                <dt class="text-xs text-gear-muted self-center">{{ item.label }}</dt>
-                <dd class="text-sm font-medium break-words">{{ item.value }}</dd>
-              </div>
-            </dl>
-          </section>
-          <section v-if="setupPhotos?.length" class="glass-card p-5">
-            <h2 class="editorial-eyebrow mb-3">Fotos</h2>
-            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              <a v-for="(photo, index) in setupPhotos" :key="photo" :href="photo" target="_blank" rel="noopener noreferrer" class="block aspect-[4/3] rounded-xl overflow-hidden bg-gear-surface">
-                <img :src="photo" :alt="`Foto ${index + 1} do setup de ${person.name}`" loading="lazy" class="w-full h-full object-cover" />
-              </a>
+          <!-- Periféricos e hardware lado a lado; nome do item em cima, valor embaixo -->
+          <div v-if="setupSections.length" class="grid sm:grid-cols-2 gap-4">
+            <section v-for="section in setupSections" :key="section.label" class="glass-card p-5">
+              <h2 class="flex items-center gap-2 font-semibold mb-4">
+                <AppIcon :name="section.icon" class="w-4 h-4 text-gear-accent" />
+                {{ section.label }}
+              </h2>
+              <dl class="space-y-3">
+                <div v-for="item in section.items" :key="item.key">
+                  <dt class="text-[11px] text-gear-muted">{{ item.label }}</dt>
+                  <dd class="text-sm font-semibold break-words mt-0.5">{{ item.value }}</dd>
+                </div>
+              </dl>
+            </section>
+          </div>
+          <!-- Galeria: a primeira foto em destaque; clicar abre o visualizador com setas -->
+          <section v-if="setupPhotos?.length" aria-label="Fotos do setup">
+            <div class="grid grid-cols-3 gap-2">
+              <button
+                v-for="(photo, index) in setupPhotos"
+                :key="photo"
+                type="button"
+                class="relative block rounded-xl overflow-hidden bg-gear-surface group"
+                :class="index === 0 ? 'col-span-3 sm:col-span-2 sm:row-span-2 aspect-video sm:aspect-auto' : 'aspect-[4/3]'"
+                :aria-label="`Abrir foto ${index + 1} do setup`"
+                @click="photoIndex = index"
+              >
+                <img :src="photo" :alt="`Foto ${index + 1} do setup de ${person.name}`" loading="lazy" class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
+              </button>
             </div>
+            <PhotoViewer v-model:index="photoIndex" :images="setupPhotos" :label="`Setup de ${person.name}`" />
           </section>
           <div v-if="!setupSections.length && !setupPhotos?.length" class="glass-card p-10 text-center">
             <p class="text-sm font-semibold">Setup ainda não cadastrado</p>
@@ -197,7 +210,7 @@
         </template>
 
         <template v-else-if="activeTab === 'jogos'">
-          <div v-if="(games?.length ?? 0) > 1" class="flex gap-2 overflow-x-auto" role="group" aria-label="Escolher jogo">
+          <div v-if="(games?.length ?? 0) > 1" class="flex gap-2 overflow-x-auto -mb-2" role="group" aria-label="Escolher jogo">
             <button
               v-for="config in games"
               :key="config.slug"
@@ -212,11 +225,16 @@
             </button>
           </div>
           <template v-if="selectedGame">
-            <div class="flex items-center gap-3">
-              <GameIcon :slug="selectedGame.slug" :name="selectedGame.name" class="w-10 h-10" />
-              <div class="min-w-0">
-                <h2 class="font-semibold truncate">{{ selectedGame.name }}</h2>
-                <p class="text-xs text-gear-muted truncate">{{ selectedGame.genre }}</p>
+            <!-- Cabeçalho do jogo com o número que mais importa para quem joga: o eDPI -->
+            <div class="glass-card p-5 flex items-center gap-4">
+              <GameIcon :slug="selectedGame.slug" :name="selectedGame.name" class="w-12 h-12" />
+              <div class="flex-1 min-w-0">
+                <h2 class="font-display italic font-extrabold uppercase text-2xl leading-none truncate">{{ selectedGame.name }}</h2>
+                <p class="text-xs text-gear-muted truncate mt-1">{{ selectedGame.genre }}</p>
+              </div>
+              <div v-if="gameEdpi" class="text-right shrink-0">
+                <p class="text-[11px] text-gear-muted">eDPI</p>
+                <p class="font-display italic font-extrabold text-3xl leading-none tabular-nums text-gear-accent">{{ gameEdpi }}</p>
               </div>
             </div>
             <GameConfigView :config="selectedGame" />
@@ -251,7 +269,8 @@ import gsap from 'gsap'
 import type { GameConfig } from '~/components/GameConfigView.vue'
 import type { FeedAuthor, FeedPage } from '~/composables/useFeed'
 import { toReview, toUser } from '~/composables/useFeed'
-import { userRank } from '~/composables/useGearData'
+import { ringAppearance, userRank } from '~/composables/useGearData'
+import { socialLinks } from '~/utils/socialLinks'
 import { toApiFailure } from '~/composables/useAuth'
 
 interface Badge {
@@ -283,6 +302,7 @@ interface PublicProfile extends FeedAuthor {
   followingCount: number
   followedByMe: boolean
   badges: Badge[]
+  ringStyle: string | null
 }
 
 const TABS = [
@@ -294,8 +314,8 @@ const TABS = [
 ]
 
 const SETUP_SECTIONS = [
-  { key: 'perifericos', label: 'Periféricos' },
-  { key: 'hardware', label: 'Hardware' },
+  { key: 'perifericos', label: 'Periféricos', icon: 'mouse' },
+  { key: 'hardware', label: 'Hardware', icon: 'monitor' },
 ]
 
 const route = useRoute()
@@ -335,23 +355,24 @@ const { data: setupPhotos } = await useFetch<string[]>(`/api/v1/users/${username
 })
 
 const gameSlug = ref('')
+// Foto aberta no visualizador (nulo: fechado)
+const photoIndex = ref<number | null>(null)
+
+const gameEdpi = computed(() => {
+  const settings = selectedGame.value?.settings ?? {}
+  const value = Number(String(settings.dpi ?? '').replace(',', '.')) * Number(String(settings.sensitivity ?? '').replace(',', '.'))
+  return Number.isFinite(value) && value > 0 ? Number(value.toFixed(2)).toLocaleString('pt-BR') : null
+})
+
 const selectedGame = computed(() => games.value?.find(config => config.slug === gameSlug.value) ?? games.value?.[0])
 
 const setupSections = computed(() =>
   SETUP_SECTIONS
-    .map(section => ({ label: section.label, items: (setup.value ?? []).filter(item => item.section === section.key) }))
+    .map(section => ({ label: section.label, icon: section.icon, items: (setup.value ?? []).filter(item => item.section === section.key) }))
     .filter(section => section.items.length),
 )
 
-const links = computed(() => {
-  const profile = profileData.value
-  return [
-    { label: profile?.website?.replace(/^https?:\/\//, '').replace(/\/$/, ''), href: profile?.website },
-    { label: profile?.twitter && `@${profile.twitter}`, href: profile?.twitter && `https://x.com/${profile.twitter}` },
-    { label: profile?.instagram && 'Instagram', href: profile?.instagram && `https://instagram.com/${profile.instagram}` },
-    { label: profile?.youtube && 'YouTube', href: profile?.youtube },
-  ].filter(link => link.href)
-})
+const links = computed(() => socialLinks(profileData.value ?? {}))
 
 const person = computed(() => toUser(profileData.value!))
 const items = computed(() => feed.value?.items ?? [])
@@ -391,6 +412,8 @@ watch(badgesOpen, async (open) => {
 
 // Fundador aparece ao lado do rank; a fileira de insígnias fica com as outras
 const founder = computed(() => badges.value.find(badge => badge.key === 'founder') ?? null)
+// Contorno da foto: a escolha da pessoa ou o automático
+const ring = computed(() => ringAppearance(profileData.value?.ringStyle, rank.value.label, !!founder.value))
 const shownBadges = computed(() => badges.value.filter(badge => badge.key !== 'founder'))
 // O Fundador é automático (100 primeiros): não aparece no painel do admin
 const grantableBadges = computed(() => catalog.value.filter(badge => badge.key !== 'founder'))
@@ -426,7 +449,8 @@ async function toggleFollow() {
   following.value = false
 }
 
-const activeTab = ref('todos')
+// A aba pode vir da URL (?aba=setup), por exemplo depois de salvar o setup
+const activeTab = ref(TABS.some(tab => tab.value === route.query.aba) ? String(route.query.aba) : 'todos')
 const visibleItems = computed(() =>
   activeTab.value === 'todos' ? items.value : items.value.filter(item => item.kind === activeTab.value),
 )

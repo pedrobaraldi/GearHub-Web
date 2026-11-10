@@ -1,5 +1,5 @@
 <template>
-  <AuthPanel eyebrow="Recuperar senha" title="Esqueceu a senha?" subtitle="Informe seu e-mail e enviaremos um link para criar uma senha nova.">
+  <AuthPanel title="Esqueceu a senha?" subtitle="Informe seu e-mail e enviaremos um link para criar uma senha nova.">
     <div v-if="confirmation" class="glass-card p-5 text-sm leading-relaxed" role="status">
       <p class="font-semibold mb-1">Confira seu e-mail</p>
       <p class="text-gear-muted">{{ confirmation }} O link vale por 30 minutos.</p>

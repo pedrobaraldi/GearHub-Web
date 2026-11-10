@@ -1,10 +1,9 @@
 <template>
   <div class="min-h-[100dvh] grid lg:grid-cols-2">
-    <!-- Apresentação da marca -->
+    <!-- Apresentação da marca à esquerda; login e cadastro ficam à direita -->
     <aside class="hidden lg:flex flex-col justify-between p-14 bg-gear-sidebar border-r border-gear-border">
       <AppLogo />
       <div class="reveal max-w-md" v-reveal>
-        <p class="editorial-eyebrow mb-4">A rede dos entusiastas</p>
         <h1 class="font-display italic font-extrabold uppercase leading-[0.95] tracking-tight text-6xl mb-5">
           Reviews honestos.<br>Hardware sério.<br><span class="neon-text">Comunidade real.</span>
         </h1>
@@ -27,7 +26,6 @@
 
       <div class="flex-1 flex items-center justify-center py-6 lg:py-2">
         <div class="reveal w-full" :class="isRegister ? 'max-w-lg' : 'max-w-sm'" v-reveal>
-          <p class="editorial-eyebrow mb-1.5">{{ isRegister ? 'Cadastro' : 'Acessar' }}</p>
           <h2 class="text-3xl font-semibold tracking-tight mb-4">{{ isRegister ? 'Crie sua conta' : 'Bem-vindo de volta' }}</h2>
 
           <div class="grid gap-3" :class="{ 'sm:grid-cols-2': isRegister }">

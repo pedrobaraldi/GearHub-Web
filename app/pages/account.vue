@@ -1,8 +1,7 @@
 <template>
   <div v-if="user">
-    <FormHeader eyebrow="Sua conta" title="Configurações" subtitle="Monte um perfil completo. Suas alterações são salvas a cada etapa." />
-
-    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-10 py-6 lg:py-8">
+    <FormShell title="Configurações" subtitle="Monte um perfil completo. Suas alterações são salvas a cada etapa." preview-label="Como seu perfil aparece">
+    <div>
       <nav class="grid grid-cols-2 sm:grid-cols-4 gap-2" aria-label="Etapas">
         <button
           v-for="(item, index) in STEPS"
@@ -27,8 +26,8 @@
         <div ref="bar" class="h-full rounded-full bg-gear-accent" />
       </div>
 
-      <section ref="panel" class="glass-card p-5 sm:p-7">
-        <p class="editorial-eyebrow">Etapa {{ step + 1 }} de {{ STEPS.length }}</p>
+      <section ref="panel">
+        <p class="text-xs text-gear-muted">Etapa {{ step + 1 }} de {{ STEPS.length }}</p>
         <h2 class="text-xl font-bold tracking-tight mt-1">{{ STEPS[step]!.title }}</h2>
         <p class="text-sm text-gear-muted mt-1 mb-6">{{ STEPS[step]!.subtitle }}</p>
 
@@ -97,21 +96,39 @@
             <p class="text-xs text-gear-muted mt-2">Quadrado, 400×400 ou maior.</p>
           </div>
 
-          <div>
-            <span class="form-label">Preview</span>
-            <div class="rounded-2xl overflow-hidden border border-gear-border bg-gear-sidebar">
-              <div class="h-24 bg-gradient-to-br from-gear-card via-gear-sidebar to-gear-bg">
-                <img v-if="user.bannerUrl" :src="user.bannerUrl" alt="" class="w-full h-full object-cover" />
-              </div>
-              <div class="flex items-center gap-3 px-4 pb-4 -mt-6">
-                <UserPhoto :src="user.avatarUrl" :name="user.displayName" class="w-16 h-16 text-xl border-4 border-gear-sidebar shrink-0" />
-                <div class="min-w-0 pt-6">
-                  <p class="font-semibold truncate">{{ form.displayName || user.displayName }}</p>
-                  <p class="text-xs text-gear-muted truncate">@{{ form.username }}</p>
-                </div>
-              </div>
+          <!-- Contorno da foto: só os ranks já alcançados (e o RGB de fundador) podem ser escolhidos -->
+          <fieldset>
+            <legend class="form-label">Contorno da foto</legend>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2" role="radiogroup" aria-label="Contorno da foto">
+              <button
+                v-for="option in ringChoices"
+                :key="option.value"
+                type="button"
+                role="radio"
+                class="flex flex-col items-center gap-2 rounded-2xl border px-2 py-3 text-xs font-semibold transition-colors"
+                :class="[
+                  form.ringStyle === option.value ? 'border-gear-accent bg-gear-accent/10 text-gear-text' : 'border-gear-border text-gear-muted',
+                  option.available ? 'hover:text-gear-text hover:border-gear-text/30' : 'opacity-50 cursor-not-allowed',
+                ]"
+                :aria-checked="form.ringStyle === option.value"
+                :disabled="!option.available"
+                :title="option.available ? option.label : `Liberado no nível ${option.minLevel}`"
+                @click="form.ringStyle = option.value"
+              >
+                <span
+                  class="relative rounded-full p-[3px]"
+                  :class="{ 'founder-ring': ringOf(option.value).founder, grayscale: !option.available }"
+                  :style="ringOf(option.value).founder ? undefined : { background: ringOf(option.value).color }"
+                >
+                  <UserPhoto :src="user.avatarUrl" :name="user.displayName" class="w-10 h-10 text-sm" />
+                </span>
+                <span class="text-center leading-tight">{{ option.label }}</span>
+                <span v-if="!option.available" class="text-[11px] font-normal">Nível {{ option.minLevel }}</span>
+              </button>
             </div>
-          </div>
+            <p v-if="fields.ringStyle" class="text-xs text-gear-red mt-1.5">{{ fields.ringStyle }}</p>
+            <p class="text-xs text-gear-muted mt-1.5">Novas cores são liberadas conforme você sobe de patente.</p>
+          </fieldset>
         </div>
 
         <!-- Social -->
@@ -131,33 +148,55 @@
         </dl>
       </section>
 
-      <div class="flex items-center justify-between gap-3 mt-6">
-        <button type="button" class="btn-cancel inline-flex items-center gap-2 uppercase text-xs tracking-wider" @click="signOut">
-          <AppIcon name="log-out" class="w-4 h-4" />
-          Sair
-        </button>
+      <div class="flex items-center justify-end gap-3 mt-6">
         <div class="flex items-center gap-2">
-          <button v-if="step > 0" type="button" class="btn-outline !rounded-xl uppercase text-xs tracking-wider" @click="goTo(step - 1)">
+          <!-- Mesmo tamanho do Próximo: só muda o estilo (contorno) -->
+          <button v-if="step > 0" type="button" class="btn-outline !rounded-xl !px-5 !py-0 min-h-[2.75rem] uppercase text-xs font-bold tracking-wider" @click="goTo(step - 1)">
             <AppIcon name="chevron-left" class="w-4 h-4" />
             Voltar
           </button>
-          <button v-if="step < STEPS.length - 1" type="button" class="btn-publish" :disabled="saving" @click="goTo(step + 1)">
+          <button v-if="step < STEPS.length - 1" type="button" class="btn-publish !py-0 min-h-[2.75rem]" :disabled="saving" @click="goTo(step + 1)">
             Próximo
             <AppIcon name="chevron-right" class="w-4 h-4" />
           </button>
-          <button v-else type="button" class="btn-publish" :disabled="saving" @click="finish">
+          <button v-else type="button" class="btn-publish !py-0 min-h-[2.75rem]" :disabled="saving" @click="finish">
             <AppIcon name="check" class="w-4 h-4" />
             Concluir
           </button>
         </div>
       </div>
     </div>
+
+    <template #preview>
+      <!-- Topo do perfil com o que está no formulário: banner, contorno, nome, @, bio e redes -->
+      <div class="glass-card overflow-hidden">
+        <div class="h-24 bg-gradient-to-br from-gear-card via-gear-sidebar to-gear-bg">
+          <img v-if="user.bannerUrl" :src="user.bannerUrl" alt="" class="w-full h-full object-cover" />
+        </div>
+        <div class="px-4 pb-5 -mt-10">
+          <span
+            class="relative inline-block rounded-full p-[3px]"
+            :class="{ 'founder-ring': ringOf(form.ringStyle).founder }"
+            :style="ringOf(form.ringStyle).founder ? undefined : { background: ringOf(form.ringStyle).color }"
+          >
+            <UserPhoto :src="user.avatarUrl" :name="form.displayName || user.displayName" class="w-20 h-20 text-2xl border-2 border-gear-card" />
+          </span>
+          <p class="font-display italic font-extrabold uppercase text-2xl leading-none tracking-tight mt-3 break-words">{{ form.displayName || user.displayName }}</p>
+          <p class="text-sm text-gear-muted mt-1">@{{ form.username || user.username }}</p>
+          <p v-if="form.bio.trim()" class="text-sm text-gear-text-secondary leading-relaxed whitespace-pre-line break-words mt-3 line-clamp-4">{{ form.bio }}</p>
+          <SocialLinks class="mt-4" :links="previewLinks" static />
+        </div>
+      </div>
+    </template>
+    </FormShell>
   </div>
 </template>
 
 <script setup lang="ts">
 import gsap from 'gsap'
 import { toApiFailure } from '~/composables/useAuth'
+import { ringAppearance } from '~/composables/useGearData'
+import { socialLinks } from '~/utils/socialLinks'
 
 const BIO_MAX = 240
 const ACCEPT = 'image/jpeg,image/png,image/webp'
@@ -170,14 +209,14 @@ const STEPS = [
 ]
 
 // Em qual etapa fica cada campo: um erro leva a pessoa até ele
-const FIELD_STEP: Record<string, number> = { username: 0, displayName: 0, bio: 0, website: 2, twitter: 2, instagram: 2, youtube: 2 }
+const FIELD_STEP: Record<string, number> = { username: 0, displayName: 0, bio: 0, ringStyle: 1, website: 2, twitter: 2, instagram: 2, youtube: 2 }
 
 type ImageKind = 'avatar' | 'banner'
 
 definePageMeta({ middleware: 'auth' })
 useHead({ title: 'Configurações · GearHub' })
 
-const { user, updateProfile, uploadAvatar, uploadBanner, removeAvatar, removeBanner, logout } = useAuth()
+const { user, updateProfile, uploadAvatar, uploadBanner, removeAvatar, removeBanner } = useAuth()
 const toast = useToast()
 
 const form = reactive({
@@ -188,12 +227,17 @@ const form = reactive({
   twitter: user.value?.twitter ?? '',
   instagram: user.value?.instagram ?? '',
   youtube: user.value?.youtube ?? '',
+  // Vazio é automático: cor do rank atual, ou RGB para fundador
+  ringStyle: user.value?.ringStyle ?? '',
 })
 const fields = ref<Record<string, string>>({})
 const step = ref(0)
 const saving = ref(false)
 const uploading = ref<ImageKind | null>(null)
 const dragging = ref<ImageKind | null>(null)
+
+// Redes como aparecem no perfil
+const previewLinks = computed(() => socialLinks(form))
 
 const reviewRows = computed(() => [
   { label: 'Username', value: form.username },
@@ -203,7 +247,27 @@ const reviewRows = computed(() => [
   { label: 'Twitter', value: form.twitter },
   { label: 'Instagram', value: form.instagram },
   { label: 'YouTube', value: form.youtube },
+  { label: 'Contorno', value: ringChoices.value.find(option => option.value === form.ringStyle)?.label },
 ])
+
+// Opções de contorno: a API diz quais ranks a pessoa já liberou
+interface RingOption { value: string, label: string, available: boolean, minLevel: number | null }
+const ringOptions = ref<RingOption[]>([])
+const isFounder = computed(() => ringOptions.value.some(option => option.value === 'founder'))
+const ringChoices = computed<RingOption[]>(() => [
+  { value: '', label: 'Automático', available: true, minLevel: null },
+  ...ringOptions.value,
+])
+const ringOf = (value: string) => ringAppearance(value || null, user.value?.rankName ?? 'Cobre', isFounder.value)
+
+onMounted(async () => {
+  try {
+    ringOptions.value = await $fetch<RingOption[]>('/api/v1/me/ring-styles')
+  }
+  catch {
+    // Sem a lista, fica só o automático
+  }
+})
 
 async function save() {
   fields.value = {}
@@ -232,17 +296,7 @@ async function goTo(index: number) {
 async function finish() {
   if (await save()) {
     toast.success('Perfil atualizado.')
-    await navigateTo(`/profile/${form.username}`)
-  }
-}
-
-async function signOut() {
-  try {
-    await logout()
-    await navigateTo('/')
-  }
-  catch (error) {
-    toast.error(toApiFailure(error).message)
+    await navigateTo(`/profile/${form.username}`, { replace: true })
   }
 }
 

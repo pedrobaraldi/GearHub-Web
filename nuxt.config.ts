@@ -6,7 +6,7 @@ export default defineNuxtConfig({
     '@nuxtjs/color-mode',
     '@vueuse/nuxt',
   ],
-  css: ['~/assets/css/main.css'],
+  css: ['~/assets/css/main.css', '~/assets/css/rank-up.css'],
   runtimeConfig: {
     public: {
       // Chave pública do Turnstile. Vazia, a tela não mostra a verificação

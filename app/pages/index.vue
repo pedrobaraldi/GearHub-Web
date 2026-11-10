@@ -1,7 +1,8 @@
 <template>
   <div class="flex">
     <div class="flex-1 min-w-0">
-      <PageHeader title="Comunidade" accent="GearHub." subtitle="Reviews, discussões e novidades sobre hardware e periféricos." :back="false" lines>
+      <!-- Cabeçalho compacto, alinhado à coluna do feed -->
+      <PageHeader title="Comunidade" subtitle="Reviews, discussões e novidades sobre hardware e periféricos." :back="false" narrow class="!border-b-0 px-4 sm:px-6 lg:px-10">
         <button type="button" class="btn-primary hidden lg:inline-flex items-center gap-2 shrink-0" aria-label="Nova Publicação" @click="start">
           <AppIcon name="plus" class="w-4 h-4" />
           <span>Nova Publicação</span>

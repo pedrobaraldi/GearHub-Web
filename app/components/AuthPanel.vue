@@ -6,7 +6,6 @@
         Voltar
       </NuxtLink>
       <AppLogo class="mb-8" />
-      <p class="editorial-eyebrow mb-1.5">{{ eyebrow }}</p>
       <h1 class="text-3xl font-semibold tracking-tight">{{ title }}</h1>
       <p class="text-sm text-gear-muted mt-2 mb-6">{{ subtitle }}</p>
       <slot />
@@ -15,5 +14,5 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{ eyebrow: string, title: string, subtitle: string }>()
+defineProps<{ title: string, subtitle: string }>()
 </script>
