@@ -1,5 +1,5 @@
 {
-  "name": "gear-gossip-guild",
+  "name": "gearhub-web",
   "type": "module",
   "private": true,
   "scripts": {
@@ -16,6 +16,7 @@
     "@vueuse/nuxt": "^15.0.0",
     "gsap": "^3.15.1",
     "nuxt": "^4.4.8",
+    "uqr": "0.1.2",
     "vue": "^3.5.44",
     "vue-router": "^5.4.0"
   }

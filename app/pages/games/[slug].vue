@@ -123,8 +123,6 @@ interface GameDefinition {
   gearSlots: { slug: string, name: string }[]
 }
 
-definePageMeta({ middleware: 'auth' })
-
 const slug = useRoute().params.slug as string
 const { user } = useAuth()
 const toast = useToast()

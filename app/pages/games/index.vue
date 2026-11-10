@@ -72,7 +72,6 @@
 import type { GameConfig } from '~/components/GameConfigView.vue'
 import { toApiFailure } from '~/composables/useAuth'
 
-definePageMeta({ middleware: 'auth' })
 useHead({ title: 'Configurações de jogo · GearHub' })
 
 const { user } = useAuth()

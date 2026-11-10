@@ -10,9 +10,7 @@
     </div>
 
     <div class="glass-card overflow-hidden">
-      <div v-if="images.length" class="grid gap-0.5" :class="images.length > 1 ? 'grid-cols-2' : 'grid-cols-1'">
-        <img v-for="(image, index) in images.slice(0, 4)" :key="image" :src="image" :alt="`Imagem ${index + 1} do post`" class="w-full aspect-video object-cover" />
-      </div>
+      <MediaGallery v-if="images.length" :images="images" alt="Imagem do post" />
       <div class="p-5">
         <p v-if="body.trim()" class="text-sm text-gear-text-secondary leading-relaxed whitespace-pre-line break-words line-clamp-[10]">{{ body }}</p>
         <p v-else class="text-sm text-gear-muted italic">O texto do post aparece aqui.</p>

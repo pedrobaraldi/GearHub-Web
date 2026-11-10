@@ -154,7 +154,7 @@
       </div>
 
       <div data-step>
-        <FormSection title="Imagens" icon="image-plus" subtitle="Até 4 imagens, JPG, PNG ou WebP, com 2 MB cada.">
+        <FormSection title="Imagens" icon="image-plus" subtitle="Até 10 imagens, JPG, PNG ou WebP, com 2 MB cada. No feed elas viram um carrossel.">
           <ImageListField v-model="images" />
           <p v-if="fields.images" class="text-xs text-gear-red mt-1.5">{{ fields.images }}</p>
         </FormSection>
@@ -178,7 +178,7 @@
         :average="average"
         :pros="filled(form.pros)"
         :cons="filled(form.cons)"
-        :image="images[0]"
+        :images="images"
       />
     </template>
   </FormShell>

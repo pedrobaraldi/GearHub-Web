@@ -213,7 +213,6 @@ const FIELD_STEP: Record<string, number> = { username: 0, displayName: 0, bio: 0
 
 type ImageKind = 'avatar' | 'banner'
 
-definePageMeta({ middleware: 'auth' })
 useHead({ title: 'Configurações · GearHub' })
 
 const { user, updateProfile, uploadAvatar, uploadBanner, removeAvatar, removeBanner } = useAuth()

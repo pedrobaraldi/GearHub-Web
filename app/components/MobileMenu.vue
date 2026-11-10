@@ -63,6 +63,7 @@ const links = computed(() => [
         { label: 'Meu setup', to: '/setup', icon: 'monitor' },
         { label: 'Config. de jogo', to: '/games', icon: 'settings' },
         { label: 'Configurações', to: '/account', icon: 'settings' },
+        { label: 'Segurança', to: '/seguranca', icon: 'shield' },
       ]
     : []),
 ])

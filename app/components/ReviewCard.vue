@@ -11,7 +11,7 @@
     </UserAvatar>
 
     <div class="glass-card neon-hover group relative overflow-hidden">
-      <MediaGallery v-if="visibleImages.length" :images="visibleImages" :alt="review.product.name" />
+      <MediaGallery v-if="gallery.length" :images="gallery" :alt="review.product.name" />
 
       <div class="p-6 lg:p-8">
         <div class="flex items-start justify-between gap-6">
@@ -93,6 +93,4 @@ const gallery = computed(() => {
   if (props.review.images?.length) return props.review.images
   return props.review.product.image ? [props.review.product.image] : []
 })
-
-const visibleImages = computed(() => (props.full ? gallery.value : gallery.value.slice(0, 1)))
 </script>

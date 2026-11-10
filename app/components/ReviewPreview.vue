@@ -10,7 +10,7 @@
     </div>
 
     <div class="glass-card overflow-hidden">
-      <img v-if="image" :src="image" alt="Imagem da review" class="w-full aspect-video object-cover" />
+      <MediaGallery v-if="images?.length" :images="images" alt="Imagem da review" />
       <div class="p-5">
         <div class="flex items-start justify-between gap-3">
           <div class="min-w-0">
@@ -48,6 +48,6 @@ defineProps<{
   average: string | null
   pros: string[]
   cons: string[]
-  image?: string
+  images?: string[]
 }>()
 </script>
