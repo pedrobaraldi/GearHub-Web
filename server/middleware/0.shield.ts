@@ -104,6 +104,12 @@ export default defineEventHandler((event) => {
 
   event.node.req.headers[INTERNAL_HEADER] = INTERNAL_TOKEN
 
+  // Página e API têm dados de quem está logado: nenhum cache no caminho (Cloudflare, proxy) pode guardar e
+  // entregar para outra pessoa. Arquivos do próprio site (STATIC_PATHS) seguem com o cache normal
+  if (!STATIC_PATHS.test(path)) {
+    setResponseHeader(event, 'Cache-Control', 'private, no-store')
+  }
+
   // Só a tela de entrada pode ir para buscadores; páginas internas e a API, não
   if (!INDEXABLE.test(path) && path !== '/robots.txt') {
     setResponseHeader(event, 'X-Robots-Tag', 'noindex, nofollow')
