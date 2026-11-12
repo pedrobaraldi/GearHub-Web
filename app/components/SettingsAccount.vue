@@ -8,6 +8,9 @@
           <h3 class="text-sm font-semibold">E-mail</h3>
           <p class="text-sm text-gear-text-secondary mt-1 break-all">{{ account.email }}</p>
           <p class="text-[11px] mt-1" :class="account.emailVerified ? 'text-gear-green' : 'text-gear-muted'">{{ account.emailVerified ? 'Confirmado' : 'Não confirmado' }}</p>
+          <p v-if="account.pendingEmail" class="text-xs text-gear-muted mt-2 break-all">
+            Aguardando confirmação: <span class="text-gear-text-secondary">{{ account.pendingEmail }}</span>. Abra o link que enviamos para esse endereço.
+          </p>
         </div>
         <button v-if="open !== 'email'" type="button" class="btn-outline !px-3 !py-1.5 text-xs" @click="toggle('email')">Trocar e-mail</button>
       </div>
@@ -19,7 +22,7 @@
           <FormField v-if="account.twoFactorEnabled" id="email-code" v-model="emailForm.code" label="Código do app" autocomplete="one-time-code" :error="fields.code" />
         </template>
         <div class="flex gap-2">
-          <button v-if="account.hasPassword" type="submit" class="btn-publish !py-0 min-h-[2.5rem]" :disabled="busy">{{ busy ? 'Salvando...' : 'Salvar e-mail' }}</button>
+          <button v-if="account.hasPassword" type="submit" class="btn-publish !py-0 min-h-[2.5rem]" :disabled="busy">{{ busy ? 'Enviando...' : 'Enviar link de confirmação' }}</button>
           <button type="button" class="btn-outline" @click="toggle(null)">Cancelar</button>
         </div>
       </form>
@@ -56,10 +59,22 @@
       <ul class="mt-4 divide-y divide-gear-border">
         <li v-for="provider in PROVIDERS" :key="provider.key" class="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
           <span class="text-sm font-medium">{{ provider.label }}</span>
-          <button v-if="account.providers.includes(provider.key)" type="button" class="btn-outline !px-3 !py-1.5 text-xs" :disabled="busy" @click="disconnect(provider.key)">Desconectar</button>
-          <span v-else class="text-xs text-gear-muted">Não ligada</span>
+          <button v-if="account.providers.includes(provider.key) && disconnecting !== provider.key" type="button" class="btn-outline !px-3 !py-1.5 text-xs" :disabled="busy" @click="askDisconnect(provider.key)">Desconectar</button>
+          <span v-else-if="!account.providers.includes(provider.key)" class="text-xs text-gear-muted">Não ligada</span>
         </li>
       </ul>
+      <!-- Confirmação: sem ela, uma sessão roubada tiraria da dona o jeito de entrar -->
+      <form v-if="disconnecting" class="mt-4 space-y-3" novalidate @submit.prevent="disconnect">
+        <p class="text-xs text-gear-muted">
+          {{ account.hasPassword ? 'Confirme com a sua senha para desconectar.' : 'Confirme para desconectar. Se entrou faz tempo, o site vai pedir que você entre de novo.' }}
+        </p>
+        <FormField v-if="account.hasPassword" id="disconnect-password" v-model="confirmForm.password" label="Sua senha" type="password" autocomplete="current-password" :error="fields.password" />
+        <FormField v-if="account.twoFactorEnabled" id="disconnect-code" v-model="confirmForm.code" label="Código do app" autocomplete="one-time-code" :error="fields.code" />
+        <div class="flex gap-2">
+          <button type="submit" class="btn-publish !py-0 min-h-[2.5rem]" :disabled="busy">{{ busy ? 'Desconectando...' : 'Desconectar' }}</button>
+          <button type="button" class="btn-outline" @click="disconnecting = null">Cancelar</button>
+        </div>
+      </form>
     </div>
   </div>
 </template>
@@ -67,7 +82,14 @@
 <script setup lang="ts">
 import { toApiFailure } from '~/composables/useAuth'
 
-interface AccountOverview { email: string, emailVerified: boolean, hasPassword: boolean, providers: string[], twoFactorEnabled: boolean }
+interface AccountOverview {
+  email: string
+  emailVerified: boolean
+  hasPassword: boolean
+  providers: string[]
+  twoFactorEnabled: boolean
+  pendingEmail: string | null
+}
 
 const PROVIDERS = [
   { key: 'google', label: 'Google' },
@@ -83,6 +105,8 @@ const busy = ref(false)
 const fields = ref<Record<string, string>>({})
 const emailForm = reactive({ email: '', password: '', code: '' })
 const passwordForm = reactive({ currentPassword: '', password: '', passwordConfirmation: '', code: '' })
+const confirmForm = reactive({ password: '', code: '' })
+const disconnecting = ref<string | null>(null)
 
 function toggle(section: 'email' | 'password' | null) {
   fields.value = {}
@@ -111,8 +135,9 @@ function changeEmail() {
   return run(async () => {
     await $fetch('/api/v1/me/account/email', { method: 'POST', body: { ...emailForm, code: emailForm.code || null } })
     toggle(null)
-    await Promise.all([refresh(), refreshUser()])
-    toast.success('E-mail trocado.')
+    await refresh()
+    // O e-mail só troca depois do link: até lá, continua o atual
+    toast.success('Enviamos um link para o novo e-mail. A troca vale quando você abrir o link.')
   })
 }
 
@@ -129,9 +154,21 @@ function changePassword() {
   })
 }
 
-function disconnect(provider: string) {
+function askDisconnect(provider: string) {
+  fields.value = {}
+  Object.assign(confirmForm, { password: '', code: '' })
+  disconnecting.value = provider
+}
+
+function disconnect() {
+  const provider = disconnecting.value
+  if (!provider) return
   return run(async () => {
-    await $fetch(`/api/v1/me/account/providers/${provider}`, { method: 'DELETE' })
+    await $fetch(`/api/v1/me/account/providers/${provider}/disconnect`, {
+      method: 'POST',
+      body: { password: confirmForm.password || null, code: confirmForm.code || null },
+    })
+    disconnecting.value = null
     await refresh()
     toast.success('Conta desconectada.')
   })

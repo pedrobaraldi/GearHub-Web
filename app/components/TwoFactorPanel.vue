@@ -54,6 +54,8 @@
       <form novalidate @submit.prevent="enable">
         <p class="form-label">2. Digite o código que aparece no app</p>
         <FormField id="setup-code" v-model="code" label="Código de 6 dígitos" autocomplete="one-time-code" inputmode="numeric" placeholder="000000" :error="fields.code" />
+        <!-- A senha confirma que é a dona da conta, e não só alguém com a sessão aberta -->
+        <FormField v-if="user?.hasPassword" id="setup-password" v-model="password" label="Sua senha" type="password" autocomplete="current-password" class="mt-3" :error="fields.password" />
         <div class="flex flex-wrap gap-2 mt-4">
           <button type="submit" class="btn-publish !py-0 min-h-[2.75rem]" :disabled="busy || !code.trim()">
             <AppIcon name="check" class="w-4 h-4" />
@@ -207,7 +209,7 @@ function showCodes(codes: string[]) {
 
 function enable() {
   return run(async () => {
-    const result = await $fetch<{ recoveryCodes: string[] }>('/api/v1/me/2fa/enable', { method: 'POST', body: { code: code.value } })
+    const result = await $fetch<{ recoveryCodes: string[] }>('/api/v1/me/2fa/enable', { method: 'POST', body: { code: code.value, password: password.value || null } })
     showCodes(result.recoveryCodes)
     await Promise.all([refreshStatus(), refreshUser()])
     toast.success('Verificação ativada. As outras sessões da conta foram encerradas.')
