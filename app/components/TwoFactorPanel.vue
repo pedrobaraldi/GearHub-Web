@@ -25,7 +25,12 @@
       <p class="text-sm text-gear-text-secondary leading-relaxed">
         Você vai precisar de um app autenticador gratuito, como Google Authenticator, Microsoft Authenticator, Authy ou o gerenciador de senhas que já usa.
       </p>
-      <button type="button" class="btn-publish !py-0 min-h-[2.75rem] mt-5" :disabled="busy" @click="startSetup">
+      <!-- Só com e-mail confirmado: senão, quem cadastrasse o e-mail de outra pessoa ativaria um 2FA que só ele tem -->
+      <p v-if="user && !user.emailVerified" class="text-sm text-gear-muted mt-5">
+        Confirme seu e-mail para ativar. Abra o link que enviamos no cadastro ou peça outro em
+        <NuxtLink to="/configuracoes#conta" class="text-gear-primary hover:underline underline-offset-2">Configurações, na seção Conta</NuxtLink>.
+      </p>
+      <button v-else type="button" class="btn-publish !py-0 min-h-[2.75rem] mt-5" :disabled="busy" @click="startSetup">
         <AppIcon name="shield" class="w-4 h-4" />
         {{ busy ? 'Aguarde...' : 'Ativar' }}
       </button>
@@ -54,6 +59,8 @@
       <form novalidate @submit.prevent="enable">
         <p class="form-label">2. Digite o código que aparece no app</p>
         <FormField id="setup-code" v-model="code" label="Código de 6 dígitos" autocomplete="one-time-code" inputmode="numeric" placeholder="000000" :error="fields.code" />
+        <!-- A senha confirma que é a dona da conta, e não só alguém com a sessão aberta -->
+        <FormField v-if="user?.hasPassword" id="setup-password" v-model="password" label="Sua senha" type="password" autocomplete="current-password" class="mt-3" :error="fields.password" />
         <div class="flex flex-wrap gap-2 mt-4">
           <button type="submit" class="btn-publish !py-0 min-h-[2.75rem]" :disabled="busy || !code.trim()">
             <AppIcon name="check" class="w-4 h-4" />
@@ -207,7 +214,7 @@ function showCodes(codes: string[]) {
 
 function enable() {
   return run(async () => {
-    const result = await $fetch<{ recoveryCodes: string[] }>('/api/v1/me/2fa/enable', { method: 'POST', body: { code: code.value } })
+    const result = await $fetch<{ recoveryCodes: string[] }>('/api/v1/me/2fa/enable', { method: 'POST', body: { code: code.value, password: password.value || null } })
     showCodes(result.recoveryCodes)
     await Promise.all([refreshStatus(), refreshUser()])
     toast.success('Verificação ativada. As outras sessões da conta foram encerradas.')

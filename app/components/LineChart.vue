@@ -54,11 +54,13 @@ const PAD = 12
 const svg = ref<SVGSVGElement | null>(null)
 const hover = ref<ChartPoint | null>(null)
 
-// No degrau, o último valor se estende até agora
+// No degrau, o último valor se estende até agora. O "agora" vem do servidor junto com a página: com
+// Date.now() direto, servidor e navegador desenhariam em pontos diferentes (erro de hidratação)
+const now = useState('chart-now', () => Date.now())
 const series = computed(() => {
   if (!props.step || !props.points.length) return props.points
   const last = props.points[props.points.length - 1]!
-  return [...props.points, { x: Math.max(Date.now(), last.x), y: last.y }]
+  return [...props.points, { x: Math.max(now.value, last.x), y: last.y }]
 })
 
 const minX = computed(() => series.value[0]?.x ?? 0)

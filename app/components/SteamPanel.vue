@@ -106,10 +106,13 @@ const currency = computed(() => game.value.currency ?? 'BRL')
 const playerPoints = computed<ChartPoint[]>(() =>
   (history.value?.players ?? []).map(point => ({ x: new Date(point.takenAt).getTime(), y: point.players })))
 
-// Um preço só não vira gráfico: repete o valor atual para desenhar a linha até agora
+// Um preço só não vira gráfico: repete o valor até a última coleta. Data fixa (e não Date.now()), para o
+// servidor e o navegador desenharem igual
 const pricePoints = computed<ChartPoint[]>(() => {
   const points = (history.value?.prices ?? []).map(point => ({ x: new Date(point.takenAt).getTime(), y: point.finalCents }))
-  return points.length === 1 ? [points[0]!, { x: Date.now(), y: points[0]!.y }] : points
+  if (points.length !== 1) return points
+  const until = detail.value?.updatedAt ? new Date(detail.value.updatedAt).getTime() : points[0]!.x + 86_400_000
+  return [points[0]!, { x: Math.max(until, points[0]!.x + 1), y: points[0]!.y }]
 })
 
 const reviewTotal = computed(() => (detail.value?.reviewPositive ?? 0) + (detail.value?.reviewNegative ?? 0))

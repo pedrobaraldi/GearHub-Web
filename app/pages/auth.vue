@@ -224,6 +224,7 @@ async function submit() {
   try {
     if (isRegister.value) {
       await register({ ...form, turnstileToken: turnstileToken.value })
+      toast.success('Conta criada. Enviamos um link para confirmar seu e-mail.')
     }
     else if (await login(form.email, form.password, turnstileToken.value)) {
       showCodeStep()
