@@ -25,7 +25,8 @@ const ATTACK_PATHS = /^\/(wp-admin|wp-login|wp-content|wp-includes|xmlrpc\.php|p
 const STATIC_PATHS = /^\/(_nuxt|__nuxt|_ipx|icons|badges|ranks|logos|game-icons|favicon|manifest\.webmanifest|robots\.txt)/
 
 // Páginas que podem aparecer no Google; todo o resto do site exige conta
-const INDEXABLE = /^\/(auth)?$/
+// Indexáveis: a entrada e a vitrine do marketplace (lojas e produtos ajudam as lojas parceiras a serem achadas)
+const INDEXABLE = /^\/(auth|marketplace|marketplace\/(loja|produto)\/[^/]+)?$/
 
 // Marca das requisições que já passaram pela barreira. As chamadas internas que o servidor faz ao montar a
 // página (SSR) levam os cabeçalhos da original, com esta marca. Gerada ao subir: ninguém de fora adivinha

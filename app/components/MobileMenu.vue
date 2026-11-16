@@ -56,6 +56,7 @@ const links = computed(() => [
   { label: 'Comparar', to: '/compare', icon: 'git-compare' },
   { label: 'Hall', to: '/hall', icon: 'medal' },
   { label: 'Games', to: '/games', icon: 'gamepad' },
+  { label: 'Marketplace', to: '/marketplace', icon: 'store' },
   { label: 'Salvos', to: '/saved', icon: 'bookmark' },
   ...(user.value
     ? [

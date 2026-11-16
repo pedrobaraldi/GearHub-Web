@@ -1,9 +1,14 @@
-# GearHub: só a tela de entrada é pública. Todo o resto exige conta,
-# então não há o que rastrear lá dentro.
+# GearHub: são públicas a tela de entrada e a vitrine do marketplace (lojas e produtos).
+# Todo o resto exige conta, então não há o que rastrear lá dentro.
 
 User-agent: *
 Allow: /$
 Allow: /auth
+Allow: /marketplace$
+Allow: /marketplace/loja/
+Allow: /marketplace/produto/
+Disallow: /marketplace/parceria
+Disallow: /marketplace/minha-loja
 Disallow: /api/
 Disallow: /uploads/
 Disallow: /configuracoes

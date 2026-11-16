@@ -255,6 +255,7 @@ const navLinks = [
   { label: 'Comparar', to: '/compare', icon: 'git-compare' },
   { label: 'Hall', to: '/hall', icon: 'medal' },
   { label: 'Games', to: '/games', icon: 'gamepad' },
+  { label: 'Marketplace', to: '/marketplace', icon: 'store' },
   { label: 'Notificações', to: '/notifications', icon: 'bell' },
   { label: 'Salvos', to: '/saved', icon: 'bookmark' },
 ]
