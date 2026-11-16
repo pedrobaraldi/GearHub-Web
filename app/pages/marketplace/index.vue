@@ -1,6 +1,6 @@
 <template>
   <div>
-    <PageHeader root title="Marketplace" accent="Lojas parceiras." subtitle="Produtos de lojas parceiras do GearHub. A compra acontece no site da loja.">
+    <PageHeader root title="Marketplace" subtitle="Produtos de lojas parceiras do GearHub. A compra acontece no site da loja.">
       <NuxtLink v-if="partnerLink" :to="partnerLink.to" class="btn-publish !py-0 min-h-[2.75rem] shrink-0">
         <AppIcon name="store" class="w-4 h-4" />
         <span class="hidden sm:inline">{{ partnerLink.label }}</span>
