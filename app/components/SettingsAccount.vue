@@ -8,6 +8,10 @@
           <h3 class="text-sm font-semibold">E-mail</h3>
           <p class="text-sm text-gear-text-secondary mt-1 break-all">{{ account.email }}</p>
           <p class="text-[11px] mt-1" :class="account.emailVerified ? 'text-gear-green' : 'text-gear-muted'">{{ account.emailVerified ? 'Confirmado' : 'Não confirmado' }}</p>
+          <p v-if="!account.emailVerified" class="text-xs text-gear-muted mt-2">
+            Confirme o e-mail para poder ativar a verificação em duas etapas.
+            <button type="button" class="text-gear-primary hover:underline underline-offset-2" :disabled="busy" @click="resendVerification">Enviar link de confirmação</button>
+          </p>
           <p v-if="account.pendingEmail" class="text-xs text-gear-muted mt-2 break-all">
             Aguardando confirmação: <span class="text-gear-text-secondary">{{ account.pendingEmail }}</span>. Abra o link que enviamos para esse endereço.
           </p>
@@ -151,6 +155,13 @@ function changePassword() {
     toggle(null)
     await Promise.all([refresh(), refreshUser()])
     toast.success(created ? 'Senha criada.' : 'Senha trocada. A conta foi encerrada nos outros aparelhos.')
+  })
+}
+
+function resendVerification() {
+  return run(async () => {
+    await $fetch('/api/v1/me/account/verify-email', { method: 'POST' })
+    toast.success('Enviamos um link de confirmação para o seu e-mail.')
   })
 }
 

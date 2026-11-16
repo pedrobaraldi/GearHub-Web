@@ -2,7 +2,7 @@
   <AuthPanel :title="title" :subtitle="subtitle">
     <div class="space-y-3">
       <button v-if="state === 'ready'" type="button" class="btn-primary w-full !py-2.5" :disabled="sending" :class="{ 'opacity-60': sending }" @click="confirm">
-        {{ sending ? 'Confirmando...' : 'Confirmar novo e-mail' }}
+        {{ sending ? 'Confirmando...' : 'Confirmar e-mail' }}
       </button>
       <NuxtLink v-else :to="loggedIn ? '/configuracoes' : '/auth'" class="btn-primary w-full !py-2.5 text-center block">
         {{ loggedIn ? 'Ir para as Configurações' : 'Entrar' }}
@@ -28,11 +28,11 @@ const sending = ref(false)
 const error = ref('')
 const loggedIn = computed(() => !!user.value)
 
-const title = computed(() => ({ ready: 'Confirme seu novo e-mail', done: 'E-mail confirmado', failed: 'Não deu certo' })[state.value])
+const title = computed(() => ({ ready: 'Confirme seu e-mail', done: 'E-mail confirmado', failed: 'Não deu certo' })[state.value])
 const subtitle = computed(() => ({
-  ready: 'Depois de confirmar, você passa a entrar com este endereço.',
-  done: 'Pronto: a conta já usa o novo endereço.',
-  failed: error.value || 'Este link é inválido ou expirou. Peça a troca de novo nas Configurações.',
+  ready: 'Um clique para confirmar que este endereço é seu.',
+  done: 'Pronto: o e-mail da sua conta está confirmado.',
+  failed: error.value || 'Este link é inválido ou expirou. Peça outro nas Configurações.',
 })[state.value])
 
 async function confirm() {

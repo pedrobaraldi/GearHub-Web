@@ -25,7 +25,12 @@
       <p class="text-sm text-gear-text-secondary leading-relaxed">
         Você vai precisar de um app autenticador gratuito, como Google Authenticator, Microsoft Authenticator, Authy ou o gerenciador de senhas que já usa.
       </p>
-      <button type="button" class="btn-publish !py-0 min-h-[2.75rem] mt-5" :disabled="busy" @click="startSetup">
+      <!-- Só com e-mail confirmado: senão, quem cadastrasse o e-mail de outra pessoa ativaria um 2FA que só ele tem -->
+      <p v-if="user && !user.emailVerified" class="text-sm text-gear-muted mt-5">
+        Confirme seu e-mail para ativar. Abra o link que enviamos no cadastro ou peça outro em
+        <NuxtLink to="/configuracoes#conta" class="text-gear-primary hover:underline underline-offset-2">Configurações, na seção Conta</NuxtLink>.
+      </p>
+      <button v-else type="button" class="btn-publish !py-0 min-h-[2.75rem] mt-5" :disabled="busy" @click="startSetup">
         <AppIcon name="shield" class="w-4 h-4" />
         {{ busy ? 'Aguarde...' : 'Ativar' }}
       </button>
