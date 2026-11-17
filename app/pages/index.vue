@@ -28,9 +28,11 @@
           </div>
 
           <template v-else-if="visibleItems.length">
-            <template v-for="item in visibleItems" :key="item.id">
+            <template v-for="(item, index) in visibleItems" :key="item.id">
               <ReviewCard v-if="item.kind === 'review'" :review="toReview(item)" />
               <PostCard v-else :item="item" />
+              <!-- Card patrocinado depois da quarta publicação (some se não houver campanha) -->
+              <AdSlot v-if="index === 3" slot-key="feed_inline" />
             </template>
 
             <div v-if="cursor" class="text-center">

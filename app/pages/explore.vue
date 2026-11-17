@@ -4,6 +4,7 @@
 
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-10 py-6 lg:py-8 space-y-4">
       <SearchBar v-model="search" placeholder="Buscar por nome, marca, categoria ou especificação..." />
+      <AdSlot slot-key="explore_card" />
 
       <CategoryFilter v-model="category" />
 

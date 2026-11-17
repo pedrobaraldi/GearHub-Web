@@ -73,6 +73,7 @@
         </div>
       </section>
 
+      <AdSlot slot-key="sidebar_card" compact />
     </div>
   </aside>
 </template>
